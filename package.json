@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.ts",
-    "test": "jest --detectOpenHandles --forceExit --runInBand",
-    "coverage": "jest --coverage --detectOpenHandles --forceExit --runInBand",
-    "seed": "ts-node src/seeders/index.ts",
-    "validate:openapi": "swagger-cli validate openapi.yaml"
-  },
+  "build": "tsc",
+  "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+  "start": "node dist/server.js",
+  "test": "jest --detectOpenHandles --forceExit --runInBand",
+  "coverage": "jest --coverage --detectOpenHandles --forceExit --runInBand",
+  "seed": "ts-node src/seeders/index.ts",
+  "validate:openapi": "swagger-cli validate openapi.yaml"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
