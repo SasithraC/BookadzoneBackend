@@ -3,7 +3,7 @@ info:
   description: API for managing FAQs and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
-  - url: http://localhost:5000/api/v1
+  - url: https://bookadzonebackend.onrender.com/api/v1
     description: Local development server
 openapi: 3.0.3
 paths:
