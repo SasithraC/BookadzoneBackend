@@ -5,7 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Request, Response, NextFunction } from "express";
-import registerRoutes from "./src/routes";
+import registerRoutes from "./routes";
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));

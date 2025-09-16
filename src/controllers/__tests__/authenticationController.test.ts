@@ -1,5 +1,7 @@
 import request from 'supertest'
-import app from '../../../app'
+// If you get a module not found error, ensure you run tests from the project root (BookadzoneBackend)
+// and that app.ts is at the root. Adjust the path if your structure is different.
+import app from '../../app';
 
 describe('AuthenticationController', () => {
   let token = ''
