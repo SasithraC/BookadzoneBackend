@@ -13,6 +13,7 @@ router.put("/updateFaq/:id", (req, res, next) => faqController_1.default.updateF
 router.delete("/softDeleteFaq/:id", (req, res, next) => faqController_1.default.softDeleteFaq(req, res, next));
 router.patch('/togglestatus/:id', (req, res, next) => faqController_1.default.toggleFaqStatus(req, res, next));
 router.get('/trash/', (req, res, next) => faqController_1.default.getAllTrashFaqs(req, res, next));
+router.patch('/trash/', (req, res, next) => faqController_1.default.getAllTrashFaqs(req, res, next));
 router.patch('/restore/:id', (req, res, next) => faqController_1.default.restoreFaq(req, res, next));
 router.delete('/permanentDelete/:id', (req, res, next) => faqController_1.default.deleteFaqPermanently(req, res, next));
 exports.default = router;

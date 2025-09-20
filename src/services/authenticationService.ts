@@ -1,6 +1,6 @@
 // services/authenticationService.ts
 import authenticationRepository, { IAuthLoginInput } from "../repositories/authenticationRepository";
-import ValidationHelper, { ValidationError } from "../utils/validationHelper";
+import ValidationHelper from "../utils/validationHelper";
 
 
 class AuthenticationService {

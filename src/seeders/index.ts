@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { ENV } from "../config/env";
 import seedFaqs from "./faqSeeder";
+import seedConfigs from "./configSeeder";
 
 const seedAll = async (): Promise<void> => {
   try {
@@ -11,7 +12,7 @@ const seedAll = async (): Promise<void> => {
 
     console.log("Connected to MongoDB");
     await seedFaqs();
-
+    await seedConfigs();
     console.log("All seeders executed successfully");
     await mongoose.connection.close();
   } catch (error) {
