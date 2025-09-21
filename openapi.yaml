@@ -1,11 +1,12 @@
 
 info:
   title: Bookadzone Backend API
-  description: API for managing FAQs, FooterInfo, and user authentication for the Bookadzone platform.
+  description: API for managing FAQs, Configs, and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
   - url: https://bookadzonebackend.onrender.com/api/v1
-    description: Production server
+  # - url: http://localhost:5000/api/v1
+    description: Local development server
 openapi: 3.0.3
 paths:
   # Authentication Endpoints
@@ -108,56 +109,8 @@ paths:
                       _id:
                         type: string
                         example: 68ad430b8089095867639823
-                      email:
-                        type: string
-                        example: bookadzone@gmail.com
-                      role:
-                        type: string
-                        example: super-admin
-                      status:
-                        type: string
-                        example: active
-                  expiresIn:
-                    type: string
-                    example: 1d
         '400':
-          description: Invalid or missing token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # FAQ Endpoints
-  /faqs:
-    post:
-      summary: Create a new FAQ
-      tags:
-        - FAQs
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FaqInput'
-      responses:
-        '201':
-          description: FAQ created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: FAQ created
-                  data:
-                    $ref: '#/components/schemas/Faq'
-        '400':
-          description: Validation error
+          description: Invalid token
           content:
             application/json:
               schema:
@@ -168,23 +121,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  # FAQ Endpoints (truncated for brevity, keep existing)
+  /faqs:
     get:
       summary: Get all FAQs
       tags:
         - FAQs
-      security:
-        - bearerAuth: []
       parameters:
         - in: query
           name: page
           schema:
             type: integer
-            default: 1
+            example: 1
         - in: query
           name: limit
           schema:
             type: integer
-            default: 10
+            example: 10
         - in: query
           name: status
           schema:
@@ -192,7 +146,7 @@ paths:
             enum: [active, inactive]
       responses:
         '200':
-          description: List of FAQs
+          description: Successful response
           content:
             application/json:
               schema:
@@ -210,24 +164,14 @@ paths:
                     properties:
                       total:
                         type: integer
-                        example: 1
                       active:
                         type: integer
-                        example: 1
                       inactive:
                         type: integer
-                        example: 0
                       totalPages:
                         type: integer
-                        example: 1
-                      page:
-                        type: integer
-                        example: 1
-                      limit:
-                        type: integer
-                        example: 10
-        '401':
-          description: Unauthorized
+        '400':
+          description: Validation error
           content:
             application/json:
               schema:
@@ -587,6 +531,12 @@ paths:
       summary: Create a new FooterInfo
       tags:
         - FooterInfo
+  # Config Endpoints
+  /configs:
+    post:
+      summary: Create a new config
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       requestBody:
@@ -598,6 +548,12 @@ paths:
       responses:
         '201':
           description: FooterInfo created successfully
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInput'
+      responses:
+        '201':
+          description: Config created successfully
           content:
             application/json:
               schema:
@@ -611,6 +567,75 @@ paths:
                     example: Footer Info created
                   data:
                     $ref: '#/components/schemas/FooterInfo'
+                    example: Config created
+                  data:
+                    $ref: '#/components/schemas/Config'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Config with this slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Get all configs
+      tags:
+        - Configs
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 10
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Config'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      active:
+                        type: integer
+                      inactive:
+                        type: integer
+                      totalPages:
+                        type: integer
         '400':
           description: Validation error
           content:
@@ -701,6 +726,11 @@ paths:
       summary: Get a FooterInfo by ID
       tags:
         - FooterInfo
+  /configs/getConfigById/{id}:
+    get:
+      summary: Get config by ID
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -713,6 +743,10 @@ paths:
       responses:
         '200':
           description: FooterInfo found
+          description: Config ID
+      responses:
+        '200':
+          description: Config found
           content:
             application/json:
               schema:
@@ -725,12 +759,16 @@ paths:
                     $ref: '#/components/schemas/FooterInfo'
         '400':
           description: FooterInfo id is required
+                    $ref: '#/components/schemas/Config'
+        '400':
+          description: Config id is required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
           description: FooterInfo not found
+          description: Config not found
           content:
             application/json:
               schema:
@@ -746,6 +784,11 @@ paths:
       summary: Update a FooterInfo by ID
       tags:
         - FooterInfo
+  /configs/updateConfig/{id}:
+    put:
+      summary: Update a config
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -763,6 +806,16 @@ paths:
       responses:
         '200':
           description: FooterInfo updated
+          description: Config ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInput'
+      responses:
+        '200':
+          description: Config updated
           content:
             application/json:
               schema:
@@ -778,12 +831,24 @@ paths:
                     $ref: '#/components/schemas/FooterInfo'
         '400':
           description: FooterInfo id is required
+                    example: Config updated
+                  data:
+                    $ref: '#/components/schemas/Config'
+        '400':
+          description: Config id is required or validation error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
           description: FooterInfo not found
+          description: Config not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Config with this slug already exists
           content:
             application/json:
               schema:
@@ -799,6 +864,11 @@ paths:
       summary: Soft delete a FooterInfo by ID
       tags:
         - FooterInfo
+  /configs/softDeleteConfig/{id}:
+    delete:
+      summary: Soft delete a config
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -811,6 +881,10 @@ paths:
       responses:
         '200':
           description: FooterInfo deleted successfully
+          description: Config ID
+      responses:
+        '200':
+          description: Config soft deleted
           content:
             application/json:
               schema:
@@ -826,12 +900,16 @@ paths:
                     $ref: '#/components/schemas/FooterInfo'
         '400':
           description: FooterInfo id is required
+                    example: Config soft deleted
+        '400':
+          description: Config id is required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
           description: FooterInfo not found
+          description: Config not found
           content:
             application/json:
               schema:
@@ -847,6 +925,11 @@ paths:
       summary: Toggle the status of a FooterInfo (active/inactive)
       tags:
         - FooterInfo
+  /configs/togglestatus/{id}:
+    patch:
+      summary: Toggle config status
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -859,6 +942,10 @@ paths:
       responses:
         '200':
           description: FooterInfo status toggled
+          description: Config ID
+      responses:
+        '200':
+          description: Config status toggled
           content:
             application/json:
               schema:
@@ -874,12 +961,18 @@ paths:
                     $ref: '#/components/schemas/FooterInfo'
         '400':
           description: FooterInfo id is required
+                    example: Config status toggled
+                  data:
+                    $ref: '#/components/schemas/Config'
+        '400':
+          description: Config id is required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
           description: FooterInfo not found
+          description: Config not found
           content:
             application/json:
               schema:
@@ -895,6 +988,11 @@ paths:
       summary: Get all trashed FooterInfo records
       tags:
         - FooterInfo
+  /configs/trash:
+    get:
+      summary: Get all trashed configs
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -903,11 +1001,13 @@ paths:
           schema:
             type: integer
             default: 1
+            example: 1
         - in: query
           name: limit
           schema:
             type: integer
             default: 10
+            example: 10
         - in: query
           name: status
           schema:
@@ -916,6 +1016,7 @@ paths:
       responses:
         '200':
           description: List of trashed FooterInfo records
+          description: Successful response
           content:
             application/json:
               schema:
@@ -928,6 +1029,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FooterInfo'
+                      $ref: '#/components/schemas/Config'
                   meta:
                     type: object
                     properties:
@@ -949,6 +1051,18 @@ paths:
                       limit:
                         type: integer
                         example: 10
+                      active:
+                        type: integer
+                      inactive:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
           content:
@@ -960,6 +1074,11 @@ paths:
       summary: Restore a soft-deleted FooterInfo
       tags:
         - FooterInfo
+  /configs/restore/{id}:
+    patch:
+      summary: Restore a config from trash
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -972,6 +1091,10 @@ paths:
       responses:
         '200':
           description: FooterInfo restored successfully
+          description: Config ID
+      responses:
+        '200':
+          description: Config restored
           content:
             application/json:
               schema:
@@ -987,12 +1110,18 @@ paths:
                     $ref: '#/components/schemas/FooterInfo'
         '400':
           description: FooterInfo id is required
+                    example: Config restored successfully
+                  data:
+                    $ref: '#/components/schemas/Config'
+        '400':
+          description: Config id is required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
           description: FooterInfo not found
+          description: Config not found
           content:
             application/json:
               schema:
@@ -1008,6 +1137,11 @@ paths:
       summary: Permanently delete a FooterInfo
       tags:
         - FooterInfo
+  /configs/permanentDelete/{id}:
+    delete:
+      summary: Permanently delete a config
+      tags:
+        - Configs
       security:
         - bearerAuth: []
       parameters:
@@ -1020,6 +1154,10 @@ paths:
       responses:
         '200':
           description: FooterInfo permanently deleted
+          description: Config ID
+      responses:
+        '200':
+          description: Config permanently deleted
           content:
             application/json:
               schema:
@@ -1033,12 +1171,16 @@ paths:
                     example: Footer Info permanently deleted
         '400':
           description: FooterInfo id is required
+                    example: Config permanently deleted
+        '400':
+          description: Config id is required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
           description: FooterInfo not found
+          description: Config not found
           content:
             application/json:
               schema:
@@ -1049,8 +1191,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  # ... (other existing endpoints like /faqs/permanentDelete/{id} truncated)
 components:
   schemas:
+    # Existing Faq schemas
     Faq:
       type: object
       properties:
@@ -1105,6 +1250,9 @@ components:
         - question
         - answer
     FooterInfo:
+
+    # Config schemas
+    Config:
       type: object
       properties:
         _id:
@@ -1128,6 +1276,23 @@ components:
         appstore:
           type: string
           example: https://appstore.com/test
+        name:
+          type: string
+          example: Site Settings
+        slug:
+          type: string
+          example: site-settings
+        configFields:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: site_title
+              value:
+                type: string
+                example: Bookadzone
         status:
           type: string
           enum:
@@ -1172,6 +1337,28 @@ components:
         appstore:
           type: string
           example: https://appstore.com/test
+        - name
+        - slug
+    ConfigInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Site Settings
+        slug:
+          type: string
+          example: site-settings
+        configFields:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: site_title
+              value:
+                type: string
+                example: Bookadzone
         status:
           type: string
           enum:
@@ -1187,6 +1374,8 @@ components:
       required:
         - logo
         - description
+        - name
+        - slug
     Error:
       type: object
       properties:
