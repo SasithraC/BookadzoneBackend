@@ -11,6 +11,12 @@ class ValidationHelper {
         }
         return null;
     }
+    static isNumber(value, field) {
+        if (typeof value !== "number" || isNaN(value)) {
+            return { field, message: `${field} must be a numeric value` };
+        }
+        return null;
+    }
     // Check if a value is a non-empty string
     static isNonEmptyString(value, field) {
         if (typeof value !== "string" || value.trim() === "") {

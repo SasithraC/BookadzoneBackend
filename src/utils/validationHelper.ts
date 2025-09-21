@@ -14,6 +14,12 @@ export class ValidationHelper {
     }
     return null;
   }
+  static isNumber(value: any, field: string): ValidationError | null {
+      if (typeof value !== "number" || isNaN(value)) {
+        return { field, message: `${field} must be a numeric value` };
+      }
+      return null;
+    }
 
   // Check if a value is a non-empty string
   static isNonEmptyString(value: any, field: string): ValidationError | null {
