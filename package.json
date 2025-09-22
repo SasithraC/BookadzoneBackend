@@ -2,10 +2,10 @@
   "name": "avenstek",
   "version": "1.0.0",
   "main": "dist/server.js",
-  "scripts": { 
+  "scripts": {
     "build": "tsc",
-  "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
-  "start": "node dist/src/server.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+    "start": "node dist/src/server.js",
     "test": "jest --detectOpenHandles --forceExit --runInBand",
     "coverage": "jest --coverage --detectOpenHandles --forceExit --runInBand",
     "seed": "ts-node src/seeders/index.ts",
@@ -25,6 +25,8 @@
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.1",
+    "swagger": "^0.7.5",
+    "swagger-cli": "^4.0.4",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
