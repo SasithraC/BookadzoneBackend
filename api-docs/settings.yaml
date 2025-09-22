@@ -5,6 +5,8 @@ paths:
       summary: Get all settings
       tags:
         - Settings
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Settings retrieved successfully
@@ -22,6 +24,8 @@ paths:
       summary: Update all settings (with file upload)
       tags:
         - Settings
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:

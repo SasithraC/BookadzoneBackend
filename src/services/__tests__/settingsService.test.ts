@@ -1,8 +1,8 @@
-import settingsService from '../services/settingsService';
-import settingsRepository from '../repositories/settingsRepository';
-import { ISettings } from '../models/settingsModel';
+import settingsService from '../settingsService';
+import settingsRepository from '../../repositories/settingsRepository';
+import { ISettings } from '../../models/settingsModel';
 
-jest.mock('../repositories/settingsRepository');
+jest.mock('../../repositories/settingsRepository');
 
 const mockSettings = {
   _id: 'mockid',
