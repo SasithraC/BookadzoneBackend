@@ -45,22 +45,17 @@ const yaml = __importStar(require("js-yaml"));
 const routes_1 = __importDefault(require("./routes"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
-// app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-// ...existing code...
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use((0, helmet_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Serve Swagger UI
 const swaggerDocument = yaml.load(fs.readFileSync("./openapi.yaml", "utf8"));
 app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocument));
-// Register routes with prefixes
 (0, routes_1.default)(app);
 app.use('/uploads', (req, res, next) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     next();
 }, express_1.default.static(path_1.default.join(__dirname, '..', 'uploads')));
-// Centralized error handler
 app.use((err, req, res, next) => {
     if (process.env.NODE_ENV !== 'test') {
         console.error(err);

@@ -1,8 +1,8 @@
-import footerInfoRepository from "../repositories/footerInfo";
-import { IFooterInfo } from "../models/footerinfo";
+import footerInfoRepository from "../repositories/footerInfoRepository";
+import { IFooterInfo } from "../models/footerinfoModel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
-import { FooterInfoModel } from "../models/footerinfo";
+import { FooterInfoModel } from "../models/footerinfoModel";
 import { CommonService } from "./common.service";
 
 class FooterInfoService {

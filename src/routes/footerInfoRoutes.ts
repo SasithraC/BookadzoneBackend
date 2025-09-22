@@ -10,7 +10,7 @@ router.get("/getfooterinfoById/:id", FooterInfoController.getFooterInfoById);
 router.put("/updatefooterinfo/:id", upload.single('logo'), FooterInfoController.updateFooterInfo);
 router.delete("/softDeletefooterinfo/:id", FooterInfoController.softDeleteFooterInfo);
 router.patch('/togglestatus/:id', FooterInfoController.toggleFooterInfoStatus);
-router.patch('/trash/', FooterInfoController.getAllTrashFooterInfos);
+router.get('/trash/', FooterInfoController.getAllTrashFooterInfos);
 router.patch('/restore/:id', FooterInfoController.restoreFooterInfo);
 router.delete('/permanentDelete/:id', FooterInfoController.deleteFooterInfoPermanently);
 

@@ -9,11 +9,7 @@ import registerRoutes from "./routes";
 import path from "path";
 
 const app = express();
-<<<<<<< HEAD
 
-=======
-// ...existing code...
->>>>>>> ffd1cfd7af8ba230ff5317e8c9ab3ab037857b06
 app.use(cors());
 app.use(express.json());
 app.use(helmet());

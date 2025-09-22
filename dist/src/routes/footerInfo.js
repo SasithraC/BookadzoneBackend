@@ -13,7 +13,7 @@ router.get("/getfooterinfoById/:id", footerInfoController_1.default.getFooterInf
 router.put("/updatefooterinfo/:id", fileUpload_1.default.single('logo'), footerInfoController_1.default.updateFooterInfo);
 router.delete("/softDeletefooterinfo/:id", footerInfoController_1.default.softDeleteFooterInfo);
 router.patch('/togglestatus/:id', footerInfoController_1.default.toggleFooterInfoStatus);
-router.patch('/trash/', footerInfoController_1.default.getAllTrashFooterInfos);
+router.get('/trash/', footerInfoController_1.default.getAllTrashFooterInfos);
 router.patch('/restore/:id', footerInfoController_1.default.restoreFooterInfo);
 router.delete('/permanentDelete/:id', footerInfoController_1.default.deleteFooterInfoPermanently);
 exports.default = router;

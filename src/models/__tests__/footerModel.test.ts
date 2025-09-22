@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { FooterInfoModel } from '../footerinfo'
+import { FooterInfoModel } from '../footerinfoModel'
 import { ENV } from '../../config/env'
 
 beforeAll(async () => {

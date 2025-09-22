@@ -3,7 +3,7 @@
 import { Express } from "express";
 import authenticationRoutes from "./authenticationRoutes";
 import faqRoutes from "./faqRoutes";
-import footerInfoRoutes from "./footerInfo";
+import footerInfoRoutes from "./footerInfoRoutes";
 import configRoutes from "./configRoutes";
 import { authenticate } from "../middleware/authentication";
 

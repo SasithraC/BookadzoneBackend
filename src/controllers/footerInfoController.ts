@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import footerInfoService from "../services/footerInfo";
+import footerInfoService from "../services/footerInfoService";
 import { HTTP_RESPONSE } from "../utils/httpResponse";
 
 class FooterInfoController {

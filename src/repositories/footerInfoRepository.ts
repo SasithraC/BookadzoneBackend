@@ -1,4 +1,4 @@
-import { FooterInfoModel, IFooterInfo } from "../models/footerinfo";
+import { FooterInfoModel, IFooterInfo } from "../models/footerinfoModel";
 import { Types } from "mongoose";
 import { CommonRepository } from "./common.repository";
 

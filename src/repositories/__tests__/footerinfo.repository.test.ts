@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import footerInfoRepository from "../footerInfo";
+import footerInfoRepository from "../footerInfoRepository";
 import { ENV } from "../../config/env";
-import { IFooterInfo } from "../../models/footerinfo";
+import { IFooterInfo } from "../../models/footerinfoModel";
 
 beforeAll(async () => {
   await mongoose.connect(ENV.MONGO_URI);

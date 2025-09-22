@@ -13,7 +13,6 @@ class ValidationHelper {
         }
         return null;
     }
-    // Check if a value is a non-empty string
     static isNonEmptyString(value, field) {
         if (typeof value !== "string" || value.trim() === "") {
             return { field, message: `${field} must be a non-empty string` };

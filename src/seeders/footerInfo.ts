@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { FooterInfoModel } from "../models/footerinfo";
+import { FooterInfoModel } from "../models/footerinfoModel";
 
 interface IFooterInfo {
   title: string;
