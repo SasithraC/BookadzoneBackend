@@ -197,6 +197,11 @@
         "tags": [
           "FAQs"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "query",
@@ -282,6 +287,62 @@
                       "example": "Invalid input"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new FAQ",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaqInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "FAQ created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Faq"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
                 }
               }
             }
