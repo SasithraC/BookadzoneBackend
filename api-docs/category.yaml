@@ -1,0 +1,232 @@
+# Category Management Endpoints
+paths:
+  /category:
+    post:
+      summary: Create a new category
+      tags:
+        - Category
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: digitalscreen
+                slug:
+                  type: string
+                  example: digitalscreen
+                description:
+                  type: string
+                  example: The amount of the element is the form
+                photo:
+                  type: string
+                  format: binary
+                  description: Upload category image
+                checkbox:
+                  type: boolean
+                  example: true
+              required:
+                - name
+                - description
+                - photo
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+    get:
+      summary: Get all categories
+      tags:
+        - Category
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /category/getcategoryById/{id}:
+    get:
+      summary: Get category by ID
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            example: 68ce612a16a4dcd4ebb7a0ca
+      responses:
+        '200':
+          description: Category found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+  /category/updatecategory/{id}:
+    put:
+      summary: Update category by ID
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            example: 68ce612a16a4dcd4ebb7a0ca
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                description:
+                  type: string
+                photo:
+                  type: string
+                  format: binary
+                checkbox:
+                  type: boolean
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+  /category/togglestatus/{id}:
+    patch:
+      summary: Toggle category status (active/inactive)
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+  /category/softDeletecategory/{id}:
+    delete:
+      summary: Soft delete a category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category soft deleted
+
+  /category/trash:
+    patch:
+      summary: Get all trashed categories
+      tags:
+        - Category
+      responses:
+        '200':
+          description: List of trashed categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /category/restore/{id}:
+    patch:
+      summary: Restore a soft-deleted category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category restored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+  /category/permanentDelete/{id}:
+    delete:
+      summary: Permanently delete a category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category permanently deleted
+
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 68ce612a16a4dcd4ebb7a0ca
+        name:
+          type: string
+          example: digitalscreen
+        slug:
+          type: string
+          example: digitalscreen
+        description:
+          type: string
+          example: the amount oif the element is tha form ha
+        photo:
+          type: string
+          example: uploads/634883ce21e5949b7c2b7bcf3f22665e
+        status:
+          type: string
+          enum: [active, inactive]
+          example: active
+        checkbox:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-09-20T08:09:14.217Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2025-09-22T07:32:27.140Z

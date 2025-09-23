@@ -1,0 +1,94 @@
+openapi: 3.0.3
+info:
+  title: Bookadzone Backend API
+  description: API for managing FAQs, Configs, and user authentication for the Bookadzone platform.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Local development server
+
+paths:
+  # Authentication endpoints
+  /auth/login:
+    $ref: './auth.yaml#/paths/~1auth~1login'
+  /auth/refresh:
+    $ref: './auth.yaml#/paths/~1auth~1refresh'
+  
+  # FAQ endpoints
+  /faqs:
+    $ref: './faqs.yaml#/paths/~1faqs'
+  /faqs/getFaqById/{id}:
+    $ref: './faqs.yaml#/paths/~1faqs~1getFaqById~1{id}'
+  /faqs/updateFaq/{id}:
+    $ref: './faqs.yaml#/paths/~1faqs~1updateFaq~1{id}'
+  /faqs/softDeleteFaq/{id}:
+    $ref: './faqs.yaml#/paths/~1faqs~1softDeleteFaq~1{id}'
+  /faqs/togglestatus/{id}:
+    $ref: './faqs.yaml#/paths/~1faqs~1togglestatus~1{id}'
+  /faqs/trash:
+    $ref: './faqs.yaml#/paths/~1faqs~1trash'
+  /faqs/restore/{id}:
+    $ref: './faqs.yaml#/paths/~1faqs~1restore~1{id}'
+  /faqs/permanentDelete/{id}:
+    $ref: './faqs.yaml#/paths/~1faqs~1permanentDelete~1{id}'
+
+
+
+
+   
+
+  
+  # Config endpoints  
+  /configs:
+    $ref: './configs.yaml#/paths/~1configs'
+  /configs/getConfigById/{id}:
+    $ref: './configs.yaml#/paths/~1configs~1getConfigById~1{id}'
+  /configs/updateConfig/{id}:
+    $ref: './configs.yaml#/paths/~1configs~1updateConfig~1{id}'
+  /configs/softDeleteConfig/{id}:
+    $ref: './configs.yaml#/paths/~1configs~1softDeleteConfig~1{id}'
+  /configs/togglestatus/{id}:
+    $ref: './configs.yaml#/paths/~1configs~1togglestatus~1{id}'
+  /configs/trash:
+    $ref: './configs.yaml#/paths/~1configs~1trash'
+  /configs/restore/{id}:
+    $ref: './configs.yaml#/paths/~1configs~1restore~1{id}'
+  /configs/permanentDelete/{id}:
+    $ref: './configs.yaml#/paths/~1configs~1permanentDelete~1{id}'
+  
+  # Settings endpoints
+  /settings:
+    $ref: './settings.yaml#/paths/~1settings'
+
+components:
+  schemas:
+    # Reference schemas from other files
+    Faq:
+      $ref: './faqs.yaml#/components/schemas/Faq'
+    FaqInput:
+      $ref: './faqs.yaml#/components/schemas/FaqInput'
+    Config:
+      $ref: './configs.yaml#/components/schemas/Config'
+    ConfigInput:
+      $ref: './configs.yaml#/components/schemas/ConfigInput'
+    Settings:
+      $ref: './settings.yaml#/components/schemas/Settings'
+    SettingsResponse:
+      $ref: './settings.yaml#/components/schemas/SettingsResponse'
+    
+    # Common Error schema (used by all)
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+          example: Invalid input
+  
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

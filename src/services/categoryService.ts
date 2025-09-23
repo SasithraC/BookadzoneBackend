@@ -8,7 +8,6 @@ class CategoryService {
   private commonService = new CommonService<ICategory>(CategoryModel);
 
   private validateCategoryData(data: Partial<ICategory>, photo:any,isUpdate: boolean = false): void { 
-    console.log("my data ",data,photo);
     // Normalize checkbox to boolean when sent as a string (e.g., from HTML forms)
     if (typeof (data as any).checkbox === "string") {
       const v = ((data as any).checkbox as string).toLowerCase();
@@ -37,14 +36,6 @@ class CategoryService {
         ? ValidationHelper.isRequired(photo, "photo")
         : null,
 
-      
-      // priority: required on create, must be a number when provided
-      // !isUpdate
-      //   ? (data.priority === undefined || data.priority === null ? { field: "priority", message: "priority is required" } : null)
-      //   : null,
-      // (data.priority !== undefined && typeof data.priority !== "string") ? { field: "priority", message: "priority must be a string" } : null,
-
-      // checkbox is optional but must be boolean when present
       ValidationHelper.isBoolean((data as any).checkbox, "checkbox"),
     ];
 

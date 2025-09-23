@@ -6,13 +6,25 @@ import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Request, Response, NextFunction } from "express";
 import registerRoutes from "./routes";
+import path from 'path';
 
 const app = express();
-// app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
 app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+  },
+  express.static(path.join(__dirname, '..', 'Uploads'))
+);
+
+
 
 // Serve Swagger UI
 const swaggerDocument = yaml.load(fs.readFileSync("./openapi.yaml", "utf8")) as object;
@@ -31,6 +43,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     message: err.message || 'Internal Server Error',
   });
 });
-
 
 export default app;
