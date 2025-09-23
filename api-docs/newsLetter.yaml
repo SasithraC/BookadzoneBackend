@@ -1,0 +1,486 @@
+# NewsLetter endpoints and schemas
+paths:
+  /newsletters:
+    get:
+      summary: Get all NewsLetters
+      tags:
+        - NewsLetters
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 10
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NewsLetter'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      active:
+                        type: integer
+                      inactive:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /newsletters/getNewsLetterById/{id}:
+    get:
+      summary: Get a NewsLetter by ID
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: NewsLetter ID
+      responses:
+        '200':
+          description: NewsLetter found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/NewsLetter'
+        '400':
+          description: NewsLetter id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: NewsLetter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /newsletters/updateNewsLetter/{id}:
+    put:
+      summary: Update a NewsLetter by ID
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: NewsLetter ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsLetterInput'
+      responses:
+        '200':
+          description: NewsLetter updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: NewsLetter updated
+                  data:
+                    $ref: '#/components/schemas/NewsLetter'
+        '400':
+          description: NewsLetter id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: NewsLetter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /newsletters/softDeleteNewsLetter/{id}:
+    delete:
+      summary: Soft delete a NewsLetter by ID
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: NewsLetter ID
+      responses:
+        '200':
+          description: NewsLetter deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: NewsLetter deleted successfully
+        '400':
+          description: NewsLetter id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: NewsLetter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /newsletters/togglestatus/{id}:
+    patch:
+      summary: Toggle the status of a NewsLetter (active/inactive)
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: NewsLetter ID
+      responses:
+        '200':
+          description: NewsLetter status toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: NewsLetter status toggled
+                  data:
+                    $ref: '#/components/schemas/NewsLetter'
+        '400':
+          description: NewsLetter id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: NewsLetter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /newsletters/trash:
+    get:
+      summary: Get all trashed NewsLetters
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: List of trashed NewsLetters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NewsLetter'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 1
+                      active:
+                        type: integer
+                        example: 1
+                      inactive:
+                        type: integer
+                        example: 0
+                      totalPages:
+                        type: integer
+                        example: 1
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /newsletters/restore/{id}:
+    patch:
+      summary: Restore a soft-deleted NewsLetter
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: NewsLetter ID
+      responses:
+        '200':
+          description: NewsLetter restored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: NewsLetter restored successfully
+        '400':
+          description: NewsLetter id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: NewsLetter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /faqs/permanentDelete/{id}:
+    delete:
+      summary: Permanently delete a NewsLetter
+      tags:
+        - NewsLetters
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: NewsLetter ID
+      responses:
+        '200':
+          description: NewsLetter permanently deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: NewsLetter permanently deleted
+        '400':
+          description: NewsLetter id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: NewsLetter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    NewsLetter:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 68ad430b8089095867639823
+        name:
+          type: string
+          example: This API manages NewsLetters for the Bookadzone platform.
+        slug:
+          type: string
+          example: This API manages NewsLetters for the Bookadzone platform.
+        template:
+          type: string
+          example: This API manages NewsLetters for the Bookadzone platform.
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+          example: active
+        isDeleted:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-09-09T12:00:00Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2025-09-09T12:00:00Z
+      required:
+        - name
+        - slug
+        - template
+
+    NewsLetterInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: This API manages FAQs for the Bookadzone platform.
+        slug:
+          type: string
+          example: This API manages FAQs for the Bookadzone platform.
+        template:
+          type: string
+          example: This API manages FAQs for the Bookadzone platform.
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+          example: active
+        isDeleted:
+          type: boolean
+          example: false
+      required:
+        - name
+        - slug
+        - template
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+          example: Invalid input
