@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const footerinfo_1 = require("../footerinfo");
+const footerinfoModel_1 = require("../footerinfoModel");
 const env_1 = require("../../config/env");
 beforeAll(async () => {
     await mongoose_1.default.connect(env_1.ENV.MONGO_URI);
@@ -14,7 +14,7 @@ afterAll(async () => {
 });
 describe('FooterInfoModel', () => {
     it('requires logo and description', async () => {
-        const footer = new footerinfo_1.FooterInfoModel({});
+        const footer = new footerinfoModel_1.FooterInfoModel({});
         let error;
         try {
             await footer.save();
@@ -30,7 +30,7 @@ describe('FooterInfoModel', () => {
         }
     });
     it('defaults status, isDeleted and priority', async () => {
-        const footer = await footerinfo_1.FooterInfoModel.create({
+        const footer = await footerinfoModel_1.FooterInfoModel.create({
             logo: 'logo.png',
             description: 'Footer description'
         });
@@ -39,7 +39,7 @@ describe('FooterInfoModel', () => {
         expect(footer.priority).toBe(1);
     });
     it('allows optional fields to be empty', async () => {
-        const footer = await footerinfo_1.FooterInfoModel.create({
+        const footer = await footerinfoModel_1.FooterInfoModel.create({
             logo: 'logo.png',
             description: 'Footer description'
         });

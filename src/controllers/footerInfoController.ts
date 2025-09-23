@@ -1,23 +1,24 @@
-import { Request, Response, NextFunction } from "express";
-import footerInfoService from "../services/footerInfoService";
-import { HTTP_RESPONSE } from "../utils/httpResponse";
+import { Request, Response, NextFunction } from 'express';
+import footerInfoService from '../services/footerInfoService';
+import { HTTP_RESPONSE } from '../utils/httpResponse';
+import path from 'path';
 
 class FooterInfoController {
   async createFooterInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log(`createFooterInfo: req.file:`, req.file ? { filename: req.file.filename, size: req.file.size, mimetype: req.file.mimetype } : null);
-      console.log(`createFooterInfo: req.body:`, req.body);
       if (!req.file && !req.body.logo) {
-        console.log(`createFooterInfo: No logo file or logo field provided`);
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Logo file is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Logo file is required' });
         return;
       }
-      const footerinfo = await footerInfoService.createFooterInfo(req.body, req.file);
-      console.log(`createFooterInfo: Success, footer created:`, footerinfo);
-      res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: "Footer Info created", data: footerinfo });
+      let logoUrl = req.body.logo;
+      if (req.file) {
+        logoUrl = path.join('uploads', 'footer', 'logo', req.file.filename).replace(/\\/g, '/'); // Full path
+        // Alternatively, use only filename: logoUrl = req.file.filename;
+      }
+      const footerinfo = await footerInfoService.createFooterInfo({ ...req.body, logo: logoUrl }, req.file);
+      res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info created', data: footerinfo });
     } catch (err: any) {
-      console.error(`createFooterInfo: Error:`, err.message);
-      if (err.message && err.message.includes("already exists")) {
+      if (err.message && err.message.includes('already exists')) {
         res.status(409).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
         return;
       }
@@ -41,12 +42,12 @@ class FooterInfoController {
     try {
       const id = req.params.id;
       if (!id) {
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
       const footerinfo = await footerInfoService.getFooterInfoById(id);
       if (!footerinfo) {
-        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
       res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, data: footerinfo });
@@ -57,22 +58,23 @@ class FooterInfoController {
 
   async updateFooterInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log(`updateFooterInfo: req.file:`, req.file ? { filename: req.file.filename, size: req.file.size, mimetype: req.file.mimetype } : null);
-      console.log(`updateFooterInfo: req.body:`, req.body);
       const id = req.params.id;
       if (!id) {
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
-      const footerinfo = await footerInfoService.updateFooterInfo(id, req.body, req.file);
+      let logoUrl = req.body.logo;
+      if (req.file) {
+        logoUrl = path.join('uploads', 'footer', 'logo', req.file.filename).replace(/\\/g, '/'); // Full path
+        // Alternatively, use only filename: logoUrl = req.file.filename;
+      }
+      const footerinfo = await footerInfoService.updateFooterInfo(id, { ...req.body, logo: logoUrl }, req.file);
       if (!footerinfo) {
-        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
-      console.log(`updateFooterInfo: Success, footer updated:`, footerinfo);
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: "Footer Info updated", data: footerinfo });
+      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info updated', data: footerinfo });
     } catch (err: any) {
-      console.error(`updateFooterInfo: Error:`, err.message);
       next(err);
     }
   }
@@ -81,15 +83,15 @@ class FooterInfoController {
     try {
       const id = req.params.id;
       if (!id) {
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
       const footerinfo = await footerInfoService.softDeleteFooterInfo(id);
       if (!footerinfo) {
-        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: "Footer Info deleted successfully", data: footerinfo });
+      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info deleted successfully', data: footerinfo });
     } catch (err: any) {
       next(err);
     }
@@ -99,15 +101,15 @@ class FooterInfoController {
     try {
       const id = req.params.id;
       if (!id) {
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
       const updated = await footerInfoService.toggleStatus(id);
       if (!updated) {
-        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: "Footer Info status toggled", data: updated });
+      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info status toggled', data: updated });
     } catch (err: any) {
       next(err);
     }
@@ -129,15 +131,15 @@ class FooterInfoController {
     try {
       const id = req.params.id;
       if (!id) {
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
       const footerinfo = await footerInfoService.restoreFooterInfo(id);
       if (!footerinfo) {
-        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: "Footer Info restored successfully", data: footerinfo });
+      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info restored successfully', data: footerinfo });
     } catch (err: any) {
       next(err);
     }
@@ -147,15 +149,15 @@ class FooterInfoController {
     try {
       const id = req.params.id;
       if (!id) {
-        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
       const footerinfo = await footerInfoService.deleteFooterInfoPermanently(id);
       if (!footerinfo) {
-        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: "Footer Info permanently deleted" });
+      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info permanently deleted' });
     } catch (err: any) {
       next(err);
     }

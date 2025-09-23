@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const footerinfo_1 = require("../models/footerinfo");
+const footerinfoModel_1 = require("../models/footerinfoModel");
 const seedFooterInfos = async () => {
     try {
-        await footerinfo_1.FooterInfoModel.deleteMany();
+        await footerinfoModel_1.FooterInfoModel.deleteMany();
         const footerInfos = [
             {
                 title: "Contact Us",
@@ -24,7 +24,7 @@ const seedFooterInfos = async () => {
                 isDeleted: false,
             },
         ];
-        await footerinfo_1.FooterInfoModel.insertMany(footerInfos);
+        await footerinfoModel_1.FooterInfoModel.insertMany(footerInfos);
         console.log("FooterInfo data seeded successfully");
     }
     catch (error) {

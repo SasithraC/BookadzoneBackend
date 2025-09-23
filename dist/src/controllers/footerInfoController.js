@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const footerInfo_1 = __importDefault(require("../services/footerInfo"));
+const footerInfoService_1 = __importDefault(require("../services/footerInfoService"));
 const httpResponse_1 = require("../utils/httpResponse");
 class FooterInfoController {
     async createFooterInfo(req, res, next) {
@@ -15,7 +15,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Logo file is required" });
                 return;
             }
-            const footerinfo = await footerInfo_1.default.createFooterInfo(req.body, req.file);
+            const footerinfo = await footerInfoService_1.default.createFooterInfo(req.body, req.file);
             console.log(`createFooterInfo: Success, footer created:`, footerinfo);
             res.status(201).json({ status: httpResponse_1.HTTP_RESPONSE.SUCCESS, message: "Footer Info created", data: footerinfo });
         }
@@ -33,7 +33,7 @@ class FooterInfoController {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 10;
             const filter = req.query.status;
-            const footerinfo = await footerInfo_1.default.getFooterInfo(page, limit, filter);
+            const footerinfo = await footerInfoService_1.default.getFooterInfo(page, limit, filter);
             res.status(200).json({ status: httpResponse_1.HTTP_RESPONSE.SUCCESS, data: footerinfo });
         }
         catch (err) {
@@ -47,7 +47,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
                 return;
             }
-            const footerinfo = await footerInfo_1.default.getFooterInfoById(id);
+            const footerinfo = await footerInfoService_1.default.getFooterInfoById(id);
             if (!footerinfo) {
                 res.status(404).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
                 return;
@@ -67,7 +67,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
                 return;
             }
-            const footerinfo = await footerInfo_1.default.updateFooterInfo(id, req.body, req.file);
+            const footerinfo = await footerInfoService_1.default.updateFooterInfo(id, req.body, req.file);
             if (!footerinfo) {
                 res.status(404).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
                 return;
@@ -87,7 +87,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
                 return;
             }
-            const footerinfo = await footerInfo_1.default.softDeleteFooterInfo(id);
+            const footerinfo = await footerInfoService_1.default.softDeleteFooterInfo(id);
             if (!footerinfo) {
                 res.status(404).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
                 return;
@@ -105,7 +105,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
                 return;
             }
-            const updated = await footerInfo_1.default.toggleStatus(id);
+            const updated = await footerInfoService_1.default.toggleStatus(id);
             if (!updated) {
                 res.status(404).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
                 return;
@@ -121,7 +121,7 @@ class FooterInfoController {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 10;
             const filter = req.query.status;
-            const result = await footerInfo_1.default.getAllTrashFooterInfos(page, limit, filter);
+            const result = await footerInfoService_1.default.getAllTrashFooterInfos(page, limit, filter);
             res.status(200).json({ status: httpResponse_1.HTTP_RESPONSE.SUCCESS, ...result });
         }
         catch (err) {
@@ -135,7 +135,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
                 return;
             }
-            const footerinfo = await footerInfo_1.default.restoreFooterInfo(id);
+            const footerinfo = await footerInfoService_1.default.restoreFooterInfo(id);
             if (!footerinfo) {
                 res.status(404).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
                 return;
@@ -153,7 +153,7 @@ class FooterInfoController {
                 res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info id is required" });
                 return;
             }
-            const footerinfo = await footerInfo_1.default.deleteFooterInfoPermanently(id);
+            const footerinfo = await footerInfoService_1.default.deleteFooterInfoPermanently(id);
             if (!footerinfo) {
                 res.status(404).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Footer Info not found" });
                 return;

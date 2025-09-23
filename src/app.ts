@@ -14,18 +14,6 @@ app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  '/uploads',
-  (req, res, next) => {
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    next();
-  },
-  express.static(path.join(__dirname, '..', 'Uploads'))
-);
-
-
-
 // Serve Swagger UI
 const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '../api-docs/bundled.yaml'), 'utf8')) as object;
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
