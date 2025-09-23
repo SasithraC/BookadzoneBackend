@@ -6,8 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = registerRoutes;
 const authenticationRoutes_1 = __importDefault(require("./authenticationRoutes"));
 const faqRoutes_1 = __importDefault(require("./faqRoutes"));
+const blogCategoryRoutes_1 = __importDefault(require("./blogCategoryRoutes"));
 const authentication_1 = require("../middleware/authentication");
 function registerRoutes(app) {
     app.use("/api/v1/auth", authenticationRoutes_1.default);
     app.use("/api/v1/faqs", authentication_1.authenticate, faqRoutes_1.default);
+    app.use("/api/v1/blog", authentication_1.authenticate, blogCategoryRoutes_1.default);
 }
