@@ -1,0 +1,219 @@
+# Settings endpoints and schemas
+paths:
+  /settings:
+    get:
+      summary: Get all settings
+      tags:
+        - Settings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+        '500':
+          description: Failed to retrieve settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update all settings (with file upload)
+      tags:
+        - Settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                general:
+                  type: string
+                  description: JSON string for general settings
+                contact:
+                  type: string
+                  description: JSON string for contact settings
+                email:
+                  type: string
+                  description: JSON string for email settings
+                seo:
+                  type: string
+                  description: JSON string for SEO settings
+                og:
+                  type: string
+                  description: JSON string for OG settings
+                siteLogo:
+                  type: string
+                  format: binary
+                  description: Site logo file
+                favicon:
+                  type: string
+                  format: binary
+                  description: Favicon file
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+        '400':
+          description: Request body is required or invalid format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Failed to update settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    SettingsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/Settings'
+        message:
+          type: string
+          example: Settings retrieved successfully
+
+    Settings:
+      type: object
+      properties:
+        general:
+          type: object
+          properties:
+            siteName:
+              type: string
+              example: Bookadzone
+            siteLogo:
+              type: string
+              example: /uploads/logo.png
+            favicon:
+              type: string
+              example: /uploads/favicon.ico
+            defaultCurrency:
+              type: string
+              example: USD
+            currencyIcon:
+              type: string
+              example: $
+            timezone:
+              type: string
+              example: America/New_York
+        contact:
+          type: object
+          properties:
+            companyName:
+              type: string
+              example: Bookadzone Inc.
+            contactEmail:
+              type: string
+              example: contact@bookadzone.com
+            contactPhone:
+              type: string
+              example: +1-555-123-4567
+            address:
+              type: string
+              example: 123 Business St, City, State 12345
+        email:
+          type: object
+          properties:
+            email:
+              type: string
+              example: noreply@bookadzone.com
+            mailHost:
+              type: string
+              example: smtp.gmail.com
+            smtpUsername:
+              type: string
+              example: noreply@bookadzone.com
+            smtpPassword:
+              type: string
+              example: "********"
+            mailPort:
+              type: integer
+              example: 587
+            emailEncryption:
+              type: string
+              example: tls
+        seo:
+          type: object
+          properties:
+            metaTitle:
+              type: string
+              example: Bookadzone - Your Book Destination
+            metaDescription:
+              type: string
+              example: Discover and book amazing experiences with Bookadzone
+            metaKeyword:
+              type: string
+              example: books, booking, online, platform
+            canonicalUrl:
+              type: string
+              example: https://bookadzone.com
+            robotsMeta:
+              type: string
+              example: index,follow
+            schemaMarkup:
+              type: string
+              example: '{"@context": "https://schema.org", "@type": "Organization"}'
+            h1Tag:
+              type: string
+              example: Welcome to Bookadzone
+            breadcrumbs:
+              type: string
+              example: Home > About > Contact
+            altText:
+              type: string
+              example: Bookadzone logo
+            sitemapUrl:
+              type: string
+              example: https://bookadzone.com/sitemap.xml
+            googleAnalyticsCode:
+              type: string
+              example: GA_MEASUREMENT_ID
+            googleSearchConsoleCode:
+              type: string
+              example: google-site-verification-code
+        og:
+          type: object
+          properties:
+            ogTitle:
+              type: string
+              example: Bookadzone - Your Book Destination
+            ogDescription:
+              type: string
+              example: Discover and book amazing experiences with Bookadzone
+            ogImage:
+              type: string
+              example: https://bookadzone.com/og-image.jpg
+            ogUrl:
+              type: string
+              example: https://bookadzone.com
+            ogType:
+              type: string
+              example: website
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+          example: Invalid input
