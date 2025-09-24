@@ -25,7 +25,7 @@ paths:
                   type: string
                   format: binary
                   description: Upload category image
-                checkbox:
+                isFeatured:
                   type: boolean
                   example: true
               required:
@@ -102,7 +102,7 @@ paths:
                 photo:
                   type: string
                   format: binary
-                checkbox:
+                isFeatured:
                   type: boolean
       responses:
         '200':
@@ -219,7 +219,7 @@ components:
           type: string
           enum: [active, inactive]
           example: active
-        checkbox:
+        isFeatured:
           type: boolean
           example: false
         createdAt:

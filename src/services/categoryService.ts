@@ -8,10 +8,10 @@ class CategoryService {
   private commonService = new CommonService<ICategory>(CategoryModel);
 
   private validateCategoryData(data: Partial<ICategory>, photo:any,isUpdate: boolean = false): void { 
-    // Normalize checkbox to boolean when sent as a string (e.g., from HTML forms)
-    if (typeof (data as any).checkbox === "string") {
-      const v = ((data as any).checkbox as string).toLowerCase();
-      (data as any).checkbox = v === "true" || v === "1" || v === "on";
+    // Normalize isFeatured to boolean when sent as a string (e.g., from HTML forms)
+    if (typeof (data as any).isFeatured === "string") {
+      const v = ((data as any).isFeatured as string).toLowerCase();
+      (data as any).isFeatured = v === "true" || v === "1" || v === "on";
     }
     const rules = [
       !isUpdate
@@ -36,7 +36,7 @@ class CategoryService {
         ? ValidationHelper.isRequired(photo, "photo")
         : null,
 
-      ValidationHelper.isBoolean((data as any).checkbox, "checkbox"),
+      ValidationHelper.isBoolean((data as any).isFeatured, "isFeatured"),
     ];
 
     const errors = ValidationHelper.validate(rules);

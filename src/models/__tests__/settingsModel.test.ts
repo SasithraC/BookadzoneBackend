@@ -1,4 +1,4 @@
-import { SettingsModel } from './settingsModel';
+import { SettingsModel } from '../settingsModel';
 
 describe('SettingsModel', () => {
   beforeAll(() => {

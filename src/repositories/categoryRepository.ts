@@ -14,7 +14,7 @@ class CategoryRepository {
   }
 
   async getAllCategory(page = 1, limit = 10, filter?: string) {
-    const query: any = {};
+    const query: any = {isDeleted :false};
     if (filter === 'active') query.status = 'active';
     if (filter === 'inactive') query.status = 'inactive';
 

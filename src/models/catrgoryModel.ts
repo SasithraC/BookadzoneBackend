@@ -7,7 +7,7 @@ export interface ICategory extends Document {
   status: "active" | "inactive";
   isDeleted: boolean;
   photo: string;
-  checkbox?: boolean;
+  isFeatured?: boolean;
 }
 
 const categorySchema = new Schema<ICategory>(
@@ -17,7 +17,7 @@ const categorySchema = new Schema<ICategory>(
     description: { type: String, required: true },
     photo: { type: String, required: true, maxlength: 100000  },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
-    checkbox: { type: Boolean, default: true },
+    isFeatured: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
 
   },

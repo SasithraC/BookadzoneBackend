@@ -15,7 +15,7 @@ describe("CategoryService Unit Tests", () => {
   description: "Test Desc",
   status: "active",
   isDeleted: false,
-  checkbox: true,
+  isFeatured: true,
   photo: "test.jpg",
 };
 
@@ -29,7 +29,7 @@ describe("CategoryService Unit Tests", () => {
     (categoryRepository.createCategory as jest.Mock).mockResolvedValue(mockCategory);
 
     const result = await categoryService.createCategory(
-      { name: "Test", slug: "slug", description: "desc", checkbox: true } as any,
+      { name: "Test", slug: "slug", description: "desc", isFeatured: true } as any,
       "photo.jpg"
     );
 
@@ -43,7 +43,7 @@ describe("CategoryService Unit Tests", () => {
 
     await expect(
       categoryService.createCategory(
-        { name: "dup", slug: "test-category", description: "desc", checkbox: true } as any,
+        { name: "dup", slug: "test-category", description: "desc", isFeatured: true } as any,
         "photo.jpg"
       )
     ).rejects.toThrow("Category with this slug already exists");

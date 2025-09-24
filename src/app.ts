@@ -27,7 +27,7 @@ app.use(
 
 
 // Serve Swagger UI
-const swaggerDocument = yaml.load(fs.readFileSync("./openapi.yaml", "utf8")) as object;
+const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '../api-docs/bundled.yaml'), 'utf8')) as object;
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Register routes with prefixes

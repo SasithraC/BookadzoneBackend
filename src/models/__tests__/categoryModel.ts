@@ -30,7 +30,7 @@ describe("CategoryModel", () => {
     }
   });
 
-  it("defaults status to 'active' and checkbox to true", async () => {
+  it("defaults status to 'active' and isFeatured to true", async () => {
     const category = await CategoryModel.create({
       name: "Test Category",
       slug: "test-category",
@@ -38,19 +38,19 @@ describe("CategoryModel", () => {
       photo: "test.jpg",
     });
     expect(category.status).toBe("active");
-    expect(category.checkbox).toBe(true);
+    expect(category.isFeatured).toBe(true);
   });
 
-  it("accepts custom status and checkbox", async () => {
+  it("accepts custom status and isFeatured", async () => {
     const category = await CategoryModel.create({
       name: "Inactive Category",
       slug: "inactive-category",
       description: "This category is inactive",
       photo: "inactive.jpg",
       status: "inactive",
-      checkbox: false,
+      isFeatured: false,
     });
     expect(category.status).toBe("inactive");
-    expect(category.checkbox).toBe(false);
+    expect(category.isFeatured).toBe(false);
   });
 });

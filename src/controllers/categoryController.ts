@@ -4,38 +4,99 @@ import { HTTP_RESPONSE } from "../utils/httpResponse";
 import multer from "multer";
 
 class CategoryController {
-  async createCategory(req: any, res: Response, next: NextFunction): Promise<void> {
-    console.log("inside createCategory", req.body, "req",);
-    console.log("Form Data (Text):", req.body);
+  // async createCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   console.log("inside createCategory", req.body, "req",);
+  //   console.log("Form Data (Text):", req.body);
 
-    // 👉 File(s) from form-data
-    console.log("Uploaded File:", req?.file);
+  //   // 👉 File(s) from form-data
+  //   console.log("Uploaded File:", req?.file);
+  //     let data = { ...req.body };
+  //     if (req.files) {
+  //   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  //   // Define the expected file field names, e.g., ['image', 'icon']
+  //   const fileFields = ['image', 'icon'];
+  //   fileFields.forEach((field) => {
+  //     if (files[field]?.[0]) {
+  //       data[field] = normalizePath(files[field][0].path);
+  //     } else {
+  //       data[field] = data[field] || '';
+  //     }
+  //   });
+  // } 
+
+  //   try {
+  //     const category = await categoryService.createCategory(req.body, req?.file);
+  //     res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: "Category created", data: category });
+  //   } catch (err: any) {
+  //     if (err.message && err.message.includes("already exists")) {
+  //       res.status(409).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
+  //       return;
+  //     }
+  //     next(err);
+  //   }
+  // }
 
 
-    const upload = multer({
-      dest: "uploads/",
-      limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
-      fileFilter: (req, file, cb) => {
-        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-        if (allowedTypes.includes(file.mimetype)) {
-          cb(null, true);
+  //
+
+
+async createCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    let data = { ...req.body };
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      // Define fileFields or handle accordingly
+      const fileFields = ['photo']; // Example fields
+      fileFields.forEach((field) => {
+        if (files[field]?.[0]) {
+          data[field] = normalizePath(files[field][0].path);
         } else {
-          cb(new Error("Only JPG/PNG images are allowed"));
+          data[field] = data[field] || '';
         }
-      }
-    });
-
-    try {
-      const category = await categoryService.createCategory(req.body, req?.file);
-      res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: "Category created", data: category });
-    } catch (err: any) {
-      if (err.message && err.message.includes("already exists")) {
-        res.status(409).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
-        return;
-      }
-      next(err);
+      });
     }
+    // Make sure createCategoryService is imported and implemented
+    const category = await categoryService.createCategory(data,data.photo);
+    res.status(201).json({ success: true, data: category });
+  } catch (err) {
+    next(err);
   }
+}
+  //
+
+
+  //
+
+  
+
+  //
+
+  // async createCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   try {
+  //     const { name, slug, description, checkbox } = req.body;
+
+  //     const photoPath = req.file?.filename || "";
+
+  //     const categoryData = {
+  //       ...req.body,
+  //       checkbox: req.body.checkbox === "true"
+  //     };
+
+  //     const category = await categoryService.createCategory(categoryData, photoPath);
+
+  //     res.status(201).json({
+  //       status: HTTP_RESPONSE.SUCCESS,
+  //       message: "Category created",
+  //       data: category
+  //     });
+  //   } catch (err: any) {
+  //     if (err.message?.includes("already exists")) {
+  //       res.status(409).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
+  //       return;
+  //     }
+  //     next(err);
+  //   }
+  // }
 
   async getAllCategorys(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -70,15 +131,15 @@ class CategoryController {
   async updateCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = req.params.id;
-      console.log("id",id);
-      
+      console.log("id", id);
+
       if (!id) {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Category id is required" });
         return;
       }
       const category = await categoryService.updateCategory(id, req.body);
-      console.log("req.body",req.body);
-      
+      console.log("req.body", req.body);
+
       if (!category) {
         res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Category not found" });
         return;
@@ -180,3 +241,8 @@ class CategoryController {
 }
 
 export default new CategoryController();
+
+function normalizePath(path: string): string {
+  // Convert Windows backslashes to forward slashes for URLs
+  return path.replace(/\\/g, "/");
+}
