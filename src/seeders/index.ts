@@ -3,6 +3,7 @@ import { ENV } from "../config/env";
 import seedFaqs from "./faqSeeder";
 import seedConfigs from "./configSeeder";
 import seedSettings from "./settingsSeeder";
+import seedBannerManagement from "./bannerSeeder";
 
 const seedAll = async (): Promise<void> => {
   try {
@@ -15,6 +16,7 @@ const seedAll = async (): Promise<void> => {
   await seedFaqs();
   await seedConfigs();
   await seedSettings();
+  await seedBannerManagement();
     console.log("All seeders executed successfully");
     await mongoose.connection.close();
   } catch (error) {

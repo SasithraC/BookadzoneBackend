@@ -129,6 +129,32 @@ describe('settingsController', () => {
       });
     });
 
+    it('should handle file upload for ogImage', async () => {
+      req.body = { og: JSON.stringify({ ogTitle: 'Test' }) };
+      req.files = {
+        ogImage: [{
+          fieldname: 'ogImage',
+          originalname: 'og.png',
+          encoding: '7bit',
+          mimetype: 'image/png',
+          destination: 'uploads/settings/ogImage',
+          filename: 'og.png',
+          path: 'uploads/settings/ogImage/og.png',
+          size: 567,
+          buffer: Buffer.from(''),
+          stream: {} as any
+        }],
+      };
+      (settingsService.updateSettings as jest.Mock).mockResolvedValue({ og: { ogImage: 'uploads/settings/ogImage/og.png' } });
+      await settingsController.updateSettings(req as Request, res as Response, next);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        message: 'Settings updated successfully',
+        data: { og: { ogImage: 'uploads/settings/ogImage/og.png' } },
+      });
+    });
+
     it('should handle ValidationError', async () => {
       req.body = { general: { siteName: 'Test' } };
       const error = new Error('validation fail') as any;

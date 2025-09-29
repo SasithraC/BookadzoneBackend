@@ -24,7 +24,7 @@ export const destination = (req: MulterRequest, file: MulterFile, cb: MulterCall
     console.log('destination: managementName:', req.managementName); // Debug log
     const managementName = req.managementName || 'default';
     const sanitizedManagementName = managementName.replace(/[^a-zA-Z0-9-_]/g, '');
-    const folderPath = path.join('uploads', sanitizedManagementName, 'logo'); // Nested structure: uploads/{managementName}/logo/
+    const folderPath = path.join('uploads', sanitizedManagementName, 'image'); // Nested structure: uploads/{managementName}/logo/
     fs.mkdirSync(folderPath, { recursive: true });
     console.log(`[MULTER] Saving file ${file.originalname} to: ${folderPath}`);
     cb(null, folderPath);
