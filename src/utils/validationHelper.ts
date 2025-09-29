@@ -8,6 +8,12 @@ class ValidationHelper {
     }
     return null;
   }
+  static isNumber(value: any, field: string): ValidationResult | null {
+      if (typeof value !== "number" || isNaN(value)) {
+        return { field, message: `${field} must be a numeric value` };
+      }
+      return null;
+    }
 
   static isNonEmptyString(value: string, field: string): ValidationResult | null {
     if (typeof value !== "string" || value.trim() === "") {

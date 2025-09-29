@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const env_1 = require("../config/env");
 const faqSeeder_1 = __importDefault(require("./faqSeeder"));
+const configSeeder_1 = __importDefault(require("./configSeeder"));
+const settingsSeeder_1 = __importDefault(require("./settingsSeeder"));
 const seedAll = async () => {
     try {
         if (!env_1.ENV.MONGO_URI) {
@@ -14,6 +16,8 @@ const seedAll = async () => {
         await mongoose_1.default.connect(env_1.ENV.MONGO_URI);
         console.log("Connected to MongoDB");
         await (0, faqSeeder_1.default)();
+        await (0, configSeeder_1.default)();
+        await (0, settingsSeeder_1.default)();
         console.log("All seeders executed successfully");
         await mongoose_1.default.connection.close();
     }
