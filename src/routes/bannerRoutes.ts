@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { BannerController } from '../controllers/bannerController';
-import upload from '../utils/fileUpload';
+import { upload } from '../utils/fileUpload';
 
 const router = Router();
 const controller = new BannerController();
@@ -21,11 +21,11 @@ router.put(
 			{ name: 'aboutBanner.bannerOne.images', maxCount: 4 },
 			{ name: 'aboutBanner.bannerTwo.images', maxCount: 4 }
 		 ]),
-						 (req, res, next) => {
-							 console.log('Incoming file fields:', Object.keys(req.files || {}));
-							 next();
-						 },
-						 (req, res) => controller.update(req, res)
+		(req, res, next) => {
+			console.log('Incoming file fields:', Object.keys(req.files || {}));
+			next();
+		},
+		(req, res) => controller.update(req, res)
 );
 
 export default router;
