@@ -15,6 +15,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 
+
 app.use(
   '/uploads',
   (req, res, next) => {
@@ -23,6 +24,7 @@ app.use(
   },
   express.static(path.join(__dirname, '..', 'Uploads'))
 );
+
 
 
 

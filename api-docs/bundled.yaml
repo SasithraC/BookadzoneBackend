@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5001/api/v1",
+      "url": "http://localhost:5000/api/v1",
       "description": "Local development server"
     }
   ],
@@ -1824,6 +1824,239 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/paths/~1settings/get/responses/500/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/banners": {
+      "get": {
+        "summary": "Get banner management data",
+        "tags": [
+          "Banner Management"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Banner management retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/paths/~1banners/put/requestBody/content/multipart~1form-data/schema"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Banner management retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update banner management data",
+        "tags": [
+          "Banner Management"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "homepage": {
+                    "type": "object",
+                    "properties": {
+                      "bannerOne": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "highlightedText": {
+                            "type": "string"
+                          },
+                          "image1": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead1": {
+                            "type": "string"
+                          },
+                          "subDescription1": {
+                            "type": "string"
+                          },
+                          "image2": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead2": {
+                            "type": "string"
+                          },
+                          "subDescription2": {
+                            "type": "string"
+                          },
+                          "image3": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead3": {
+                            "type": "string"
+                          },
+                          "subDescription3": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "bannerTwo": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "features": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "icon": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "buttonName": {
+                            "type": "string"
+                          },
+                          "buttonUrl": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "aboutBanner": {
+                    "type": "object",
+                    "properties": {
+                      "submenu1": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "binary"
+                            }
+                          }
+                        }
+                      },
+                      "submenu2": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "binary"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Banner management updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1banners/get/responses/200/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }

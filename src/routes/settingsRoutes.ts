@@ -10,7 +10,9 @@ router.put(
 	"/",
 	upload.fields([
 		{ name: "siteLogo", maxCount: 1 },
-		{ name: "favicon", maxCount: 1 }
+		{ name: "favicon", maxCount: 1 },
+		{ name: 'ogImage', maxCount: 1 }
+
 	]),
 	(req, res, next) => settingsController.updateSettings(req, res, next)
 );

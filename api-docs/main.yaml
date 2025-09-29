@@ -4,7 +4,7 @@ info:
   description: API for managing FAQs, Configs, and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
-  - url: http://localhost:5001/api/v1
+  - url: http://localhost:5000/api/v1
     description: Local development server
 
 paths:
@@ -53,6 +53,10 @@ paths:
   # Settings endpoints
   /settings:
     $ref: './settings.yaml#/paths/~1settings'
+
+  # Banner Management endpoints
+  /banners:
+    $ref: './banner.yaml#/paths/~1banners'
 
 components:
   schemas:
