@@ -363,7 +363,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /faqs/permanentDelete/{id}:
+  /newsletters/permanentDelete/{id}:
     delete:
       summary: Permanently delete a NewsLetter
       tags:

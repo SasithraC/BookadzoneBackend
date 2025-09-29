@@ -19,7 +19,9 @@ class NewsLetterService {
         : (data.slug !== undefined ? ValidationHelper.isNonEmptyString(data.slug, "slug") : null),
 
       (data.slug !== undefined ? ValidationHelper.maxLength(data.slug, "slug", 2000) : null),
-      (data.template !== undefined ? ValidationHelper.maxLength(data.template, "template", 2000) : null),
+      !isUpdate
+      ? ValidationHelper.isRequired(data.template, "template")
+      :(data.template !== undefined ? ValidationHelper.isNonEmptyString(data.template, "template") : null),
 
       ValidationHelper.isValidEnum(data.status, "status", ["active", "inactive"]),
 
@@ -35,7 +37,7 @@ class NewsLetterService {
     this.validateNewsLetterData(data);
     const exists = await this.commonService.existsByField("name", data.name);
     if (exists) {
-      throw new Error("NewsLetter with this question already exists");
+      throw new Error("NewsLetter with this Name already exists");
     }
     return await newsLetterRepository.createNewsLetter(data);
   }

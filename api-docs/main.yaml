@@ -4,7 +4,7 @@ info:
   description: API for managing FAQs, Configs, and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
-  - url: http://localhost:5000/api/v1
+  - url: http://localhost:5001/api/v1
     description: Local development server
 
 paths:
@@ -87,20 +87,12 @@ components:
       $ref: './settings.yaml#/components/schemas/Settings'
     SettingsResponse:
       $ref: './settings.yaml#/components/schemas/SettingsResponse'
-      
+
        # Reference schemas from other files
     NewsLetter:
       $ref: './newsletters.yaml#/components/schemas/NewsLetter'
     NewsLetterInput:
       $ref: './newsletters.yaml#/components/schemas/NewsLetterInput'
-    Config:
-      $ref: './configs.yaml#/components/schemas/Config'
-    ConfigInput:
-      $ref: './configs.yaml#/components/schemas/ConfigInput'
-    Settings:
-      $ref: './settings.yaml#/components/schemas/Settings'
-    SettingsResponse:
-      $ref: './settings.yaml#/components/schemas/SettingsResponse'
     
     # Common Error schema (used by all)
     Error:
