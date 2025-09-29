@@ -155,3 +155,4 @@ class NewsLetterController {
 }
 
 export default new NewsLetterController();
+

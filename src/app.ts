@@ -14,6 +14,12 @@ app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
+// Serve Swagger UI
+const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '../api-docs/bundled.yaml'), 'utf8')) as object;
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+registerRoutes(app);
 
 app.use(
   '/uploads',
@@ -21,19 +27,10 @@ app.use(
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     next();
   },
-  express.static(path.join(__dirname, '..', 'Uploads'))
+  express.static(path.join(__dirname, '..', 'uploads'))
 );
 
 
-
-// Serve Swagger UI
-const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '../api-docs/bundled.yaml'), 'utf8')) as object;
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Register routes with prefixes
-registerRoutes(app);
-
-// Centralized error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (process.env.NODE_ENV !== 'test') {
     console.error(err);

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import settingsController from "../controllers/settingsController";
-import upload from "../utils/fileUpload";
+import {upload} from "../utils/fileUpload";
 const router = Router();
 
 // Get all settings

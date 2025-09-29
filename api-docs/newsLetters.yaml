@@ -5,6 +5,8 @@ paths:
       summary: Get all NewsLetters
       tags:
         - NewsLetters
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
@@ -53,6 +55,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    post:
+        summary: Add a new NewsLetter
+        tags:
+          - NewsLetters
+        security:
+          - bearerAuth: []
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsLetterInput'
+        responses:
+          '201':
+            description: NewsLetter created successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      example: success
+                    message:
+                      type: string
+                      example: NewsLetter created successfully
+                    data:
+                      $ref: '#/components/schemas/NewsLetter'
+          '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
 
   /newsletters/getNewsLetterById/{id}:
     get:
@@ -454,13 +490,13 @@ components:
       properties:
         name:
           type: string
-          example: This API manages FAQs for the Bookadzone platform.
+          example: This API manages NEWSLETTERs for the Bookadzone platform.
         slug:
           type: string
-          example: This API manages FAQs for the Bookadzone platform.
+          example: This API manages NEWSLETTERs for the Bookadzone platform.
         template:
           type: string
-          example: This API manages FAQs for the Bookadzone platform.
+          example: This API manages NEWSLETTERs for the Bookadzone platform.
         status:
           type: string
           enum:

@@ -67,6 +67,25 @@ paths:
     $ref: './configs.yaml#/paths/~1configs~1restore~1{id}'
   /configs/permanentDelete/{id}:
     $ref: './configs.yaml#/paths/~1configs~1permanentDelete~1{id}'
+
+    # FooterInfo endpoints
+  /footerinfo:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo'
+  /footerinfo/getfooterinfoById/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1getfooterinfoById~1{id}'
+  /footerinfo/updatefooterinfo/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1updatefooterinfo~1{id}'
+  /footerinfo/softDeletefooterinfo/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1softDeletefooterinfo~1{id}'
+  /footerinfo/togglestatus/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1togglestatus~1{id}'
+  /footerinfo/trash:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1trash'
+  /footerinfo/restore/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1restore~1{id}'
+  /footerinfo/permanentDelete/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1permanentDelete~1{id}'
+
   
   # Settings endpoints
   /settings:
@@ -79,6 +98,13 @@ components:
       $ref: './faqs.yaml#/components/schemas/Faq'
     FaqInput:
       $ref: './faqs.yaml#/components/schemas/FaqInput'
+
+    FooterInfo:
+      $ref: './footerinfo.yaml#/components/schemas/FooterInfo'
+    FooterInfoInput:
+      $ref: './footerinfo.yaml#/components/schemas/FooterInfoInput'
+
+      
     Config:
       $ref: './configs.yaml#/components/schemas/Config'
     ConfigInput:
@@ -93,6 +119,7 @@ components:
       $ref: './newsletters.yaml#/components/schemas/NewsLetter'
     NewsLetterInput:
       $ref: './newsletters.yaml#/components/schemas/NewsLetterInput'
+      
     
     # Common Error schema (used by all)
     Error:
