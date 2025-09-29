@@ -27,6 +27,8 @@
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.1",
+    "swagger": "^0.7.5",
+    "swagger-cli": "^4.0.4",
     "multer": "^2.0.2",
     "swagger-ui-express": "^5.0.1"
   },
