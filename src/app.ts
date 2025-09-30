@@ -10,10 +10,16 @@ import path from 'path';
 
 const app = express();
 
+
+
 app.use(cors());
-app.use(express.json());
 app.use(helmet());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+registerRoutes(app);
+
+
+
 
 app.use(
   '/uploads',
@@ -21,10 +27,8 @@ app.use(
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     next();
   },
-  express.static(path.join(__dirname, '..', 'Uploads'))
+  express.static(path.join(__dirname, '..', 'uploads'))
 );
-
-
 
 // Serve Swagger UI
 const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '../api-docs/bundled.yaml'), 'utf8')) as object;

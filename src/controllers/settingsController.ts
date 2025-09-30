@@ -73,6 +73,22 @@ class SettingsController {
             updateData.general.favicon = fileUrl;
           }
         }
+          // Handle ogImage upload
+          if (files.ogImage && files.ogImage[0]) {
+            const file = files.ogImage[0];
+            const fileUrl = file.path.replace(/\\/g, '/');
+            console.log('OG Image uploaded:', fileUrl);
+            // Parse og data if it exists
+            if (updateData.og && typeof updateData.og === 'string') {
+              const ogData = JSON.parse(updateData.og);
+              ogData.ogImage = fileUrl;
+              updateData.og = ogData;
+            } else if (!updateData.og) {
+              updateData.og = { ogImage: fileUrl };
+            } else {
+              updateData.og.ogImage = fileUrl;
+            }
+          }
       }
 
       // Parse general data if it's a string (from FormData)

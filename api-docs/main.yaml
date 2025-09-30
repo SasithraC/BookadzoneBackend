@@ -4,7 +4,7 @@ info:
   description: API for managing FAQs, Configs, BlogCategorie, and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
-  - url: http://localhost:5001/api/v1
+  - url: http://localhost:5000/api/v1
     description: Local development server
 
 paths:
@@ -50,7 +50,79 @@ paths:
   /blogCategory/permanentDelete/{id}:
     $ref: './blogCategory.yaml#/paths/~1blogCategory~1permanentDelete~1{id}'
   
-  # Config endpoints  
+  # category endpoints
+  /category:
+    $ref: './category.yaml#/paths/~1category'
+  /category/getcategoryById/{id}:
+    $ref: './category.yaml#/paths/~1category~1getCategoryById~1{id}'
+  /category/updatecategory/{id}:
+    $ref: './category.yaml#/paths/~1category~1updateCategory~1{id}'
+  /category/softDeletecategory/{id}:
+    $ref: './category.yaml#/paths/~1category~1softDeleteCategory~1{id}'
+  /category/togglestatus/{id}:
+    $ref: './category.yaml#/paths/~1category~1toggleStatus~1{id}'
+  /category/trash:
+    $ref: './category.yaml#/paths/~1category~1trash'
+  /category/restore/{id}:
+    $ref: './category.yaml#/paths/~1category~1restore~1{id}'
+  /category/permanentDelete/{id}:
+    $ref: './category.yaml#/paths/~1category~1permanentDelete~1{id}'
+
+
+   
+  # Agency endpoints
+  /agencies:
+    $ref: './agencies.yaml#/paths/~1agencies'
+  /agencies/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1{id}'
+  /agencies/softDelete/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1softDelete~1{id}'
+  /agencies/trash:
+    $ref: './agencies.yaml#/paths/~1agencies~1trash'
+  /agencies/restore/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1restore~1{id}'
+  /agencies/toggleStatus/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1toggleStatus~1{id}'
+  /agencies/permanentDelete/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1permanentDelete~1{id}'
+
+    # NewsLetter endpoints
+  /newsletters:
+    $ref: './newsletters.yaml#/paths/~1newsletters'
+  /newsletters/getNewsLetterById/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1getNewsLetterById~1{id}'
+  /newsletters/updateNewsLetter/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1updateNewsLetter~1{id}'
+  /newsletters/softDeleteNewsLetter/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1softDeleteNewsLetter~1{id}'
+  /newsletters/togglestatus/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1togglestatus~1{id}'
+  /newsletters/trash:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1trash'
+  /newsletters/restore/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1restore~1{id}'
+  /newsletters/permanentDelete/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1permanentDelete~1{id}'
+
+  # Page endpoints
+  /pages:
+    $ref: './page.yaml#/paths/~1pages'
+  /pages/getPageById/{id}:
+    $ref: './page.yaml#/paths/~1pages~1getPageById~1{id}'
+  /pages/updatePage/{id}:
+    $ref: './page.yaml#/paths/~1pages~1updatePage~1{id}'
+  /pages/softDeletePage/{id}:
+    $ref: './page.yaml#/paths/~1pages~1softDeletePage~1{id}'
+  /pages/togglestatus/{id}:
+    $ref: './page.yaml#/paths/~1pages~1togglestatus~1{id}'
+  /pages/trash:
+    $ref: './page.yaml#/paths/~1pages~1trash'
+  /pages/restore/{id}:
+    $ref: './page.yaml#/paths/~1pages~1restore~1{id}'
+  /pages/permanentDelete/{id}:
+    $ref: './page.yaml#/paths/~1pages~1permanentDelete~1{id}'
+
+  # Config endpoints
   /configs:
     $ref: './configs.yaml#/paths/~1configs'
   /configs/getConfigById/{id}:
@@ -67,10 +139,33 @@ paths:
     $ref: './configs.yaml#/paths/~1configs~1restore~1{id}'
   /configs/permanentDelete/{id}:
     $ref: './configs.yaml#/paths/~1configs~1permanentDelete~1{id}'
-  
-  # Settings endpoints
+
+
+# FooterInfo endpoints
+  /footerinfo:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo'
+  /footerinfo/getfooterinfoById/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1getfooterinfoById~1{id}'
+  /footerinfo/updatefooterinfo/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1updatefooterinfo~1{id}'
+  /footerinfo/softDeletefooterinfo/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1softDeletefooterinfo~1{id}'
+  /footerinfo/togglestatus/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1togglestatus~1{id}'
+  /footerinfo/trash:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1trash'
+  /footerinfo/restore/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1restore~1{id}'
+  /footerinfo/permanentDelete/{id}:
+    $ref: './footerinfo.yaml#/paths/~1footerinfo~1permanentDelete~1{id}'
+
+# Settings endpoints
   /settings:
     $ref: './settings.yaml#/paths/~1settings'
+
+  # Banner Management endpoints
+  /banners:
+    $ref: './banner.yaml#/paths/~1banners'
 
 components:
   schemas:
@@ -79,6 +174,22 @@ components:
       $ref: './faqs.yaml#/components/schemas/Faq'
     FaqInput:
       $ref: './faqs.yaml#/components/schemas/FaqInput'
+    Category:
+      $ref: './category.yaml#/components/schemas/Category'
+    CategoryInput:
+      $ref: './category.yaml#/components/schemas/CategoryInput'
+
+    Agency:
+      $ref: './agencies.yaml#/components/schemas/Agency'
+    AgencyInput:
+      $ref: './agencies.yaml#/components/schemas/AgencyInput'
+
+    FooterInfo:
+      $ref: './footerinfo.yaml#/components/schemas/FooterInfo'
+    FooterInfoInput:
+      $ref: './footerinfo.yaml#/components/schemas/FooterInfoInput'
+
+      
     Config:
       $ref: './configs.yaml#/components/schemas/Config'
     ConfigInput:
@@ -93,6 +204,19 @@ components:
     blogCategoryInput:
       $ref: './blogCategory.yaml#/components/schemas/blogCategoryInput'
        
+
+       # Reference schemas from other files
+    NewsLetter:
+      $ref: './newsletters.yaml#/components/schemas/NewsLetter'
+    NewsLetterInput:
+      $ref: './newsletters.yaml#/components/schemas/NewsLetterInput'
+
+    Page:
+      $ref: './page.yaml#/components/schemas/Page'
+    PageInput:
+      $ref: './page.yaml#/components/schemas/PageInput'
+
+
     # Common Error schema (used by all)
     Error:
       type: object

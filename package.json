@@ -28,11 +28,14 @@
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.1",
+    "swagger": "^0.7.5",
+    "swagger-cli": "^4.0.4",
     "multer": "^2.0.2",
     "swagger-cli": "^4.0.4",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@apidevtools/swagger-cli": "^4.0.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
