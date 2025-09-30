@@ -10,8 +10,8 @@
     "test": "jest --detectOpenHandles --forceExit --runInBand",
     "coverage": "jest --coverage --detectOpenHandles --forceExit --runInBand",
     "seed": "ts-node src/seeders/index.ts",
-  "validate:openapi": "swagger-cli validate api-docs/main.yaml",
-  "bundle:openapi": "swagger-cli bundle api-docs/main.yaml -o api-docs/bundled.yaml"
+    "validate:openapi": "swagger-cli validate api-docs/main.yaml",
+    "bundle:openapi": "swagger-cli bundle api-docs/main.yaml -o api-docs/bundled.yaml"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +32,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@apidevtools/swagger-cli": "^4.0.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",

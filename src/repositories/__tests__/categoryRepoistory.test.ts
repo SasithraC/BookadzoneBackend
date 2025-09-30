@@ -56,7 +56,7 @@ it("should create a category", async () => {
       limit: jest.fn().mockResolvedValue([mockCategory]),
     });
 
-    const result = await repo.getAllCategory(1, 10);
+    const result = await repo.getCategory(1, 10);
     expect(result.data).toEqual([mockCategory]);
     expect(result.meta.totalPages).toBe(10);
   });

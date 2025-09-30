@@ -1,4 +1,283 @@
-# Category Management Endpoints
+# # Category Management Endpoints
+# paths:
+#   /category:
+#     post:
+#       summary: Create a new category
+#       tags:
+#         - Category
+#       requestBody:
+#         required: true
+#         content:
+#           multipart/form-data:
+#             schema:
+#               type: object
+#               properties:
+#                 name:
+#                   type: string
+#                   example: digitalscreen
+#                 slug:
+#                   type: string
+#                   example: digitalscreen
+#                 description:
+#                   type: string
+#                   example: The amount of the element is the form
+#                 photo:
+#                   type: string
+#                   format: binary
+#                   description: Upload category image
+#                 isFeatured:
+#                   type: boolean
+#                   example: true
+#               required:
+#                 - name
+#                 - description
+#                 - photo
+#       responses:
+#         '201':
+#           description: Category created successfully
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: '#/components/schemas/Category'
+
+#     get:
+#       summary: Get all categories
+#       tags:
+#         - Category
+#       responses:
+#         '200':
+#           description: List of categories
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: '#/components/schemas/Category'
+
+#   /category/getcategoryById/{id}:
+#     get:
+#       summary: Get category by ID
+#       tags:
+#         - Category
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: string
+#             example: 68ce612a16a4dcd4ebb7a0ca
+#       responses:
+#         '200':
+#           description: Category found
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: '#/components/schemas/Category'
+
+#   /category/updatecategory/{id}:
+#     put:
+#       summary: Update category by ID
+#       tags:
+#         - Category
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: string
+#             example: 68ce612a16a4dcd4ebb7a0ca
+#       requestBody:
+#         required: true
+#         content:
+#           multipart/form-data:
+#             schema:
+#               type: object
+#               properties:
+#                 name:
+#                   type: string
+#                 slug:
+#                   type: string
+#                 description:
+#                   type: string
+#                 photo:
+#                   type: string
+#                   format: binary
+#                 isFeatured:
+#                   type: boolean
+#       responses:
+#         '200':
+#           description: Category updated successfully
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: '#/components/schemas/Category'
+
+#   /category/togglestatus/{id}:
+#     patch:
+#       summary: Toggle category status (active/inactive)
+#       tags:
+#         - Category
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: string
+#       responses:
+#         '200':
+#           description: Status updated
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: '#/components/schemas/Category'
+
+#   /category/softDeletecategory/{id}:
+#     delete:
+#       summary: Soft delete a category
+#       tags:
+#         - Category
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: string
+#       responses:
+#         '200':
+#           description: Category soft deleted
+
+#   /category/trash:
+#     patch:
+#       summary: Get all trashed categories
+#       tags:
+#         - Category
+#       responses:
+#         '200':
+#           description: List of trashed categories
+#           content:
+#             application/json:
+#               schema:
+#                 type: array
+#                 items:
+#                   $ref: '#/components/schemas/Category'
+
+#   /category/restore/{id}:
+#     patch:
+#       summary: Restore a soft-deleted category
+#       tags:
+#         - Category
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: string
+#       responses:
+#         '200':
+#           description: Category restored
+#           content:
+#             application/json:
+#               schema:
+#                 $ref: '#/components/schemas/Category'
+
+#   /category/permanentDelete/{id}:
+#     delete:
+#       summary: Permanently delete a category
+#       tags:
+#         - Category
+#       parameters:
+#         - in: path
+#           name: id
+#           required: true
+#           schema:
+#             type: string
+#       responses:
+#         '200':
+#           description: Category permanently deleted
+
+# components:
+#   schemas:
+#     Category:
+#       type: object
+#       properties:
+#         _id:
+#           type: string
+#           example: 68ce612a16a4dcd4ebb7a0ca
+#         name:
+#           type: string
+#           example: digitalscreen
+#         slug:
+#           type: string
+#           example: digitalscreen
+#         description:
+#           type: string
+#           example: the amount oif the element is tha form ha
+#         photo:
+#           type: string
+#           example: uploads/634883ce21e5949b7c2b7bcf3f22665e
+#         status:
+#           type: string
+#           enum: [active, inactive]
+#           example: active
+#         isFeatured:
+#           type: boolean
+#           example: false
+#         createdAt:
+#           type: string
+#           format: date-time
+#           example: 2025-09-20T08:09:14.217Z
+#         updatedAt:
+#           type: string
+#           format: date-time
+#           example: 2025-09-22T07:32:27.140Z
+#       required:
+#         - name
+#         - slug
+#         - description
+#         - ISFea
+#         - photo
+
+#     CategoryInput:
+#       type: object
+#       properties:
+#         name:
+#           type: string
+#           example: What is the purpose of this API?
+#         slug:
+#           type: string
+#           example: This API manages Category for the Bookadzone platform.
+#         description:
+#           type: string
+#           example: This API manages Category for the Bookadzone platform.
+#         photo:
+#           type: string
+#           example: This API manages Category for the Bookadzone platform.
+#         status:
+#           type: string
+#           enum:
+#             - active
+#             - inactive
+#           example: active
+#         isDeleted:
+#           type: boolean
+#           example: false
+#       required:
+#         - name
+#         - slug
+#         - description
+#         - photo
+
+#     Error:
+#       type: object
+#       properties:
+#         status:
+#           type: string
+#           example: fail
+#         message:
+#           type: string
+#           example: Invalid input
+
+
 paths:
   /category:
     post:
@@ -39,11 +318,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
-
+        '401':
+          description: Unauthorized - Bearer token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - You do not have access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
       summary: Get all categories
       tags:
         - Category
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: List of categories
@@ -53,8 +345,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
+        '401':
+          description: Unauthorized - Bearer token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - You do not have access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /category/getcategoryById/{id}:
+  /category/getCategoryById/{id}:
     get:
       summary: Get category by ID
       tags:
@@ -65,7 +369,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 68ce612a16a4dcd4ebb7a0ca
+            # example: 68ce612a16a4dcd4ebb7a0ca
       responses:
         '200':
           description: Category found
@@ -73,8 +377,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+        '401':
+          description: Unauthorized - Bearer token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - You do not have access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /category/updatecategory/{id}:
+  /category/updateCategory/{id}:
     put:
       summary: Update category by ID
       tags:
@@ -85,7 +401,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 68ce612a16a4dcd4ebb7a0ca
+            # example: 68ce612a16a4dcd4ebb7a0ca
       requestBody:
         required: true
         content:
@@ -111,8 +427,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+        '401':
+          description: Unauthorized - Bearer token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - You do not have access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /category/togglestatus/{id}:
+  /category/toggleStatus/{id}:
     patch:
       summary: Toggle category status (active/inactive)
       tags:
@@ -130,8 +458,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
-
-  /category/softDeletecategory/{id}:
+        '401':
+          description: Unauthorized - Bearer token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - You do not have access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /category/softDeleteCategory/{id}:
     delete:
       summary: Soft delete a category
       tags:
@@ -145,9 +484,21 @@ paths:
       responses:
         '200':
           description: Category soft deleted
+        '401':
+          description: Unauthorized - Bearer token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - You do not have access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /category/trash:
-    patch:
+    get:
       summary: Get all trashed categories
       tags:
         - Category
@@ -202,7 +553,7 @@ components:
       properties:
         _id:
           type: string
-          example: 68ce612a16a4dcd4ebb7a0ca
+          # example: 68ce612a16a4dcd4ebb7a0ca
         name:
           type: string
           example: digitalscreen
@@ -211,7 +562,7 @@ components:
           example: digitalscreen
         description:
           type: string
-          example: the amount oif the element is tha form ha
+          example: The amount of the element is the form
         photo:
           type: string
           example: uploads/634883ce21e5949b7c2b7bcf3f22665e
@@ -230,3 +581,44 @@ components:
           type: string
           format: date-time
           example: 2025-09-22T07:32:27.140Z
+      required:
+        - name
+        - slug
+        - description
+        - isFeatured
+        - photo
+
+    CategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        photo:
+          type: string
+          format: binary
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+        isDeleted:
+          type: boolean
+      required:
+        - name
+        - slug
+        - description
+        - photo
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+          example: Invalid input

@@ -1,200 +1,349 @@
-import request from "supertest";
-import express, { Express } from "express";
-import CategoryController from "../categoryController";
+import categoryController from "../categoryController";
 import categoryService from "../../services/categoryService";
 import { HTTP_RESPONSE } from "../../utils/httpResponse";
 
 jest.mock("../../services/categoryService");
 
-const app: Express = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const mockReq = (overrides = {}) =>
+  ({
+    body: {},
+    params: {},
+    query: {},
+    file: undefined,
+    ...overrides,
+  } as any);
 
-app.post("/category", CategoryController.createCategory.bind(CategoryController));
-app.get("/category", CategoryController.getAllCategorys.bind(CategoryController));
-app.get("/category/:id", CategoryController.getCategoryById.bind(CategoryController));
-app.put("/category/:id", CategoryController.updateCategory.bind(CategoryController));
-app.delete("/category/:id", CategoryController.softDeleteCategory.bind(CategoryController));
-app.patch("/category/status/:id", CategoryController.toggleCategoryStatus.bind(CategoryController));
-app.get("/category-trash", CategoryController.getAllTrashCategorys.bind(CategoryController));
-app.patch("/category-restore/:id", CategoryController.restoreCategory.bind(CategoryController));
-app.delete("/category-permanent/:id", CategoryController.deleteCategoryPermanently.bind(CategoryController));
+const mockRes = () => {
+  const res: any = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  return res;
+};
+
+const mockNext = jest.fn();
 
 describe("CategoryController", () => {
-  const mockCategory = {
-    _id: "123",
-    name: "Test Category",
-    status: "active",
-    isDeleted: false,
-  };
-
-  // ✅ Success Cases
-  it("should create a category", async () => {
-    (categoryService.createCategory as jest.Mock).mockResolvedValue(mockCategory);
-    const res = await request(app).post("/category").send({ name: "Test Category" });
-    expect(res.status).toBe(201);
-    expect(res.body.status).toBe(HTTP_RESPONSE.SUCCESS);
-    expect(res.body.data).toEqual(mockCategory);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("should get all categories", async () => {
-    (categoryService.getAllCategory as jest.Mock).mockResolvedValue({
-      data: [mockCategory],
-      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+  describe("createCategory", () => {
+    it("returns 400 if photo is missing", async () => {
+      const req = mockReq({ body: { name: "Test", description: "desc" } });
+      const res = mockRes();
+      await categoryController.createCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Photo file is required for creation",
+      });
     });
-    const res = await request(app).get("/category");
-    expect(res.status).toBe(200);
-    expect(res.body.data).toEqual([mockCategory]);
-  });
 
-  it("should get category by ID", async () => {
-    (categoryService.getCategoryById as jest.Mock).mockResolvedValue(mockCategory);
-    const res = await request(app).get("/category/123");
-    expect(res.status).toBe(200);
-    expect(res.body.data).toEqual(mockCategory);
-  });
-
-  it("should update category", async () => {
-    (categoryService.updateCategory as jest.Mock).mockResolvedValue({ ...mockCategory, name: "Updated" });
-    const res = await request(app).put("/category/123").send({ name: "Updated" });
-    expect(res.status).toBe(200);
-    expect(res.body.data.name).toBe("Updated");
-  });
-
-  it("should soft delete category", async () => {
-    (categoryService.softDeleteCategory as jest.Mock).mockResolvedValue({ ...mockCategory, isDeleted: true });
-    const res = await request(app).delete("/category/123");
-    expect(res.status).toBe(200);
-    expect(res.body.data.isDeleted).toBe(true);
-  });
-
-  it("should toggle category status", async () => {
-    (categoryService.toggleStatus as jest.Mock).mockResolvedValue({ ...mockCategory, status: "inactive" });
-    const res = await request(app).patch("/category/status/123");
-    expect(res.status).toBe(200);
-    expect(res.body.data.status).toBe("inactive");
-  });
-
-  it("should get all trash categories", async () => {
-    (categoryService.getAllTrashCategorys as jest.Mock).mockResolvedValue({
-      data: [mockCategory],
-      meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+    it("returns 400 if description is missing", async () => {
+      const req = mockReq({ body: { name: "Test" }, file: { filename: "p.png" } });
+      const res = mockRes();
+      await categoryController.createCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "description is required",
+      });
     });
-    const res = await request(app).get("/category-trash");
-    expect(res.status).toBe(200);
-    expect(res.body.data).toEqual([mockCategory]);
-  });
 
-  it("should restore category", async () => {
-    (categoryService.restoreCategory as jest.Mock).mockResolvedValue({ ...mockCategory, isDeleted: false });
-    const res = await request(app).patch("/category-restore/123");
-    expect(res.status).toBe(200);
-    expect(res.body.data.isDeleted).toBe(false);
-  });
-
-  it("should permanently delete category", async () => {
-    (categoryService.deleteCategoryPermanently as jest.Mock).mockResolvedValue(mockCategory);
-    const res = await request(app).delete("/category-permanent/123");
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Category permanently deleted");
-  });
-
-  // ❌ Failure Cases
-  it("should return 404 if category not found in getCategoryById", async () => {
-    (categoryService.getCategoryById as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).get("/category/999");
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Category not found");
-  });
-
-  it("should return 404 if category not found in updateCategory", async () => {
-    (categoryService.updateCategory as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).put("/category/999").send({ name: "Updated" });
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Category not found");
-  });
-
-  it("should return 404 if category not found in softDeleteCategory", async () => {
-    (categoryService.softDeleteCategory as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).delete("/category/999");
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Category not found");
-  });
-
-  it("should return 404 if category not found in toggleStatus", async () => {
-    (categoryService.toggleStatus as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).patch("/category/status/999");
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Category not found");
-  });
-
-  it("should return 404 if category not found in restoreCategory", async () => {
-    (categoryService.restoreCategory as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).patch("/category-restore/999");
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Category not found");
-  });
-
-  it("should return 404 if category not found in deleteCategoryPermanently", async () => {
-    (categoryService.deleteCategoryPermanently as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).delete("/category-permanent/999");
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Category not found");
-  });
-
-  // ⚠️ Edge & Error Cases
-  it("should return 409 if category already exists", async () => {
-    (categoryService.createCategory as jest.Mock).mockRejectedValue(new Error("Category already exists"));
-    const res = await request(app).post("/category").send({ name: "Test Category" });
-    expect(res.status).toBe(409);
-    expect(res.body.message).toBe("Category already exists");
-  });
-
-  it("should return 500 if createCategory throws unexpected error", async () => {
-    (categoryService.createCategory as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
-    const res = await request(app).post("/category").send({ name: "Test Category" });
-    expect(res.status).toBe(500);
-  });
-
-  it("should return 500 if updateCategory throws unexpected error", async () => {
-    (categoryService.updateCategory as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
-    const res = await request(app).put("/category/123").send({ name: "Updated" });
-    expect(res.status).toBe(500);
-  });
-
-  it("should return 500 if softDeleteCategory throws unexpected error", async () => {
-    (categoryService.softDeleteCategory as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
-    const res = await request(app).delete("/category/123");
-    expect(res.status).toBe(500);
-  });
-
-  it("should return 500 if toggleStatus throws unexpected error", async () => {
-    (categoryService.toggleStatus as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
-    const res = await request(app).patch("/category/status/123");
-    expect(res.status).toBe(500);
-  });
-
-  it("should return 500 if restoreCategory throws unexpected error", async () => {
-    (categoryService.restoreCategory as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
-    const res = await request(app).patch("/category-restore/123");
-    expect(res.status).toBe(500);
-  });
-
-  it("should return 500 if deleteCategoryPermanently throws unexpected error", async () => {
-    (categoryService.deleteCategoryPermanently as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
-    const res = await request(app).delete("/category-permanent/123");
-    expect(res.status).toBe(500);
-  });
-
-  it("should handle invalid query params in getAllCategorys", async () => {
-    (categoryService.getAllCategory as jest.Mock).mockResolvedValue({
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+    it("returns 201 on success", async () => {
+      const req = mockReq({
+        body: { name: "Test", description: "desc", slug: "test" },
+        file: { filename: "p.png" },
+      });
+      const res = mockRes();
+      (categoryService.createCategory as jest.Mock).mockResolvedValue({ id: "123" });
+      await categoryController.createCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category created successfully",
+        data: { id: "123" },
+      });
     });
-    const res = await request(app).get("/category?page=abc&limit=xyz&status=unknown");
-    expect(res.status).toBe(200);
-    expect(res.body.data).toEqual([]);
-    expect(res.body.meta.total).toBe(0);
-    expect(res.body.meta.totalPages).toBe(1);
+
+    it("returns 409 if duplicate", async () => {
+      const req = mockReq({
+        body: { name: "Test", description: "desc", slug: "test" },
+        file: { filename: "p.png" },
+      });
+      const res = mockRes();
+      (categoryService.createCategory as jest.Mock).mockRejectedValue(new Error("photo already exists"));
+      await categoryController.createCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "photo already exists",
+      });
+    });
+
+    it("calls next on unexpected error", async () => {
+      const req = mockReq({
+        body: { name: "Test", description: "desc", slug: "test" },
+        file: { filename: "p.png" },
+      });
+      const res = mockRes();
+      const error = new Error("Unexpected");
+      (categoryService.createCategory as jest.Mock).mockRejectedValue(error);
+      await categoryController.createCategory(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("getCategory", () => {
+    it("returns 200 with data", async () => {
+      const req = mockReq({ query: { page: "1", limit: "10" } });
+      const res = mockRes();
+      (categoryService.getCategory as jest.Mock).mockResolvedValue(["cat"]);
+      await categoryController.getCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Categories fetched successfully",
+        data: ["cat"],
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.getCategory as jest.Mock).mockRejectedValue(error);
+      await categoryController.getCategory(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("getCategoryById", () => {
+    it("returns 400 if id is missing", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      await categoryController.getCategoryById(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category ID is required",
+      });
+    });
+
+    it("returns 404 if not found", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      (categoryService.getCategoryById as jest.Mock).mockResolvedValue(null);
+      await categoryController.getCategoryById(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category not found",
+      });
+    });
+
+    it("returns 200 if found", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      (categoryService.getCategoryById as jest.Mock).mockResolvedValue({ id: "123" });
+      await categoryController.getCategoryById(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category fetched successfully",
+        data: { id: "123" },
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.getCategoryById as jest.Mock).mockRejectedValue(error);
+      await categoryController.getCategoryById(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("updateCategory", () => {
+    it("returns 400 if id is missing", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      await categoryController.updateCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category ID is required",
+      });
+    });
+
+    it("returns 200 on success", async () => {
+      const req = mockReq({ params: { id: "123" }, body: { name: "Updated" } });
+      const res = mockRes();
+      (categoryService.updateCategory as jest.Mock).mockResolvedValue({ id: "123" });
+      await categoryController.updateCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category updated successfully",
+        data: { id: "123" },
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq({ params: { id: "123" }, body: { name: "Updated" } });
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.updateCategory as jest.Mock).mockRejectedValue(error);
+      await categoryController.updateCategory(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("softDeleteCategory", () => {
+    it("returns 400 if id is missing", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      await categoryController.softDeleteCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("returns 200 on success", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      (categoryService.softDeleteCategory as jest.Mock).mockResolvedValue({ id: "123" });
+      await categoryController.softDeleteCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.softDeleteCategory as jest.Mock).mockRejectedValue(error);
+      await categoryController.softDeleteCategory(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+   // TOGGLE STATUS
+  describe("toggleCatgoryStatus", () => {
+    it("returns 400 if id is missing", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("returns 200 on success", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      (categoryService.toggleStatus as jest.Mock).mockResolvedValue({ id: "123", status: "inactive" });
+      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category status toggled successfully",
+        data: { id: "123", status: "inactive" },
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.toggleStatus as jest.Mock).mockRejectedValue(error);
+      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  // GET TRASH
+  describe("getAllTrashCategorys", () => {
+    it("returns 200 with data", async () => {
+      const req = mockReq({ query: { page: "1", limit: "10" } });
+      const res = mockRes();
+      (categoryService.getAllTrashCategorys as jest.Mock).mockResolvedValue(["trash"]);
+      await categoryController.getAllTrashCategorys(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Trashed categories fetched successfully",
+        data: ["trash"],
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.getAllTrashCategorys as jest.Mock).mockRejectedValue(error);
+      await categoryController.getAllTrashCategorys(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  // RESTORE
+  describe("restoreCategory", () => {
+    it("returns 400 if id is missing", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      await categoryController.restoreCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("returns 200 on success", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      (categoryService.restoreCategory as jest.Mock).mockResolvedValue({ id: "123" });
+      await categoryController.restoreCategory(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category restored successfully",
+        data: { id: "123" },
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.restoreCategory as jest.Mock).mockRejectedValue(error);
+      await categoryController.restoreCategory(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  // DELETE PERMANENTLY
+  describe("deleteCategoryPermanently", () => {
+    it("returns 400 if id is missing", async () => {
+      const req = mockReq();
+      const res = mockRes();
+      await categoryController.deleteCategoryPermanently(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("returns 200 on success", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      (categoryService.deleteCategoryPermanently as jest.Mock).mockResolvedValue({ id: "123" });
+      await categoryController.deleteCategoryPermanently(req, res, mockNext);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category deleted permanently",
+        data: { id: "123" },
+      });
+    });
+
+    it("calls next on error", async () => {
+      const req = mockReq({ params: { id: "123" } });
+      const res = mockRes();
+      const error = new Error("fail");
+      (categoryService.deleteCategoryPermanently as jest.Mock).mockRejectedValue(error);
+      await categoryController.deleteCategoryPermanently(req, res, mockNext);
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
   });
 });

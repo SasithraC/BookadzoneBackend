@@ -41,5 +41,5 @@ const userSchema = new mongoose_1.Schema({
     status: { type: String, enum: ["active", "inactive"], default: "active" },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
-const User = mongoose_1.default.model("users", userSchema);
+const User = mongoose_1.default.models.users || mongoose_1.default.model("users", userSchema);
 exports.default = User;

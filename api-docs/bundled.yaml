@@ -197,6 +197,11 @@
         "tags": [
           "FAQs"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "query",
@@ -282,6 +287,62 @@
                       "example": "Invalid input"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new FAQ",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaqInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "FAQ created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Faq"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
                 }
               }
             }
@@ -860,6 +921,437 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/category": {
+      "post": {
+        "summary": "Create a new category",
+        "tags": [
+          "Category"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "digitalscreen"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "example": "digitalscreen"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "The amount of the element is the form"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Upload category image"
+                  },
+                  "isFeatured": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "photo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all categories",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/getcategoryById/{id}": {
+      "get": {
+        "summary": "Get category by ID",
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/updatecategory/{id}": {
+      "put": {
+        "summary": "Update category by ID",
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "slug": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "isFeatured": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/softDeletecategory/{id}": {
+      "delete": {
+        "summary": "Soft delete a category",
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category soft deleted"
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle category status (active/inactive)",
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/trash": {
+      "get": {
+        "summary": "Get all trashed categories",
+        "tags": [
+          "Category"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted category",
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category restored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a category",
+        "tags": [
+          "Category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category permanently deleted"
           }
         }
       }
@@ -1640,6 +2132,793 @@
         }
       }
     },
+    "/footerinfo": {
+      "post": {
+        "summary": "Create a new FooterInfo",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FooterInfoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "FooterInfo created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo created"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "FooterInfo with this logo already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all FooterInfo records",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of FooterInfo records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FooterInfo"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/getfooterinfoById/{id}": {
+      "get": {
+        "summary": "Get a FooterInfo by ID",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/updatefooterinfo/{id}": {
+      "put": {
+        "summary": "Update a FooterInfo by ID",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FooterInfoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "FooterInfo updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/softDeletefooterinfo/{id}": {
+      "delete": {
+        "summary": "Soft delete a FooterInfo by ID",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a FooterInfo (active/inactive)",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/trash": {
+      "get": {
+        "summary": "Get all trashed FooterInfo records",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed FooterInfo records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FooterInfo"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted FooterInfo",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a FooterInfo",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/settings": {
       "get": {
         "summary": "Get all settings",
@@ -1843,6 +3122,185 @@
         "required": [
           "question",
           "answer"
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "digitalscreen"
+          },
+          "slug": {
+            "type": "string",
+            "example": "digitalscreen"
+          },
+          "description": {
+            "type": "string",
+            "example": "The amount of the element is the form"
+          },
+          "photo": {
+            "type": "string",
+            "example": "uploads/634883ce21e5949b7c2b7bcf3f22665e"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isFeatured": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:09:14.217Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-22T07:32:27.140Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "description",
+          "isFeatured",
+          "photo"
+        ]
+      },
+      "CategoryInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "string",
+            "format": "binary"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "description",
+          "photo"
+        ]
+      },
+      "FooterInfo": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68d0d79c088e29730b6f7193"
+          },
+          "logo": {
+            "type": "string",
+            "example": "logo.png"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main Street, Bangalore"
+          },
+          "email": {
+            "type": "string",
+            "example": "support@bookadzone.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91-9876543210"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "logo",
+          "address",
+          "email",
+          "phone"
+        ]
+      },
+      "FooterInfoInput": {
+        "type": "object",
+        "properties": {
+          "logo": {
+            "type": "string",
+            "format": "binary"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main Street, Bangalore"
+          },
+          "email": {
+            "type": "string",
+            "example": "support@bookadzone.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91-9876543210"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "logo",
+          "address",
+          "email",
+          "phone"
         ]
       },
       "Config": {
