@@ -43,7 +43,7 @@ router.get('/', categoryController.getCategory);
 router.get('/getcategoryById/:id', categoryController.getCategoryById);
 router.put('/updatecategory/:id', setManagementName, upload.single('photo'), categoryController.updateCategory);
 router.delete('/softDeletecategory/:id', categoryController.softDeleteCategory);
-router.patch('/togglestatus/:id', categoryController.toggleCatgoryStatus);
+router.patch('/togglestatus/:id', categoryController.toggleCategoryStatus);
 router.get('/trash/', categoryController.getAllTrashCategorys);
 router.patch('/restore/:id', categoryController.restoreCategory);
 router.delete('/permanentDelete/:id', categoryController.deleteCategoryPermanently);

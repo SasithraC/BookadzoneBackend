@@ -4,7 +4,7 @@ info:
   description: API for managing FAQs, Configs, and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
-  - url: http://localhost:5001/api/v1
+  - url: http://localhost:5000/api/v1
     description: Local development server
 
 paths:
@@ -53,6 +53,23 @@ paths:
 
    
 
+    # NewsLetter endpoints
+  /newsletters:
+    $ref: './newsletters.yaml#/paths/~1newsletters'
+  /newsletters/getNewsLetterById/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1getNewsLetterById~1{id}'
+  /newsletters/updateNewsLetter/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1updateNewsLetter~1{id}'
+  /newsletters/softDeleteNewsLetter/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1softDeleteNewsLetter~1{id}'
+  /newsletters/togglestatus/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1togglestatus~1{id}'
+  /newsletters/trash:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1trash'
+  /newsletters/restore/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1restore~1{id}'
+  /newsletters/permanentDelete/{id}:
+    $ref: './newsletters.yaml#/paths/~1newsletters~1permanentDelete~1{id}'
   
   # Config endpoints  
   /configs:
@@ -95,6 +112,10 @@ paths:
   /settings:
     $ref: './settings.yaml#/paths/~1settings'
 
+  # Banner Management endpoints
+  /banners:
+    $ref: './banner.yaml#/paths/~1banners'
+
 components:
   schemas:
     # Reference schemas from other files
@@ -106,6 +127,7 @@ components:
       $ref: './category.yaml#/components/schemas/Category'
     CategoryInput:
       $ref: './category.yaml#/components/schemas/CategoryInput'
+
     FooterInfo:
       $ref: './footerinfo.yaml#/components/schemas/FooterInfo'
     FooterInfoInput:
@@ -120,6 +142,12 @@ components:
       $ref: './settings.yaml#/components/schemas/Settings'
     SettingsResponse:
       $ref: './settings.yaml#/components/schemas/SettingsResponse'
+
+       # Reference schemas from other files
+    NewsLetter:
+      $ref: './newsletters.yaml#/components/schemas/NewsLetter'
+    NewsLetterInput:
+      $ref: './newsletters.yaml#/components/schemas/NewsLetterInput'
       
     
     # Common Error schema (used by all)

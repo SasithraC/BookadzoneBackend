@@ -4,6 +4,7 @@ import seedFaqs from "./faqSeeder";
 import seedConfigs from "./configSeeder";
 import seedSettings from "./settingsSeeder";
 import seedCategory from "./categorySeeder";
+import seedBannerManagement from "./bannerSeeder";
 
 const seedAll = async (): Promise<void> => {
   try {
@@ -17,6 +18,10 @@ const seedAll = async (): Promise<void> => {
     await seedConfigs();
     await seedSettings();
     await seedCategory();
+  await seedFaqs();
+  await seedConfigs();
+  await seedSettings();
+  await seedBannerManagement();
     console.log("All seeders executed successfully");
     await mongoose.connection.close();
   } catch (error) {

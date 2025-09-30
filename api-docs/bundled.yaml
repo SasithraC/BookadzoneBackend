@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5001/api/v1",
+      "url": "http://localhost:5000/api/v1",
       "description": "Local development server"
     }
   ],
@@ -931,6 +931,11 @@
         "tags": [
           "Category"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1065,6 +1070,11 @@
         "tags": [
           "Category"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -1114,6 +1124,11 @@
         "summary": "Update category by ID",
         "tags": [
           "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {
@@ -1193,6 +1208,11 @@
         "tags": [
           "Category"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -1235,6 +1255,11 @@
         "summary": "Toggle category status (active/inactive)",
         "tags": [
           "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {
@@ -1286,6 +1311,11 @@
         "tags": [
           "Category"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of trashed categories",
@@ -1308,6 +1338,11 @@
         "summary": "Restore a soft-deleted category",
         "tags": [
           "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {
@@ -1339,6 +1374,11 @@
         "tags": [
           "Category"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -1352,6 +1392,740 @@
         "responses": {
           "200": {
             "description": "Category permanently deleted"
+          }
+        }
+      }
+    },
+    "/newsletters": {
+      "get": {
+        "summary": "Get all NewsLetters",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NewsLetter"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new NewsLetter",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsLetterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "NewsLetter created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/getNewsLetterById/{id}": {
+      "get": {
+        "summary": "Get a NewsLetter by ID",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/updateNewsLetter/{id}": {
+      "put": {
+        "summary": "Update a NewsLetter by ID",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsLetterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "NewsLetter updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/softDeleteNewsLetter/{id}": {
+      "delete": {
+        "summary": "Soft delete a NewsLetter by ID",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a NewsLetter (active/inactive)",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/trash": {
+      "get": {
+        "summary": "Get all trashed NewsLetters",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed NewsLetters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NewsLetter"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted NewsLetter",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a NewsLetter",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
           }
         }
       }
@@ -3048,6 +3822,267 @@
           }
         }
       }
+    },
+    "/banners": {
+      "get": {
+        "summary": "Get banner management data",
+        "tags": [
+          "Banner Management"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Banner management retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/paths/~1banners/put/requestBody/content/multipart~1form-data/schema"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Banner management retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update banner management data",
+        "tags": [
+          "Banner Management"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "homepage": {
+                    "type": "object",
+                    "properties": {
+                      "bannerOne": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "highlightedText": {
+                            "type": "string"
+                          },
+                          "image1": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead1": {
+                            "type": "string"
+                          },
+                          "subDescription1": {
+                            "type": "string"
+                          },
+                          "image2": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead2": {
+                            "type": "string"
+                          },
+                          "subDescription2": {
+                            "type": "string"
+                          },
+                          "image3": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead3": {
+                            "type": "string"
+                          },
+                          "subDescription3": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "bannerTwo": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "features": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "icon": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "buttonName": {
+                            "type": "string"
+                          },
+                          "buttonUrl": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "aboutBanner": {
+                    "type": "object",
+                    "properties": {
+                      "submenu1": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "binary"
+                            }
+                          }
+                        }
+                      },
+                      "submenu2": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "binary"
+                            }
+                          }
+                        }
+                      },
+                      "submenu3": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "smallBoxes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Banner management updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1banners/get/responses/200/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3584,6 +4619,88 @@
             "example": "Settings retrieved successfully"
           }
         }
+      },
+      "NewsLetter": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "name": {
+            "type": "string",
+            "example": "This API manages NewsLetters for the Bookadzone platform."
+          },
+          "slug": {
+            "type": "string",
+            "example": "This API manages NewsLetters for the Bookadzone platform."
+          },
+          "template": {
+            "type": "string",
+            "example": "This API manages NewsLetters for the Bookadzone platform."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "template"
+        ]
+      },
+      "NewsLetterInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "This API manages NEWSLETTERs for the Bookadzone platform."
+          },
+          "slug": {
+            "type": "string",
+            "example": "This API manages NEWSLETTERs for the Bookadzone platform."
+          },
+          "template": {
+            "type": "string",
+            "example": "This API manages NEWSLETTERs for the Bookadzone platform."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "template"
+        ]
       },
       "Error": {
         "type": "object",

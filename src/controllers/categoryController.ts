@@ -408,7 +408,7 @@ class CategoryController {
     }
   }
 
-  async toggleCatgoryStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async toggleCategoryStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = req.params.id;
       if (!id) {
