@@ -4,7 +4,7 @@ import seedFaqs from "./faqSeeder";
 import seedConfigs from "./configSeeder";
 import seedSettings from "./settingsSeeder";
 import seedBannerManagement from "./bannerSeeder";
-
+import seedPages from "./pageSeeder";
 const seedAll = async (): Promise<void> => {
   try {
     if (!ENV.MONGO_URI) {
@@ -17,6 +17,7 @@ const seedAll = async (): Promise<void> => {
   await seedConfigs();
   await seedSettings();
   await seedBannerManagement();
+  await seedPages();
     console.log("All seeders executed successfully");
     await mongoose.connection.close();
   } catch (error) {
