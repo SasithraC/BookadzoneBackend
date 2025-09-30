@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import { ENV } from "../config/env";
 import seedFaqs from "./faqSeeder";
+import seedConfigs from "./configSeeder";
+import seedSettings from "./settingsSeeder"
+import seedBlogCategories from "./blogCategorySeeder";
 
 const seedAll = async (): Promise<void> => {
   try {
@@ -10,8 +13,10 @@ const seedAll = async (): Promise<void> => {
     await mongoose.connect(ENV.MONGO_URI);
 
     console.log("Connected to MongoDB");
-    await seedFaqs();
-
+  await seedFaqs();
+  await seedConfigs();
+  await seedSettings();
+  await seedBlogCategories();
     console.log("All seeders executed successfully");
     await mongoose.connection.close();
   } catch (error) {

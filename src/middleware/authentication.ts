@@ -6,7 +6,7 @@ interface DecodedToken extends JwtPayload {
   _id: string;
   id: string;
   email: string;
-  role: "super-admin" | "admin";
+  role: "super-admin" | "admin" | "user";
 }
 
 const excludedPaths: string[] = [
@@ -22,18 +22,18 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Allow excluded paths without authentication
+    // PATH exclusion check
     const apiPath = req.path.replace("/api/v1/", "");
     if (excludedPaths.includes(apiPath)) {
       return next();
     }
 
-    // Check Authorization header
+    // Authorization Header Check
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
         status: HTTP_RESPONSE.FAIL,
-        message: "Access Denied: No Bearer Token",
+        message: "Bearer token missing",
       });
       return;
     }
@@ -43,43 +43,51 @@ export const authenticate = async (
     if (!token) {
       res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
         status: HTTP_RESPONSE.FAIL,
-        message: "Token not found",
+        message: "Bearer token missing",
       });
       return;
     }
 
-    // Load User model dynamically (to avoid circular dependencies)
+    // Dynamic User model requiring
     const User = require("../models/userModel").default;
 
     try {
-      // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
       if (!decoded) {
         res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
           status: HTTP_RESPONSE.FAIL,
-          message: "Invalid Token. Please contact an admin",
+          message: "Invalid or expired token",
         });
         return;
       }
 
-      // Get user ID from decoded token
       const userId = decoded._id || decoded.id;
-
-      // Find user in DB
-      const user = await User.findOne({ _id: userId }).select("role status isDeleted");
+      let user;
+      try {
+        user = await User.findOne({ _id: userId }).select("role status isDeleted");
+      } catch (dbErr: any) {
+        // Database connection/query error
+        console.error("Authentication Error:", dbErr.message, dbErr.stack);
+        res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+          status: HTTP_RESPONSE.FAIL,
+          message: dbErr.message && dbErr.message.includes("connection")
+            ? "Database connection failed"
+            : "Database query failed",
+        });
+        return;
+      }
       if (!user) {
         res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
           status: HTTP_RESPONSE.FAIL,
-          message: "Please contact an admin",
+          message: "User not found. Contact admin.",
         });
         return;
       }
 
-      // Check if user is deleted or inactive
       if (user.isDeleted) {
         res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
           status: HTTP_RESPONSE.FAIL,
-          message: "Account deleted",
+          message: "Account has been deleted",
         });
         return;
       }
@@ -87,45 +95,32 @@ export const authenticate = async (
       if (user.status === "inactive") {
         res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
           status: HTTP_RESPONSE.FAIL,
-          message: "Account blocked. Please contact an admin",
+          message: "Account is blocked",
         });
         return;
       }
 
-      // Check user role authorization
       if (user.role !== "admin" && user.role !== "super-admin") {
         res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
           status: HTTP_RESPONSE.FAIL,
-          message: "Access Denied: Insufficient permissions",
+          message: "User does not have sufficient permissions",
         });
         return;
       }
 
-      // Attach user info to request for downstream use
+      // Attach info to request object
       req.id = user._id;
       req.email = decoded.email;
       req.accountdetails = decoded;
 
       next();
     } catch (error: any) {
+      // Only JWT errors here
       console.error("JWT Verification Error:", error.message, error.stack);
-
-      if (error.name === "TokenExpiredError") {
-        res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
-          status: HTTP_RESPONSE.FAIL,
-          message: "Session Expired. Please login again",
-        });
-      } else if (error.name === "JsonWebTokenError") {
-        res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
-          status: HTTP_RESPONSE.FAIL,
-          message: "Invalid Token. Please login again",
-        });
-      } else {
-        res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
-          status: HTTP_RESPONSE.FAIL,
-          message: "Internal Server Error",
-        });
-      }
+      res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Invalid or expired token",
+      });
     }
   } catch (err: any) {
     console.error("Authentication Error:", err.message, err.stack);

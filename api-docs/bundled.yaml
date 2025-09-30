@@ -1,0 +1,2964 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bookadzone Backend API",
+    "description": "API for managing FAQs, Configs, BlogCategorie, and user authentication for the Bookadzone platform.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001/api/v1",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate a user or admin",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin@gmail.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "admin@123"
+                  },
+                  "testField": {
+                    "type": "string",
+                    "example": "test"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logged in successfully"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "68ad430b8089095867639823"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "bookadzone@gmail.com"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "super-admin"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "active"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "summary": "Refresh an authentication token",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            },
+            "description": "Bearer token for authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Token refreshed successfully"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "68ad430b8089095867639823"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1auth~1login/post/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1auth~1login/post/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs": {
+      "get": {
+        "summary": "Get all FAQs",
+        "tags": [
+          "FAQs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Faq"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/getFaqById/{id}": {
+      "get": {
+        "summary": "Get a FAQ by ID",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FAQ ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FAQ found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Faq"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FAQ id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FAQ not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/updateFaq/{id}": {
+      "put": {
+        "summary": "Update a FAQ by ID",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FAQ ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaqInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "FAQ updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Faq"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FAQ id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FAQ not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/softDeleteFaq/{id}": {
+      "delete": {
+        "summary": "Soft delete a FAQ by ID",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FAQ ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FAQ deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FAQ id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FAQ not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a FAQ (active/inactive)",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FAQ ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FAQ status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Faq"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FAQ id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FAQ not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/trash": {
+      "get": {
+        "summary": "Get all trashed FAQs",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed FAQs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Faq"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted FAQ",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FAQ ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FAQ restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FAQ id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FAQ not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faqs/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a FAQ",
+        "tags": [
+          "FAQs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FAQ ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FAQ permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FAQ permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FAQ id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FAQ not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1faqs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory": {
+      "get": {
+        "summary": "Get all BlogCategories",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/blogCategory"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new BlogCategory",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/blogCategoryInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "BlogCategory created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/getblogCategoryById/{id}": {
+      "get": {
+        "summary": "Get a BlogCategory by ID",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/updateblogCategory/{id}": {
+      "put": {
+        "summary": "Update a BlogCategory by ID",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/blogCategoryInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BlogCategory updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/softDeleteblogCategory/{id}": {
+      "delete": {
+        "summary": "Soft delete a BlogCategory by ID",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a BlogCategory (active/inactive)",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/trash": {
+      "get": {
+        "summary": "Get all trashed BlogCategories",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed BlogCategories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/blogCategory"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted BlogCategory",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a BlogCategory",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs": {
+      "post": {
+        "summary": "Create a new config",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Config created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Config created"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Config"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Config with this slug already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all configs",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Config"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/getConfigById/{id}": {
+      "get": {
+        "summary": "Get config by ID",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Config ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Config"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Config id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/updateConfig/{id}": {
+      "put": {
+        "summary": "Update a config",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Config ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Config updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Config updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Config"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Config id is required or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Config with this slug already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/softDeleteConfig/{id}": {
+      "delete": {
+        "summary": "Soft delete a config",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Config ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config soft deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Config soft deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Config id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle config status",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Config ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Config status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Config"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Config id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/trash": {
+      "get": {
+        "summary": "Get all trashed configs",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Config"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/restore/{id}": {
+      "patch": {
+        "summary": "Restore a config from trash",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Config ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config restored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Config restored successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Config"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Config id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/configs/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a config",
+        "tags": [
+          "Configs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Config ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Config permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Config id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Config not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1configs/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settings": {
+      "get": {
+        "summary": "Get all settings",
+        "tags": [
+          "Settings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Settings retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to retrieve settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update all settings (with file upload)",
+        "tags": [
+          "Settings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "general": {
+                    "type": "string",
+                    "description": "JSON string for general settings"
+                  },
+                  "contact": {
+                    "type": "string",
+                    "description": "JSON string for contact settings"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "JSON string for email settings"
+                  },
+                  "seo": {
+                    "type": "string",
+                    "description": "JSON string for SEO settings"
+                  },
+                  "og": {
+                    "type": "string",
+                    "description": "JSON string for OG settings"
+                  },
+                  "siteLogo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Site logo file"
+                  },
+                  "favicon": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Favicon file"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is required or invalid format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1settings/get/responses/500/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to update settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1settings/get/responses/500/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Faq": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "question": {
+            "type": "string",
+            "example": "What is the purpose of this API?"
+          },
+          "answer": {
+            "type": "string",
+            "example": "This API manages FAQs for the Bookadzone platform."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "question",
+          "answer"
+        ]
+      },
+      "FaqInput": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "example": "What is the purpose of this API?"
+          },
+          "answer": {
+            "type": "string",
+            "example": "This API manages FAQs for the Bookadzone platform."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "question",
+          "answer"
+        ]
+      },
+      "Config": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "name": {
+            "type": "string",
+            "example": "Site Settings"
+          },
+          "slug": {
+            "type": "string",
+            "example": "site-settings"
+          },
+          "configFields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "example": "site_title"
+                },
+                "value": {
+                  "type": "string",
+                  "example": "Bookadzone"
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "ConfigInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Site Settings"
+          },
+          "slug": {
+            "type": "string",
+            "example": "site-settings"
+          },
+          "configFields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "example": "site_title"
+                },
+                "value": {
+                  "type": "string",
+                  "example": "Bookadzone"
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "Settings": {
+        "type": "object",
+        "properties": {
+          "general": {
+            "type": "object",
+            "properties": {
+              "siteName": {
+                "type": "string",
+                "example": "Bookadzone"
+              },
+              "siteLogo": {
+                "type": "string",
+                "example": "/uploads/logo.png"
+              },
+              "favicon": {
+                "type": "string",
+                "example": "/uploads/favicon.ico"
+              },
+              "defaultCurrency": {
+                "type": "string",
+                "example": "USD"
+              },
+              "currencyIcon": {
+                "type": "string",
+                "example": "$"
+              },
+              "timezone": {
+                "type": "string",
+                "example": "America/New_York"
+              }
+            }
+          },
+          "contact": {
+            "type": "object",
+            "properties": {
+              "companyName": {
+                "type": "string",
+                "example": "Bookadzone Inc."
+              },
+              "contactEmail": {
+                "type": "string",
+                "example": "contact@bookadzone.com"
+              },
+              "contactPhone": {
+                "type": "string",
+                "example": "+1-555-123-4567"
+              },
+              "address": {
+                "type": "string",
+                "example": "123 Business St, City, State 12345"
+              }
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "example": "noreply@bookadzone.com"
+              },
+              "mailHost": {
+                "type": "string",
+                "example": "smtp.gmail.com"
+              },
+              "smtpUsername": {
+                "type": "string",
+                "example": "noreply@bookadzone.com"
+              },
+              "smtpPassword": {
+                "type": "string",
+                "example": "********"
+              },
+              "mailPort": {
+                "type": "integer",
+                "example": 587
+              },
+              "emailEncryption": {
+                "type": "string",
+                "example": "tls"
+              }
+            }
+          },
+          "seo": {
+            "type": "object",
+            "properties": {
+              "metaTitle": {
+                "type": "string",
+                "example": "Bookadzone - Your Book Destination"
+              },
+              "metaDescription": {
+                "type": "string",
+                "example": "Discover and book amazing experiences with Bookadzone"
+              },
+              "metaKeyword": {
+                "type": "string",
+                "example": "books, booking, online, platform"
+              },
+              "canonicalUrl": {
+                "type": "string",
+                "example": "https://bookadzone.com"
+              },
+              "robotsMeta": {
+                "type": "string",
+                "example": "index,follow"
+              },
+              "schemaMarkup": {
+                "type": "string",
+                "example": "{\"@context\": \"https://schema.org\", \"@type\": \"Organization\"}"
+              },
+              "h1Tag": {
+                "type": "string",
+                "example": "Welcome to Bookadzone"
+              },
+              "breadcrumbs": {
+                "type": "string",
+                "example": "Home > About > Contact"
+              },
+              "altText": {
+                "type": "string",
+                "example": "Bookadzone logo"
+              },
+              "sitemapUrl": {
+                "type": "string",
+                "example": "https://bookadzone.com/sitemap.xml"
+              },
+              "googleAnalyticsCode": {
+                "type": "string",
+                "example": "GA_MEASUREMENT_ID"
+              },
+              "googleSearchConsoleCode": {
+                "type": "string",
+                "example": "google-site-verification-code"
+              }
+            }
+          },
+          "og": {
+            "type": "object",
+            "properties": {
+              "ogTitle": {
+                "type": "string",
+                "example": "Bookadzone - Your Book Destination"
+              },
+              "ogDescription": {
+                "type": "string",
+                "example": "Discover and book amazing experiences with Bookadzone"
+              },
+              "ogImage": {
+                "type": "string",
+                "example": "https://bookadzone.com/og-image.jpg"
+              },
+              "ogUrl": {
+                "type": "string",
+                "example": "https://bookadzone.com"
+              },
+              "ogType": {
+                "type": "string",
+                "example": "website"
+              }
+            }
+          }
+        }
+      },
+      "SettingsResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Settings"
+          },
+          "message": {
+            "type": "string",
+            "example": "Settings retrieved successfully"
+          }
+        }
+      },
+      "blogCategory": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "name": {
+            "type": "string",
+            "example": "Technology"
+          },
+          "slug": {
+            "type": "string",
+            "example": "technology"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "blogCategoryInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Technology"
+          },
+          "slug": {
+            "type": "string",
+            "example": "technology"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "fail"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid input"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
