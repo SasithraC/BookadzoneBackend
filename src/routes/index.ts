@@ -1,8 +1,9 @@
-
-
 import { Express } from "express";
+
+// Routes >
 import authenticationRoutes from "./authenticationRoutes";
 import faqRoutes from "./faqRoutes";
+import categoryRoutes from "./categoryRoutes"
 import newLetterRoutes from "./newLetterRoutes";
 import pagesRoutes from "./pagesRoutes";
 
@@ -19,6 +20,8 @@ import agencyRoutes from "./agencyRoutes";
 export default function registerRoutes(app: Express) {
   app.use("/api/v1/auth", authenticationRoutes);
   app.use("/api/v1/faqs", authenticate, faqRoutes);
+  app.use("/api/v1/category", authenticate, categoryRoutes); // Protected: requires authentication
+
   app.use("/api/v1/newsletters", authenticate, newLetterRoutes);
   app.use("/api/v1/pages", authenticate, pagesRoutes);
   app.use("/api/v1/footerinfo", authenticate, footerInfoRoutes);

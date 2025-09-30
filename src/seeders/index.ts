@@ -3,6 +3,7 @@ import { ENV } from "../config/env";
 import seedFaqs from "./faqSeeder";
 import seedConfigs from "./configSeeder";
 import seedSettings from "./settingsSeeder";
+import seedCategory from "./categorySeeder";
 import seedBannerManagement from "./bannerSeeder";
 import seedPages from "./pageSeeder";
 const seedAll = async (): Promise<void> => {
@@ -13,6 +14,10 @@ const seedAll = async (): Promise<void> => {
     await mongoose.connect(ENV.MONGO_URI);
 
     console.log("Connected to MongoDB");
+    await seedFaqs();
+    await seedConfigs();
+    await seedSettings();
+    await seedCategory();
   await seedFaqs();
   await seedConfigs();
   await seedSettings();
@@ -24,10 +29,10 @@ const seedAll = async (): Promise<void> => {
     if (error instanceof Error) {
       console.error("Seeding failed:", error.message);
     } else {
-      console.error("Seeding failed:", error); 
+      console.error("Seeding failed:", error);
     }
     await mongoose.connection.close();
-    process.exit(1); 
+    process.exit(1);
   }
 };
 

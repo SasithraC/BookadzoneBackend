@@ -32,6 +32,26 @@ paths:
   /faqs/permanentDelete/{id}:
     $ref: './faqs.yaml#/paths/~1faqs~1permanentDelete~1{id}'
 
+  # category endpoints
+  /category:
+    $ref: './category.yaml#/paths/~1category'
+  /category/getcategoryById/{id}:
+    $ref: './category.yaml#/paths/~1category~1getCategoryById~1{id}'
+  /category/updatecategory/{id}:
+    $ref: './category.yaml#/paths/~1category~1updateCategory~1{id}'
+  /category/softDeletecategory/{id}:
+    $ref: './category.yaml#/paths/~1category~1softDeleteCategory~1{id}'
+  /category/togglestatus/{id}:
+    $ref: './category.yaml#/paths/~1category~1toggleStatus~1{id}'
+  /category/trash:
+    $ref: './category.yaml#/paths/~1category~1trash'
+  /category/restore/{id}:
+    $ref: './category.yaml#/paths/~1category~1restore~1{id}'
+  /category/permanentDelete/{id}:
+    $ref: './category.yaml#/paths/~1category~1permanentDelete~1{id}'
+
+
+   
   # Agency endpoints
   /agencies:
     $ref: './agencies.yaml#/paths/~1agencies'
@@ -102,7 +122,8 @@ paths:
   /configs/permanentDelete/{id}:
     $ref: './configs.yaml#/paths/~1configs~1permanentDelete~1{id}'
 
-    # FooterInfo endpoints
+
+# FooterInfo endpoints
   /footerinfo:
     $ref: './footerinfo.yaml#/paths/~1footerinfo'
   /footerinfo/getfooterinfoById/{id}:
@@ -120,8 +141,7 @@ paths:
   /footerinfo/permanentDelete/{id}:
     $ref: './footerinfo.yaml#/paths/~1footerinfo~1permanentDelete~1{id}'
 
-  
-  # Settings endpoints
+# Settings endpoints
   /settings:
     $ref: './settings.yaml#/paths/~1settings'
 
@@ -136,6 +156,10 @@ components:
       $ref: './faqs.yaml#/components/schemas/Faq'
     FaqInput:
       $ref: './faqs.yaml#/components/schemas/FaqInput'
+    Category:
+      $ref: './category.yaml#/components/schemas/Category'
+    CategoryInput:
+      $ref: './category.yaml#/components/schemas/CategoryInput'
 
     Agency:
       $ref: './agencies.yaml#/components/schemas/Agency'
