@@ -32,6 +32,22 @@ paths:
   /faqs/permanentDelete/{id}:
     $ref: './faqs.yaml#/paths/~1faqs~1permanentDelete~1{id}'
 
+  # Agency endpoints
+  /agencies:
+    $ref: './agencies.yaml#/paths/~1agencies'
+  /agencies/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1{id}'
+  /agencies/softDelete/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1softDelete~1{id}'
+  /agencies/trash:
+    $ref: './agencies.yaml#/paths/~1agencies~1trash'
+  /agencies/restore/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1restore~1{id}'
+  /agencies/toggleStatus/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1toggleStatus~1{id}'
+  /agencies/permanentDelete/{id}:
+    $ref: './agencies.yaml#/paths/~1agencies~1permanentDelete~1{id}'
+
     # NewsLetter endpoints
   /newsletters:
     $ref: './newsletters.yaml#/paths/~1newsletters'
@@ -102,6 +118,11 @@ components:
       $ref: './faqs.yaml#/components/schemas/Faq'
     FaqInput:
       $ref: './faqs.yaml#/components/schemas/FaqInput'
+
+    Agency:
+      $ref: './agencies.yaml#/components/schemas/Agency'
+    AgencyInput:
+      $ref: './agencies.yaml#/components/schemas/AgencyInput'
 
     FooterInfo:
       $ref: './footerinfo.yaml#/components/schemas/FooterInfo'

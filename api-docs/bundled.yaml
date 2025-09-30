@@ -925,6 +925,702 @@
         }
       }
     },
+    "/agencies": {
+      "get": {
+        "summary": "Get all Agencies",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agency"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new Agency",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agency created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/{id}": {
+      "get": {
+        "summary": "Get an Agency by ID",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an Agency by ID",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agency updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/softDelete/{id}": {
+      "delete": {
+        "summary": "Soft delete an Agency by ID",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/trash": {
+      "get": {
+        "summary": "Get all trashed Agencies",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed Agencies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agency"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted Agency",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/toggleStatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of an Agency (active/inactive)",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete an Agency",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/newsletters": {
       "get": {
         "summary": "Get all NewsLetters",
@@ -3543,6 +4239,34 @@
                             }
                           }
                         }
+                      },
+                      "submenu3": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "smallBoxes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -3658,6 +4382,155 @@
         "required": [
           "question",
           "answer"
+        ]
+      },
+      "Agency": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "agencyName": {
+            "type": "string"
+          },
+          "agencyLogo": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "yourEmail": {
+            "type": "string"
+          },
+          "yourPhone": {
+            "type": "string"
+          },
+          "companyEmail": {
+            "type": "string"
+          },
+          "companyPhone": {
+            "type": "string"
+          },
+          "companyRegistrationNumberGST": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "uploadIdProof": {
+            "type": "string"
+          },
+          "uploadBusinessProof": {
+            "type": "string"
+          },
+          "agencyAddress": {
+            "type": "string"
+          },
+          "agencyLocation": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "pincode": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "agencyName",
+          "name",
+          "yourEmail",
+          "yourPhone",
+          "password"
+        ]
+      },
+      "AgencyInput": {
+        "type": "object",
+        "properties": {
+          "agencyName": {
+            "type": "string"
+          },
+          "agencyLogo": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "yourEmail": {
+            "type": "string"
+          },
+          "yourPhone": {
+            "type": "string"
+          },
+          "companyEmail": {
+            "type": "string"
+          },
+          "companyPhone": {
+            "type": "string"
+          },
+          "companyRegistrationNumberGST": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "uploadIdProof": {
+            "type": "string"
+          },
+          "uploadBusinessProof": {
+            "type": "string"
+          },
+          "agencyAddress": {
+            "type": "string"
+          },
+          "agencyLocation": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "pincode": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "agencyName",
+          "name",
+          "yourEmail",
+          "yourPhone",
+          "password"
         ]
       },
       "FooterInfo": {

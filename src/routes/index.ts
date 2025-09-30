@@ -13,6 +13,8 @@ import bannerManagementRoutes from "./bannerRoutes";
 import { upload } from "../utils/fileUpload";
 import uploadTemplateImagesRoutes from "./uploadEditorImages";
 
+import agencyRoutes from "./agencyRoutes";
+
 export default function registerRoutes(app: Express) {
   app.use("/api/v1/auth", authenticationRoutes);
   app.use("/api/v1/faqs", authenticate, faqRoutes);
@@ -22,5 +24,6 @@ export default function registerRoutes(app: Express) {
   app.use("/api/v1/settings", authenticate, settingsRoutes);
   app.use("/api/v1/banners", authenticate, bannerManagementRoutes);
   app.use("/api/v1/editer/image", authenticate, uploadTemplateImagesRoutes);
+  app.use("/api/v1/agencies", authenticate, agencyRoutes);
 }
 
