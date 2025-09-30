@@ -49,8 +49,26 @@ paths:
     $ref: './newsletters.yaml#/paths/~1newsletters~1restore~1{id}'
   /newsletters/permanentDelete/{id}:
     $ref: './newsletters.yaml#/paths/~1newsletters~1permanentDelete~1{id}'
-  
-  # Config endpoints  
+
+  # Page endpoints
+  /pages:
+    $ref: './page.yaml#/paths/~1pages'
+  /pages/getPageById/{id}:
+    $ref: './page.yaml#/paths/~1pages~1getPageById~1{id}'
+  /pages/updatePage/{id}:
+    $ref: './page.yaml#/paths/~1pages~1updatePage~1{id}'
+  /pages/softDeletePage/{id}:
+    $ref: './page.yaml#/paths/~1pages~1softDeletePage~1{id}'
+  /pages/togglestatus/{id}:
+    $ref: './page.yaml#/paths/~1pages~1togglestatus~1{id}'
+  /pages/trash:
+    $ref: './page.yaml#/paths/~1pages~1trash'
+  /pages/restore/{id}:
+    $ref: './page.yaml#/paths/~1pages~1restore~1{id}'
+  /pages/permanentDelete/{id}:
+    $ref: './page.yaml#/paths/~1pages~1permanentDelete~1{id}'
+
+  # Config endpoints
   /configs:
     $ref: './configs.yaml#/paths/~1configs'
   /configs/getConfigById/{id}:
@@ -123,8 +141,13 @@ components:
       $ref: './newsletters.yaml#/components/schemas/NewsLetter'
     NewsLetterInput:
       $ref: './newsletters.yaml#/components/schemas/NewsLetterInput'
-      
-    
+
+    Page:
+      $ref: './page.yaml#/components/schemas/Page'
+    PageInput:
+      $ref: './page.yaml#/components/schemas/PageInput'
+
+
     # Common Error schema (used by all)
     Error:
       type: object
