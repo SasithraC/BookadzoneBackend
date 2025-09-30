@@ -6,7 +6,7 @@ export interface IBlogCategory extends Document {
   status: "active" | "inactive";
   isDeleted: boolean;
   createdAt?: Date;
-  updatedAt?: Date;
+  updatedAt?: Date ;
 }
 
 const blogCategorySchema = new Schema<IBlogCategory>(
