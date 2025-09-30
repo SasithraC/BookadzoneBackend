@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import { ENV } from "../config/env";
 import seedFaqs from "./faqSeeder";
 import seedConfigs from "./configSeeder";
-import seedSettings from "./settingsSeeder";
+import seedSettings from "./settingsSeeder"
+import seedBlogCategories from "./blogCategorySeeder";
+
 import seedCategory from "./categorySeeder";
 import seedBannerManagement from "./bannerSeeder";
 import seedPages from "./pageSeeder";
@@ -21,6 +23,7 @@ const seedAll = async (): Promise<void> => {
   await seedFaqs();
   await seedConfigs();
   await seedSettings();
+  await seedBlogCategories();
   await seedBannerManagement();
   await seedPages();
     console.log("All seeders executed successfully");

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Bookadzone Backend API
-  description: API for managing FAQs, Configs, and user authentication for the Bookadzone platform.
+  description: API for managing FAQs, Configs, BlogCategorie, and user authentication for the Bookadzone platform.
   version: 1.0.0
 servers:
   - url: http://localhost:5000/api/v1
@@ -32,6 +32,24 @@ paths:
   /faqs/permanentDelete/{id}:
     $ref: './faqs.yaml#/paths/~1faqs~1permanentDelete~1{id}'
 
+    #BlogCategory endpoints
+  /blogCategory:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory'
+  /blogCategory/getblogCategoryById/{id}:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1getblogCategoryById~1{id}'
+  /blogCategory/updateblogCategory/{id}:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1updateblogCategory~1{id}'
+  /blogCategory/softDeleteblogCategory/{id}:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1softDeleteblogCategory~1{id}'
+  /blogCategory/togglestatus/{id}:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1togglestatus~1{id}'
+  /blogCategory/trash:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1trash'
+  /blogCategory/restore/{id}:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1restore~1{id}'
+  /blogCategory/permanentDelete/{id}:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1permanentDelete~1{id}'
+  
   # category endpoints
   /category:
     $ref: './category.yaml#/paths/~1category'
@@ -180,6 +198,12 @@ components:
       $ref: './settings.yaml#/components/schemas/Settings'
     SettingsResponse:
       $ref: './settings.yaml#/components/schemas/SettingsResponse'
+    
+    blogCategory:
+      $ref: './blogCategory.yaml#/components/schemas/blogCategory'
+    blogCategoryInput:
+      $ref: './blogCategory.yaml#/components/schemas/blogCategoryInput'
+       
 
        # Reference schemas from other files
     NewsLetter:

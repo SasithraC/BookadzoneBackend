@@ -1,4 +1,3 @@
-
 import request from 'supertest'
 import app from '../../app'
 
@@ -247,3 +246,4 @@ describe('FaqController', () => {
     expect(res.status).toBe(200)
   })
 })
+\
