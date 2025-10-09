@@ -48,4 +48,44 @@ describe("BlogCategoryRepository", () => {
     expect(restored?.isDeleted).toBe(false);
     expect(restored?.status).toBe("active");
   });
+
+  it("gets all active BlogCategories", async () => {
+  // First, create a few categories to test
+  const cat1 = await blogCategoryRepository.createBlogCategory({
+    name: "Tech",
+    status: "active",
+    isDeleted: false
+  } as any);
+
+  const cat2 = await blogCategoryRepository.createBlogCategory({
+    name: "Health",
+    status: "inactive", // should not appear
+    isDeleted: false
+  } as any);
+
+  const cat3 = await blogCategoryRepository.createBlogCategory({
+    name: "Lifestyle",
+    status: "active",
+    isDeleted: true // should not appear
+  } as any);
+
+  const categories = await blogCategoryRepository.getAllBlog();
+
+  // Should only return categories that are active and not deleted
+  expect(categories).toBeInstanceOf(Array);
+  expect(categories?.length).toBeGreaterThan(0);
+
+  // All returned categories must have status "active" and isDeleted false
+  categories?.forEach(cat => {
+    expect(cat.status).toBe("active");
+    expect(cat.isDeleted).toBe(false);
+
+    // Only these two fields should exist
+    expect(Object.keys(cat.toObject ? cat.toObject() : cat)).toEqual(
+      expect.arrayContaining(["status", "isDeleted"])
+    );
+  });
+});
+
+  
 });

@@ -64,7 +64,7 @@ class BlogCategoryController {
     }
   }
 
-   async softDeleteBlogCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async softDeleteBlogCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = req.params.id;
       if (!id) {
@@ -102,7 +102,7 @@ class BlogCategoryController {
       next(error);
     }
   }
-    async getAllTrashBlogCategories(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAllTrashBlogCategories(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -152,6 +152,26 @@ class BlogCategoryController {
       next(err);
     }
   }
+
+
+
+  async getBlogCategoryController(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const blogCategories = await blogCategoryService.getAllBlogCategory();
+      if (!blogCategories || blogCategories.length === 0) {
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "No blog categories found" });
+        return;
+      }
+
+      res.status(200).json({
+        status: HTTP_RESPONSE.SUCCESS,
+        data: blogCategories,
+      });
+    } catch (err: any) {
+      next(err);
+    }
+  }
+
 }
 
 export default new BlogCategoryController();

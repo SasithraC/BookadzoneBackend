@@ -5,6 +5,7 @@ import authenticationRoutes from "./authenticationRoutes";
 import faqRoutes from "./faqRoutes";
 import blogRoutes from "./blogCategoryRoutes"
 import categoryRoutes from "./categoryRoutes"
+import blogsRoutes from "./blogsRoutes"
 import newLetterRoutes from "./newLetterRoutes";
 import pagesRoutes from "./pagesRoutes";
 
@@ -24,6 +25,9 @@ export default function registerRoutes(app: Express) {
   app.use("/api/v1/blogcategory", authenticate, blogRoutes);
 
   app.use("/api/v1/category", authenticate, categoryRoutes); // Protected: requires authentication
+
+  app.use("/api/v1/blog", authenticate, blogsRoutes); // Protected: requires authentication
+
 
   app.use("/api/v1/newsletters", authenticate, newLetterRoutes);
   app.use("/api/v1/pages", authenticate, pagesRoutes);

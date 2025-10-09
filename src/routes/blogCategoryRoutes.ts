@@ -12,4 +12,7 @@ router.get('/trash/', (req, res, next) => blogCategoryController.getAllTrashBlog
 router.patch('/trash/', (req, res, next) => blogCategoryController.restoreBlogCategory(req, res, next));
 router.patch('/restore/:id', (req, res, next) => blogCategoryController.restoreBlogCategory(req, res, next));
 router.delete('/permanentDelete/:id', (req, res, next) => blogCategoryController.deleteBlogCategoryPermanently(req, res, next));
+
+router.get('/activeBlogCategory', (req, res, next) => blogCategoryController.getBlogCategoryController(req, res, next)); 
+
 export default router;

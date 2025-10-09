@@ -93,6 +93,18 @@ class BlogCategoryRepository {
       }
     };
   }
+
+  // async getAllBlog(): Promise<IBlogCategory | null> {
+  //   return await BlogCategoryModel.findOne({  isDeleted: false, status: "active" });
+  // }
+
+  async getAllBlog(): Promise<IBlogCategory[] | null> {
+    return await BlogCategoryModel.find(
+      { isDeleted: false, status: "active" }
+    ).select("status isDeleted"); // 👈 Only return these fields
+  }
+
+
 }
 
 export default new BlogCategoryRepository();
