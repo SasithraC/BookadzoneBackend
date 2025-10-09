@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { CategoryModel, ICategory } from "../catrgoryModel";
+import { CategoryModel, ICategory } from "../categoryModel";
 
 describe("CategoryModel", () => {
   beforeAll(async () => {

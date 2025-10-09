@@ -72,6 +72,7 @@ class NewsLetterRepository {
   async getAllTrashNewsLetters(page = 1, limit = 10, filter?: string) {
     const query: any = { isDeleted: true };
     if (filter === 'active') query.status = 'active';
+    
     if (filter === 'inactive') query.status = 'inactive';
 
     const skip = (page - 1) * limit;

@@ -113,6 +113,10 @@ class BlogCategoryService {
     }
     return await blogCategoryRepository.deleteBlogCategoryPermanently(id);
   }
+
+  async getAllBlogCategory(): Promise<IBlogCategory[] | null> {
+    return await blogCategoryRepository.getAllBlog();
+  }
 }
 
 export default new BlogCategoryService();

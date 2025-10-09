@@ -231,7 +231,7 @@ describe("CategoryController", () => {
     it("returns 400 if id is missing", async () => {
       const req = mockReq();
       const res = mockRes();
-      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+   await categoryController.toggleCategoryStatus(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(400);
     });
 
@@ -239,7 +239,7 @@ describe("CategoryController", () => {
       const req = mockReq({ params: { id: "123" } });
       const res = mockRes();
       (categoryService.toggleStatus as jest.Mock).mockResolvedValue({ id: "123", status: "inactive" });
-      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      await categoryController.toggleCategoryStatus(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
@@ -253,7 +253,7 @@ describe("CategoryController", () => {
       const res = mockRes();
       const error = new Error("fail");
       (categoryService.toggleStatus as jest.Mock).mockRejectedValue(error);
-      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      await categoryController.toggleCategoryStatus(req, res, mockNext);
       expect(mockNext).toHaveBeenCalledWith(error);
     });
   });

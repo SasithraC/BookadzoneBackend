@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { CategoryModel } from "../models/catrgoryModel";
+import { CategoryModel } from "../models/categoryModel";
 
 interface ICategory {
     name: string;

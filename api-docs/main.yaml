@@ -35,6 +35,8 @@ paths:
     #BlogCategory endpoints
   /blogCategory:
     $ref: './blogCategory.yaml#/paths/~1blogCategory'
+  /blogCategory/activeBlogCategory:
+    $ref: './blogCategory.yaml#/paths/~1blogCategory~1activeBlogCategory'
   /blogCategory/getblogCategoryById/{id}:
     $ref: './blogCategory.yaml#/paths/~1blogCategory~1getblogCategoryById~1{id}'
   /blogCategory/updateblogCategory/{id}:

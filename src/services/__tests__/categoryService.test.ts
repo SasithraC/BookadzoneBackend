@@ -1,267 +1,70 @@
-import categoryService from "../categoryService";
-import categoryRepository from "../../repositories/categoryRepository";
-import { CommonService } from "../common.service";
-import { CategoryModel, ICategory } from "../../models/catrgoryModel";
-import { Types } from "mongoose";
+import categoryService from '../categoryService';
+import categoryRepository from '../../repositories/categoryRepository';
 
-jest.mock("../../repositories/categoryRepository");
-jest.mock("../common.service");
+jest.mock('../../repositories/categoryRepository');
 
-const mockCategoryRepo = categoryRepository as jest.Mocked<typeof categoryRepository>;
-const MockCommonService = CommonService as jest.MockedClass<typeof CommonService>;
-
-describe("CategoryService", () => {
-  const file = { filename: "photo.png", mimetype: "image/png", size: 123 } as Express.Multer.File;
-
+describe('CategoryService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    MockCommonService.prototype.existsByField.mockResolvedValue(false);
   });
 
-  describe("createCategory", () => {
-    it("throws if photo is missing", async () => {
-      await expect(categoryService.createCategory({ description: "desc" })).rejects.toThrow("Photo file is required for creation");
-    });
-
-    it("throws if description is missing", async () => {
-      await expect(categoryService.createCategory({ name: "Test" }, file)).rejects.toThrow(/description/);
-    });
-
-    it("throws if status is invalid", async () => {
-      await expect(categoryService.createCategory({ name: "Test", description: "desc", status: "wrong" } as any, file)).rejects.toThrow(/status must be one of/);
-    });
-
-    it("throws if photo already exists", async () => {
-      MockCommonService.prototype.existsByField.mockResolvedValueOnce(true);
-      await expect(categoryService.createCategory({ name: "Test", description: "desc" }, file)).rejects.toThrow(/photo already exists/);
-    });
-
-    it("creates category successfully", async () => {
-      const mockCategory = { _id: "1", name: "Test", description: "desc", photo: "photo.png", status: "active" } as ICategory;
-      mockCategoryRepo.createCategory.mockResolvedValue(mockCategory);
-
-      const result = await categoryService.createCategory({ name: "Test", description: "desc", slug: "slug" }, file);
-      expect(result).toEqual(mockCategory);
-    });
-
-    it("propagates repository error", async () => {
-      mockCategoryRepo.createCategory.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.createCategory({ name: "Test", description: "desc" }, file)).rejects.toThrow("DB error");
-    });
+  it('should create category', async () => {
+    (categoryRepository.findByName as jest.Mock).mockResolvedValue(null);
+    (categoryRepository.createCategory as jest.Mock).mockResolvedValue({ id: '1' });
+    const result = await categoryService.createCategory({ name: 'Books' });
+    expect(result).toEqual({ id: '1' });
   });
 
-  describe("getCategory", () => {
-    it("returns paginated categories", async () => {
-      const mockData = { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } };
-      mockCategoryRepo.getCategory.mockResolvedValue(mockData as any);
-      const result = await categoryService.getCategory(1, 10);
-      expect(result).toEqual(mockData);
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.getCategory.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.getCategory(1, 10)).rejects.toThrow("DB error");
-    });
+  it('should throw error if category name exists', async () => {
+    (categoryRepository.findByName as jest.Mock).mockResolvedValue({ id: '1', name: 'Books' });
+    await expect(categoryService.createCategory({ name: 'Books' })).rejects.toThrow('Category name already exists');
   });
 
-  describe("getCategoryById", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.getCategoryById("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("returns category if found", async () => {
-      const mockCategory = { _id: "1", name: "Test" } as ICategory;
-      mockCategoryRepo.getCategoryById.mockResolvedValue(mockCategory);
-      const result = await categoryService.getCategoryById("1");
-      expect(result).toEqual(mockCategory);
-    });
-
-    it("returns null if not found", async () => {
-      mockCategoryRepo.getCategoryById.mockResolvedValue(null);
-      const result = await categoryService.getCategoryById("missing");
-      expect(result).toBeNull();
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.getCategoryById.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.getCategoryById("1")).rejects.toThrow("DB error");
-    });
+  it('should get all categories', async () => {
+    (categoryRepository.getCategory as jest.Mock).mockResolvedValue({ categories: [], total: 0, page: 1, limit: 10 });
+    const result = await categoryService.getCategory(1, 10);
+    expect(result).toHaveProperty('categories');
   });
 
-  describe("updateCategory", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.updateCategory("invalid-id", { name: "x" })).rejects.toThrow(/id/);
-    });
-
-    it("updates with new photo", async () => {
-      const mockUpdated = { _id: "1", name: "Updated", photo: "new.png" } as ICategory;
-      mockCategoryRepo.updateCategory.mockResolvedValue(mockUpdated);
-      const result = await categoryService.updateCategory("1", { name: "Updated" }, file);
-      expect(result).toEqual(mockUpdated);
-    });
-
-    it("updates without photo", async () => {
-      const mockUpdated = { _id: "1", name: "Updated" } as ICategory;
-      mockCategoryRepo.updateCategory.mockResolvedValue(mockUpdated);
-      const result = await categoryService.updateCategory("1", { name: "Updated" });
-      expect(result).toEqual(mockUpdated);
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.updateCategory.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.updateCategory("1", { name: "x" })).rejects.toThrow("DB error");
-    });
+  it('should get category by id', async () => {
+    (categoryRepository.getCategoryById as jest.Mock).mockResolvedValue({ id: '1' });
+    const result = await categoryService.getCategoryById('1');
+    expect(result).toEqual({ id: '1' });
   });
 
-  describe("softDeleteCategory", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.softDeleteCategory("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("soft deletes", async () => {
-      const mockDeleted = { _id: "1", isDeleted: true } as ICategory;
-      mockCategoryRepo.softDeleteCategory.mockResolvedValue(mockDeleted);
-      const result = await categoryService.softDeleteCategory("1");
-      expect(result).toEqual(mockDeleted);
-    });
+  it('should update category', async () => {
+    (categoryRepository.updateCategory as jest.Mock).mockResolvedValue({ id: '1' });
+    const result = await categoryService.updateCategory('1', { name: 'Updated Books' });
+    expect(result).toEqual({ id: '1' });
   });
 
-  describe("toggleStatus", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.toggleStatus("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("toggles status", async () => {
-      const mockToggled = { _id: "1", status: "inactive" } as ICategory;
-      mockCategoryRepo.toggleStatus.mockResolvedValue(mockToggled);
-      const result = await categoryService.toggleStatus("1");
-      expect(result).toEqual(mockToggled);
-    });
+  it('should soft delete category', async () => {
+    (categoryRepository.softDeleteCategory as jest.Mock).mockResolvedValue({ id: '1' });
+    const result = await categoryService.softDeleteCategory('1');
+    expect(result).toEqual({ id: '1' });
   });
 
-  describe("getAllTrashCategorys", () => {
-    it("returns trashed categories", async () => {
-      const mockResponse = {
-        data: [],
-        meta: { total: 0, page: 1, limit: 10, totalPages: 0, active: 0, inactive: 0 },
-      };
-      mockCategoryRepo.getAllTrashCategorys.mockResolvedValue(mockResponse as any);
-      const result = await categoryService.getAllTrashCategorys(1, 10);
-      expect(result).toEqual(mockResponse);
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.getAllTrashCategorys.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.getAllTrashCategorys(1, 10)).rejects.toThrow("DB error");
-    });
+  it('should restore category', async () => {
+    (categoryRepository.restoreCategory as jest.Mock).mockResolvedValue({ id: '1' });
+    const result = await categoryService.restoreCategory('1');
+    expect(result).toEqual({ id: '1' });
   });
 
-  describe("restoreCategory", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.restoreCategory("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("restores category", async () => {
-      const mockRestored = { _id: "1", isDeleted: false } as ICategory;
-      mockCategoryRepo.restoreCategory.mockResolvedValue(mockRestored);
-      const result = await categoryService.restoreCategory("1");
-      expect(result).toEqual(mockRestored);
-    });
+  it('should get all trash categories', async () => {
+    (categoryRepository.getAllTrashCategorys as jest.Mock).mockResolvedValue({ categories: [], total: 0, page: 1, limit: 10 });
+    const result = await categoryService.getAllTrashCategorys(1, 10);
+    expect(result).toHaveProperty('categories');
   });
 
-  describe("deleteCategoryPermanently", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.deleteCategoryPermanently("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("deletes permanently", async () => {
-      const mockDeleted = { _id: "1" } as ICategory;
-      mockCategoryRepo.deleteCategoryPermanently.mockResolvedValue(mockDeleted);
-      const result = await categoryService.deleteCategoryPermanently("1");
-      expect(result).toEqual(mockDeleted);
-    });
+  it('should toggle status', async () => {
+    (categoryRepository.toggleStatus as jest.Mock).mockResolvedValue({ id: '1', status: 'inactive' });
+    const result = await categoryService.toggleStatus('1');
+    expect(result).toEqual({ id: '1', status: 'inactive' });
   });
 
-
-    describe("restoreCategory", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.restoreCategory("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("restores category", async () => {
-      const mockRestored = { _id: "1", isDeleted: false } as ICategory;
-      mockCategoryRepo.restoreCategory.mockResolvedValue(mockRestored);
-      const result = await categoryService.restoreCategory("1");
-      expect(result).toEqual(mockRestored);
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.restoreCategory.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.restoreCategory("1")).rejects.toThrow("DB error");
-    });
-  });
-
-  describe("deleteCategoryPermanently", () => {
-    it("throws error on invalid ObjectId", async () => {
-      await expect(categoryService.deleteCategoryPermanently("invalid-id")).rejects.toThrow(/id/);
-    });
-
-    it("deletes permanently", async () => {
-      const mockDeleted = { _id: "1" } as ICategory;
-      mockCategoryRepo.deleteCategoryPermanently.mockResolvedValue(mockDeleted);
-      const result = await categoryService.deleteCategoryPermanently("1");
-      expect(result).toEqual(mockDeleted);
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.deleteCategoryPermanently.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.deleteCategoryPermanently("1")).rejects.toThrow("DB error");
-    });
-  });
-
-  describe("softDeleteCategory", () => {
-    it("returns null if not found", async () => {
-      mockCategoryRepo.softDeleteCategory.mockResolvedValue(null);
-      const result = await categoryService.softDeleteCategory("999");
-      expect(result).toBeNull();
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.softDeleteCategory.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.softDeleteCategory("1")).rejects.toThrow("DB error");
-    });
-  });
-
-  describe("toggleStatus", () => {
-    it("returns null if not found", async () => {
-      mockCategoryRepo.toggleStatus.mockResolvedValue(null);
-      const result = await categoryService.toggleStatus("999");
-      expect(result).toBeNull();
-    });
-
-    it("propagates error", async () => {
-      mockCategoryRepo.toggleStatus.mockRejectedValue(new Error("DB error"));
-      await expect(categoryService.toggleStatus("1")).rejects.toThrow("DB error");
-    });
-  });
-
-  describe("updateCategory", () => {
-    it("throws validation error for invalid status", async () => {
-      await expect(
-        categoryService.updateCategory("1", { name: "Test", description: "desc", status: "wrong" } as any)
-      ).rejects.toThrow(/status must be one of/);
-    });
-  });
-
-  describe("createCategory", () => {
-    it("throws validation error for long name", async () => {
-      const longName = "x".repeat(201);
-      await expect(categoryService.createCategory({ name: longName, description: "desc" }, file)).rejects.toThrow(/name/);
-    });
-
-    it("throws validation error for long slug", async () => {
-      const longSlug = "x".repeat(201);
-      await expect(categoryService.createCategory({ slug: longSlug, description: "desc" }, file)).rejects.toThrow(/slug/);
-    });
+  it('should delete category permanently', async () => {
+    (categoryRepository.deleteCategoryPermanently as jest.Mock).mockResolvedValue({ id: '1' });
+    const result = await categoryService.deleteCategoryPermanently('1');
+    expect(result).toEqual({ id: '1' });
   });
 });

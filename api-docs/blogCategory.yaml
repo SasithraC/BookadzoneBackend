@@ -1,22 +1,22 @@
 paths:
   /blogCategory:
     get:
-      summary: Get all BlogCategories
+      summary: Get all BlogCategories (paginated)
       tags:
         - BlogCategories
       security:
-        - bearerAuth: []  
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
           schema:
             type: integer
-            example: 1
+            default: 1
         - in: query
           name: limit
           schema:
             type: integer
-            example: 10
+            default: 10
         - in: query
           name: status
           schema:
@@ -24,7 +24,7 @@ paths:
             enum: [active, inactive]
       responses:
         '200':
-          description: Successful response
+          description: Paginated list of BlogCategories
           content:
             application/json:
               schema:
@@ -54,6 +54,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /blogCategory/activeBlogCategory:
+    get:
+      summary: Get all BlogCategories (without pagination)
+      tags:
+        - BlogCategories
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all BlogCategories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/blogCategory'
+        '404':
+          description: No blog categories found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
     post:
       summary: Create a new BlogCategory
