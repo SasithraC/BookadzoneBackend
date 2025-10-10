@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const footerinfoModel_1 = require("../models/footerinfoModel");
-const common_repository_1 = require("./common.repository");
+const commonRepository_1 = require("./commonRepository");
 class FooterInfoRepository {
     constructor() {
-        this.commonRepository = new common_repository_1.CommonRepository(footerinfoModel_1.FooterInfoModel);
+        this.commonRepository = new commonRepository_1.CommonRepository(footerinfoModel_1.FooterInfoModel);
     }
     async createFooterInfo(data) {
         return await footerinfoModel_1.FooterInfoModel.create(data);

@@ -1,9 +1,19 @@
 import configRepository from "../configRepository";
 import { ConfigModel } from "../../models/configModel";
-import { CommonRepository } from "../common.repository";
+import { CommonRepository } from "../commonRepository";
 
-jest.mock("../../models/configModel");
-jest.mock("../common.repository");
+jest.mock("../../models/configModel", () => ({
+  __esModule: true,
+  ConfigModel: {
+    create: jest.fn(),
+    find: jest.fn(),
+    findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+    findByIdAndDelete: jest.fn(),
+    countDocuments: jest.fn(),
+  }
+}));
+jest.mock("../commonRepository");
 
 const mockConfig = { _id: "1", name: "Test", isDeleted: false, status: "active" };
 

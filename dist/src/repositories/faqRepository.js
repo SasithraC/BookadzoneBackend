@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const faqModel_1 = require("../models/faqModel");
-const common_repository_1 = require("./common.repository");
+const commonRepository_1 = require("./commonRepository");
 class FaqRepository {
     constructor() {
-        this.commonRepository = new common_repository_1.CommonRepository(faqModel_1.FaqModel);
+        this.commonRepository = new commonRepository_1.CommonRepository(faqModel_1.FaqModel);
     }
     async createFaq(data) {
         return await faqModel_1.FaqModel.create(data);

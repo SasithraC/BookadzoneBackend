@@ -13,6 +13,10 @@ paths:
     $ref: './auth.yaml#/paths/~1auth~1login'
   /auth/refresh:
     $ref: './auth.yaml#/paths/~1auth~1refresh'
+  /auth/forgot-password:
+    $ref: './auth.yaml#/paths/~1auth~1forgot-password'
+  /auth/reset-password:
+    $ref: './auth.yaml#/paths/~1auth~1reset-password'
   
   # FAQ endpoints
   /faqs:
@@ -233,3 +237,33 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    CSRFToken:
+      type: apiKey
+      in: header
+      name: X-XSRF-TOKEN
+
+    # Common rate limit error schema
+    RateLimitError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Too many requests. Please try again later.
+        retryAfter:
+          type: integer
+          example: 900
+          description: Time in seconds until the next attempt is allowed
+
+    # CSRF error schema
+    CSRFError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Invalid CSRF token

@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const faqRepository_1 = __importDefault(require("../repositories/faqRepository"));
 const validationHelper_1 = __importDefault(require("../utils/validationHelper"));
 const faqModel_1 = require("../models/faqModel");
-const common_service_1 = require("./common.service");
+const commonService_1 = require("./commonService");
 class FaqService {
     constructor() {
-        this.commonService = new common_service_1.CommonService(faqModel_1.FaqModel);
+        this.commonService = new commonService_1.CommonService(faqModel_1.FaqModel);
     }
     validateFaqData(data, isUpdate = false) {
         const rules = [

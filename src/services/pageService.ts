@@ -3,7 +3,7 @@ import { IPage } from "../models/pageModel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
 import { PageModel } from "../models/pageModel";
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
 
 class PagesService {
   private commonService = new CommonService<IPage>(PageModel);
@@ -26,16 +26,15 @@ class PagesService {
       (data.slug !== undefined ? ValidationHelper.maxLength(data.slug, "slug", 200) : null),
       !isUpdate
         ? ValidationHelper.isRequired(data.type, "type")
-        : null,
-      ValidationHelper.isValidEnum(data.type, "type", ["link", "template"]),
+        : (data.type !== undefined ? ValidationHelper.isNonEmptyString(data.type, "type") : null),
+      data.type !== undefined ? ValidationHelper.isValidEnum(data.type, "type", ["link", "template"]) : null,
 
       (data.url !== undefined ? ValidationHelper.maxLength(data.url, "url", 500) : null),
 
       (data.description !== undefined ? ValidationHelper.maxLength(data.description, "description", 1000) : null),
 
-      ValidationHelper.isValidEnum(data.status, "status", ["active", "inactive"]),
-
-      ValidationHelper.isBoolean(data.isDeleted, "isDeleted"),
+      data.status !== undefined ? ValidationHelper.isValidEnum(data.status, "status", ["active", "inactive"]) : null,
+      data.isDeleted !== undefined ? ValidationHelper.isBoolean(data.isDeleted, "isDeleted") : null,
     ];
 
     const errors = ValidationHelper.validate(rules);
@@ -64,7 +63,8 @@ class PagesService {
     if (error) {
       throw new Error(error.message);
     }
-    return await pagesRepository.getPageById(id);
+    const page = await pagesRepository.getPageById(id);
+    return page === undefined ? null : page;
   }
 
   async updatePage(id: string | Types.ObjectId, data: Partial<IPage>): Promise<IPage | null> {
@@ -73,7 +73,8 @@ class PagesService {
       throw new Error(error.message);
     }
     this.validatePageData(data, true);
-    return await pagesRepository.updatePage(id, data);
+    const updatedPage = await pagesRepository.updatePage(id, data);
+    return updatedPage === undefined ? null : updatedPage;
   }
 
   async softDeletePage(id: string | Types.ObjectId): Promise<IPage | null> {
@@ -81,7 +82,8 @@ class PagesService {
     if (error) {
       throw new Error(error.message);
     }
-    return await pagesRepository.softDeletePage(id);
+    const softDeletedPage = await pagesRepository.softDeletePage(id);
+    return softDeletedPage === undefined ? null : softDeletedPage;
   }
 
   async toggleStatus(id: string | Types.ObjectId): Promise<IPage | null> {
@@ -89,7 +91,8 @@ class PagesService {
     if (error) {
       throw new Error(error.message);
     }
-    return await pagesRepository.toggleStatus(id);
+    const toggledPage = await pagesRepository.toggleStatus(id);
+    return toggledPage === undefined ? null : toggledPage;
   }
   async getAllTrashPages(page = 1, limit = 10, filter?: string) {
     return await pagesRepository.getAllTrashPages(page, limit, filter);
@@ -100,7 +103,8 @@ class PagesService {
       if (error) {
         throw new Error(error.message);
       }
-      return await pagesRepository.restorePage(id);
+      const restoredPage = await pagesRepository.restorePage(id);
+      return restoredPage === undefined ? null : restoredPage;
     }
 
     async deletePagePermanently(id: string | Types.ObjectId): Promise<IPage | null> {
@@ -108,7 +112,8 @@ class PagesService {
       if (error) {
         throw new Error(error.message);
       }
-      return await pagesRepository.deletePagePermanently(id);
+      const deletedPage = await pagesRepository.deletePagePermanently(id);
+      return deletedPage === undefined ? null : deletedPage;
     }
 }
 

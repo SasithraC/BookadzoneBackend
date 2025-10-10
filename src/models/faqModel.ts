@@ -3,8 +3,8 @@ import { Schema, model, Document } from "mongoose";
 export interface IFaq extends Document {
   question: string;
   answer: string;
-  status: "active" | "inactive";
-  isDeleted: boolean;
+  status?: "active" | "inactive";
+  isDeleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -19,4 +19,4 @@ const faqSchema = new Schema<IFaq>(
   { timestamps: true }
 );
 
-export const FaqModel = model<IFaq>("FAQ", faqSchema);
+export const FaqModel = model<IFaq>("Faq", faqSchema);

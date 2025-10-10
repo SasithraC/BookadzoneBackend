@@ -8,4 +8,4 @@ const faqSchema = new mongoose_1.Schema({
     status: { type: String, enum: ["active", "inactive"], default: "active" },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
-exports.FaqModel = (0, mongoose_1.model)("FAQ", faqSchema);
+exports.FaqModel = (0, mongoose_1.model)("Faq", faqSchema);

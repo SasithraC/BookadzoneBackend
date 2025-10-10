@@ -3,10 +3,41 @@ import { ILetter } from "../models/newsLettermodel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
 import {NewsLetter} from "../models/newsLettermodel";
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
+import * as fs from "fs/promises";
+import * as path from "path";
 
 class NewsLetterService {
   private commonService = new CommonService<ILetter>(NewsLetter);
+  private templatesDir = path.join(__dirname, "..", "templates", "newsletters");
+
+  private async ensureTemplatesDir(): Promise<void> {
+    try {
+      await fs.access(this.templatesDir);
+    } catch {
+      await fs.mkdir(this.templatesDir, { recursive: true });
+    }
+  }
+
+  private getTemplatePath(slug: string): string {
+    return path.join(this.templatesDir, `${slug}.html`);
+  }
+
+  private async saveTemplateFile(slug: string, content: string): Promise<void> {
+    await this.ensureTemplatesDir();
+    await fs.writeFile(this.getTemplatePath(slug), content);
+  }
+
+  private async deleteTemplateFile(slug: string): Promise<void> {
+    try {
+      await fs.unlink(this.getTemplatePath(slug));
+    } catch (error) {
+      // Ignore error if file doesn't exist
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
   private validateNewsLetterData(data: Partial<ILetter>, isUpdate: boolean = false): void {
     const rules = [
       !isUpdate
@@ -39,6 +70,7 @@ class NewsLetterService {
     if (exists) {
       throw new Error("NewsLetter with this Name already exists");
     }
+    await this.saveTemplateFile(data.slug, data.template);
     return await newsLetterRepository.createNewsLetter(data);
   }
 
@@ -60,6 +92,12 @@ class NewsLetterService {
       throw new Error(error.message);
     }
     this.validateNewsLetterData(data, true);
+    
+    // If template content is being updated
+    if (data.template && data.slug) {
+      await this.saveTemplateFile(data.slug, data.template);
+    }
+    
     return await newsLetterRepository.updateNewsLetter(id, data);
   }
 
@@ -95,6 +133,13 @@ class NewsLetterService {
       if (error) {
         throw new Error(error.message);
       }
+      
+      // Get the newsletter first to get the slug
+      const newsletter = await this.getNewsLetterById(id);
+      if (newsletter) {
+        await this.deleteTemplateFile(newsletter.slug);
+      }
+      
       return await newsLetterRepository.deleteNewsLetterPermanently(id);
     }
 }

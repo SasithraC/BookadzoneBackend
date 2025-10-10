@@ -1,13 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
 const settingsModel_1 = require("../settingsModel");
+const env_1 = require("../../config/env");
 describe('SettingsModel', () => {
-    beforeAll(() => {
-        jest.spyOn(console, 'error').mockImplementation(() => { });
-    });
-    afterAll(() => {
-        console.error.mockRestore();
-    });
+    beforeAll(async () => { await mongoose_1.default.connect(env_1.ENV.MONGO_URI); });
+    afterAll(async () => { await mongoose_1.default.connection.close(); });
     it('should have default values for general', () => {
         const doc = new settingsModel_1.SettingsModel();
         expect(doc.general.siteName).toBe('');

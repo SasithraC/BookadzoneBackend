@@ -1,4 +1,5 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
 export interface IFooterInfo extends Document {
   logo: string;
@@ -29,4 +30,4 @@ const footerInfoSchema = new Schema<IFooterInfo>(
   { timestamps: true }
 );
 
-export const FooterInfoModel = model<IFooterInfo>("FooterInfo", footerInfoSchema);
+export const FooterInfoModel = mongoose.model<IFooterInfo>("FooterInfo", footerInfoSchema);

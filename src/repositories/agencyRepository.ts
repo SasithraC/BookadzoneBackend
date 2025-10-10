@@ -1,4 +1,4 @@
-import { AgencyModel, IAgency } from "../models/agencyModel";
+import AgencyModel, { IAgency } from "../models/agencyModel";
 import { Types } from "mongoose";
 
 class AgencyRepository {
@@ -13,8 +13,32 @@ class AgencyRepository {
     return { agencies, total, page, limit };
   }
 
-  async getAgencyById(id: string | Types.ObjectId): Promise<IAgency | null> {
-    return await AgencyModel.findById(id);
+  async getAgencyById(id: string | Types.ObjectId): Promise<any | null> {
+    // Use aggregation with $lookup to fetch user email as yourEmail
+    const result = await AgencyModel.aggregate([
+      { $match: { _id: typeof id === 'string' ? new Types.ObjectId(id) : id } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          yourEmail: '$user.email',
+          userId: '$user._id',
+        },
+      },
+      {
+        $project: {
+          user: 0, // remove user object from result
+        },
+      },
+    ]);
+    return result[0] || null;
   }
 
   async updateAgency(id: string | Types.ObjectId, data: Partial<IAgency>): Promise<IAgency | null> {
@@ -45,6 +69,21 @@ class AgencyRepository {
 
   async deleteAgencyPermanently(id: string | Types.ObjectId): Promise<IAgency | null> {
     return await AgencyModel.findByIdAndDelete(id);
+  }
+  async findOne(query: any) {
+    return await AgencyModel.findOne(query);
+  }
+
+  async checkCompanyEmailExists(email: string, currentId?: string | null): Promise<boolean> {
+    const query: any = { 
+      companyEmail: email, 
+      isDeleted: false 
+    };
+    // Exclude current agency from the check if currentId is provided
+    if (currentId) {
+      query._id = { $ne: new Types.ObjectId(currentId) };
+    }
+    return !!(await this.findOne(query));
   }
 }
 

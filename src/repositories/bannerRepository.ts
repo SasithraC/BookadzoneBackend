@@ -35,18 +35,26 @@ export class BannerRepository {
     const banner = await BannerModel.findOne();
     if (!banner) return null;
 
-      console.log('[DEBUG] Existing banner before update:', JSON.stringify(banner, null, 2));
-      console.log('[DEBUG] Incoming update data:', JSON.stringify(data, null, 2));
+    console.log('[DEBUG] Existing banner before update:', JSON.stringify(banner, null, 2));
+    console.log('[DEBUG] Incoming update data:', JSON.stringify(data, null, 2));
+
     // Helper to deep merge only provided fields, always replace arrays
     function deepMerge(target: any, source: any) {
       for (const key in source) {
         if (source[key] !== undefined && source[key] !== null) {
           if (Array.isArray(source[key])) {
-            // Always replace arrays
+            // Always replace arrays completely
             target[key] = source[key];
-          } else if (typeof source[key] === 'object' && typeof target[key] === 'object' && target[key] !== null) {
+          } else if (
+            typeof source[key] === 'object' && 
+            typeof target[key] === 'object' && 
+            target[key] !== null &&
+            !Array.isArray(target[key])
+          ) {
+            // Deep merge objects (but not arrays or null)
             deepMerge(target[key], source[key]);
           } else {
+            // Replace primitive values or handle null/type mismatches
             target[key] = source[key];
           }
         }
@@ -55,23 +63,35 @@ export class BannerRepository {
 
     // Convert flat keys to nested object before merging
     const nestedData = unflatten(data);
+    
     if (nestedData.homepage) {
       deepMerge(banner.homepage, nestedData.homepage);
     }
+    
     if (nestedData.aboutBanner) {
       // Only update fields defined in IBanner model
       const aboutBannerKeys: (keyof IBanner['aboutBanner'])[] = ['bannerOne', 'bannerTwo', 'bannerThree', 'bannerFour'];
+      
       for (const key of aboutBannerKeys) {
         if (nestedData.aboutBanner[key]) {
-          if (key === 'bannerThree' && Array.isArray(nestedData.aboutBanner.bannerThree.smallBoxes)) {
-            banner.aboutBanner.bannerThree.smallBoxes = nestedData.aboutBanner.bannerThree.smallBoxes;
+          // Special handling for arrays
+          if (key === 'bannerThree' && nestedData.aboutBanner.bannerThree?.smallBoxes) {
+            if (Array.isArray(nestedData.aboutBanner.bannerThree.smallBoxes)) {
+              banner.aboutBanner.bannerThree.smallBoxes = nestedData.aboutBanner.bannerThree.smallBoxes;
+            }
           }
-          if (key === 'bannerFour' && Array.isArray(nestedData.aboutBanner.bannerFour.history)) {
-            banner.aboutBanner.bannerFour.history = nestedData.aboutBanner.bannerFour.history;
+          
+          if (key === 'bannerFour' && nestedData.aboutBanner.bannerFour?.history) {
+            if (Array.isArray(nestedData.aboutBanner.bannerFour.history)) {
+              banner.aboutBanner.bannerFour.history = nestedData.aboutBanner.bannerFour.history;
+            }
           }
+          
+          // Deep merge the rest
           deepMerge(banner.aboutBanner[key], nestedData.aboutBanner[key]);
         }
       }
+      
       // Remove any non-model fields from aboutBanner
       Object.keys(banner.aboutBanner).forEach((field) => {
         if (!aboutBannerKeys.includes(field as any)) {
@@ -80,28 +100,40 @@ export class BannerRepository {
         }
       });
     }
+    
     if (data.adminId) banner.adminId = data.adminId;
-      console.log('[DEBUG] Banner after merge, before save:', JSON.stringify(banner, null, 2));
+
+    console.log('[DEBUG] Banner after merge, before save:', JSON.stringify(banner, null, 2));
+    
+    // Mark all modified paths to ensure Mongoose saves them
+    banner.markModified('homepage');
+    banner.markModified('aboutBanner');
+    
     await banner.save();
+    
     // After saving, force removal of any non-model fields from aboutBanner in DB
     if (nestedData.aboutBanner) {
       const aboutBannerKeys: (keyof IBanner['aboutBanner'])[] = ['bannerOne', 'bannerTwo', 'bannerThree', 'bannerFour'];
       const fieldsToRemove = Object.keys(banner.aboutBanner).filter(
         (field) => !aboutBannerKeys.includes(field as any)
       );
+      
       if (fieldsToRemove.length > 0) {
         await BannerModel.updateOne(
           { _id: banner._id },
           { $unset: fieldsToRemove.reduce((acc, field) => ({ ...acc, [`aboutBanner.${field}`]: "" }), {}) }
         );
+        
         fieldsToRemove.forEach((field) => {
           delete (banner.aboutBanner as any)[field];
         });
       }
     }
+    
     console.log('[DEBUG] Banner saved successfully.');
     return banner;
   }
+
   async create(data: Partial<IBanner>) {
     return BannerModel.create(data);
   }
@@ -110,8 +142,15 @@ export class BannerRepository {
     return BannerModel.findById(id);
   }
 
-  async findAll() {
-    return BannerModel.find();
+  async findAll(options?: { page?: number; limit?: number }) {
+    let query = BannerModel.find();
+    
+    if (options?.page && options?.limit) {
+      const skip = (options.page - 1) * options.limit;
+      query = query.skip(skip).limit(options.limit);
+    }
+    
+    return query.exec();
   }
 
   async updateById(id: string, data: Partial<IBanner>) {

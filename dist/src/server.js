@@ -4,15 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
-dotenv_1.default.config();
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/bookadzone";
+const env_1 = require("./config/env");
+const mongoUri = env_1.ENV.MONGO_URI || "mongodb://localhost:27017/bookadzone";
 mongoose_1.default
-    .connect(MONGO_URI)
-    .then(() => console.log("MongoDB connected"))
+    .connect(mongoUri)
+    .then(() => console.log("MongoDB connected to:", mongoUri))
     .catch((err) => console.error("MongoDB connection error:", err));
-const PORT = process.env.PORT || 5000;
+const PORT = env_1.ENV.PORT;
 app_1.default.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

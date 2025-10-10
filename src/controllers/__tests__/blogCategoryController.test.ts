@@ -1,117 +1,184 @@
-import request from "supertest";
-import app from "../../app";
+import { Request, Response, NextFunction } from "express";
+import blogCategoryController from "../../controllers/blogCategoryController";
+import blogCategoryService from "../../services/blogCategoryService";
+
+// Mock dependencies
+jest.mock('../../services/blogCategoryService');
+jest.mock('../../middleware/authentication', () => ({
+  authenticate: (req: any, res: any, next: any) => next(),
+}));
 
 describe("BlogCategoryController", () => {
-  let token = "";
-  let categoryId = "";
+  let mockReq: Partial<Request>;
+  let mockRes: Partial<Response>;
+  let mockNext: NextFunction;
+  let categoryId: string;
 
-  beforeAll(async () => {
-    const res = await request(app).post("/api/v1/auth/login").send({
-      email: "admin@gmail.com",
-      password: "admin@123",
+  beforeEach(() => {
+    mockReq = {
+      body: {},
+      params: {},
+      query: {}
+    };
+    mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    mockNext = jest.fn();
+    jest.clearAllMocks();
+    categoryId = "test-category-id";
+  });
+
+  describe("createBlogCategory", () => {
+    it("returns 409 if BlogCategory already exists", async () => {
+      const mockError = new Error("BlogCategory with this slug already exists");
+      mockReq.body = { name: "Duplicate Category", status: "active" };
+      (blogCategoryService.createBlogCategory as jest.Mock).mockRejectedValue(mockError);
+
+      await blogCategoryController.createBlogCategory(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(blogCategoryService.createBlogCategory).toHaveBeenCalledWith(mockReq.body);
+      expect(mockRes.status).toHaveBeenCalledWith(409);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        message: "BlogCategory with this slug already exists"
+      }));
     });
-    token = res.body.token;
+
+    it("creates a BlogCategory", async () => {
+      mockReq.body = { name: "Test Category", status: "active" };
+      const mockCategory = { _id: categoryId, ...mockReq.body };
+      (blogCategoryService.createBlogCategory as jest.Mock).mockResolvedValue(mockCategory);
+
+      await blogCategoryController.createBlogCategory(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockCategory
+      }));
+    });
   });
 
-  it("returns 409 if BlogCategory already exists", async () => {
-    const categoryData = { name: "Duplicate Category", status: "active" };
-    await request(app)
-      .post("/api/v1/blogCategory")
-      .set("Authorization", `Bearer ${token}`)
-      .send(categoryData);
+  describe("getAllBlogCategories", () => {
+    it("retrieves all BlogCategories", async () => {
+      const mockResult = {
+        data: [{ _id: categoryId, name: "Test Category" }],
+        meta: { total: 1, page: 1, limit: 10 }
+      };
+      (blogCategoryService.getAllBlogCategories as jest.Mock).mockResolvedValue(mockResult);
 
-    const res = await request(app)
-      .post("/api/v1/blogCategory")
-      .set("Authorization", `Bearer ${token}`)
-      .send(categoryData);
+      await blogCategoryController.getAllBlogCategories(mockReq as Request, mockRes as Response, mockNext);
 
-    expect([409, 400]).toContain(res.status);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockResult.data
+      }));
+    });
   });
 
-  it("creates a BlogCategory", async () => {
-    const res = await request(app)
-      .post("/api/v1/blogCategory")
-      .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Test Category", status: "active" });
+  describe("getBlogCategoryById", () => {
+    it("retrieves a BlogCategory by ID", async () => {
+      mockReq.params = { id: categoryId };
+      const mockCategory = { _id: categoryId, name: "Test Category" };
+      (blogCategoryService.getBlogCategoryById as jest.Mock).mockResolvedValue(mockCategory);
 
-    expect(res.status).toBe(201);
-    expect(res.body.data.name).toBe("Test Category");
-    categoryId = res.body.data._id;
+      await blogCategoryController.getBlogCategoryById(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockCategory
+      }));
+    });
   });
 
-  it("retrieves all BlogCategories", async () => {
-    const res = await request(app)
-      .get("/api/v1/blogCategory")
-      .set("Authorization", `Bearer ${token}`);
+  describe("updateBlogCategory", () => {
+    it("updates a BlogCategory", async () => {
+      mockReq.params = { id: categoryId };
+      mockReq.body = { name: "Updated Category" };
+      const mockUpdatedCategory = { _id: categoryId, ...mockReq.body };
+      (blogCategoryService.updateBlogCategory as jest.Mock).mockResolvedValue(mockUpdatedCategory);
 
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body.data)).toBe(true);
+      await blogCategoryController.updateBlogCategory(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockUpdatedCategory
+      }));
+    });
   });
 
-  it("retrieves a BlogCategory by ID", async () => {
-    const res = await request(app)
-      .get(`/api/v1/blogCategory/getblogCategoryById/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`);
+  describe("toggleBlogCategoryStatus", () => {
+    it("toggles BlogCategory status", async () => {
+      mockReq.params = { id: categoryId };
+      const mockToggledCategory = { _id: categoryId, status: "inactive" };
+      (blogCategoryService.toggleStatus as jest.Mock).mockResolvedValue(mockToggledCategory);
 
-    expect(res.status).toBe(200);
-    expect(res.body.data._id).toEqual(categoryId);
+      await blogCategoryController.toggleBlogCategoryStatus(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockToggledCategory
+      }));
+    });
   });
 
-  it("updates a BlogCategory", async () => {
-    const res = await request(app)
-      .put(`/api/v1/blogCategory/updateblogCategory/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Updated Category" });
+  describe("softDeleteBlogCategory", () => {
+    it("soft deletes a BlogCategory", async () => {
+      mockReq.params = { id: categoryId };
+      const mockDeletedCategory = { _id: categoryId, isDeleted: true };
+      (blogCategoryService.softDeleteBlogCategory as jest.Mock).mockResolvedValue(mockDeletedCategory);
 
-    expect(res.status).toBe(200);
-    expect(res.body.data.name).toBe("Updated Category");
+      await blogCategoryController.softDeleteBlogCategory(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockDeletedCategory
+      }));
+    });
   });
 
-  it("toggles BlogCategory status", async () => {
-    const res = await request(app)
-      .patch(`/api/v1/blogCategory/togglestatus/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`);
+  describe("restoreBlogCategory", () => {
+    it("restores a BlogCategory", async () => {
+      mockReq.params = { id: categoryId };
+      const mockRestoredCategory = { _id: categoryId, isDeleted: false };
+      (blogCategoryService.restoreBlogCategory as jest.Mock).mockResolvedValue(mockRestoredCategory);
 
-    expect(res.status).toBe(200);
-    expect(["active", "inactive"]).toContain(res.body.data.status);
+      await blogCategoryController.restoreBlogCategory(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockRestoredCategory
+      }));
+    });
   });
 
-  it("soft deletes a BlogCategory", async () => {
-    const res = await request(app)
-      .delete(`/api/v1/blogCategory/softDeleteblogCategory/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`);
+  describe("getAllTrashBlogCategories", () => {
+    it("retrieves BlogCategories from trash", async () => {
+      const mockTrashCategories = {
+        data: [{ _id: categoryId, isDeleted: true }],
+        meta: { total: 1, page: 1, limit: 10 }
+      };
+      (blogCategoryService.getAllTrashBlogCategories as jest.Mock).mockResolvedValue(mockTrashCategories);
 
-    expect(res.status).toBe(200);
-    expect(res.body.data.isDeleted).toBe(true);
+      await blogCategoryController.getAllTrashBlogCategories(mockReq as Request, mockRes as Response, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        data: mockTrashCategories.data
+      }));
+    });
   });
 
-  it("restores a BlogCategory", async () => {
-    const res = await request(app)
-      .patch(`/api/v1/blogCategory/restore/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`);
+  describe("deleteBlogCategoryPermanently", () => {
+    it("permanently deletes a BlogCategory", async () => {
+      mockReq.params = { id: categoryId };
+      (blogCategoryService.deleteBlogCategoryPermanently as jest.Mock).mockResolvedValue({ _id: categoryId });
 
-    expect(res.status).toBe(200);
-    expect(res.body.data.isDeleted).toBe(false);
-  });
+      await blogCategoryController.deleteBlogCategoryPermanently(mockReq as Request, mockRes as Response, mockNext);
 
-  it("retrieves BlogCategories from trash", async () => {
-    await request(app)
-      .delete(`/api/v1/blogCategory/trash/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`);
-
-    const res = await request(app)
-      .get("/api/v1/blogCategory/trash/")
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body.data)).toBe(true);
-  });
-
-  it("permanently deletes a BlogCategory", async () => {
-    const res = await request(app)
-      .delete(`/api/v1/blogCategory/permanentDelete/${categoryId}`)
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.status).toBe(200);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
+        message: expect.stringContaining("deleted")
+      }));
+    });
   });
 });

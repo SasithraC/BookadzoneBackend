@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SettingsModel = void 0;
-const mongoose_1 = require("mongoose");
-const settingsSchema = new mongoose_1.Schema({
+const mongoose_1 = __importDefault(require("mongoose"));
+const { Schema } = mongoose_1.default;
+const settingsSchema = new Schema({
     general: {
         siteName: { type: String, default: "" },
         siteLogo: { type: String, default: "" },
@@ -47,4 +51,4 @@ const settingsSchema = new mongoose_1.Schema({
         ogType: { type: String, default: "" },
     },
 }, { timestamps: true });
-exports.SettingsModel = (0, mongoose_1.model)("Settings", settingsSchema);
+exports.SettingsModel = mongoose_1.default.model("Settings", settingsSchema);

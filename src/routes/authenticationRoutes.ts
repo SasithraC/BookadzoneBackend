@@ -1,11 +1,39 @@
 import { Router } from "express";
 import authenticationController from "../controllers/authenticationController";
+import { loginRateLimiter } from "../middleware/rateLimiter";
+import { validateCSRFToken } from "../middleware/csrf";
+import { validateRequest } from "../middleware/validation";
+import { loginSchema, resetPasswordSchema, forgotPasswordSchema } from "../validators/authSchemas";
 
 const router: Router = Router();
 
+// Apply rate limiting and validation to login route
+router.post(
+    "/login",
+    loginRateLimiter,
+    validateRequest(loginSchema),
+    authenticationController.authLogin
+);
 
+// Apply CSRF protection and validation to token refresh
+router.post(
+    "/refresh",
+    validateCSRFToken,
+    authenticationController.refreshToken
+);
 
-router.post("/login", (req, res, next) => authenticationController.authLogin(req, res, next));
-router.post("/refresh", (req, res, next) => authenticationController.refreshToken(req, res, next));
+// Apply rate limiting and validation to password reset routes
+router.post(
+    "/forgot-password",
+    loginRateLimiter,
+    validateRequest(forgotPasswordSchema),
+    authenticationController.forgotPassword
+);
+
+router.post(
+    "/reset-password",
+    loginRateLimiter,
+    validateRequest(resetPasswordSchema),
+    authenticationController.resetPassword);
 
 export default router;

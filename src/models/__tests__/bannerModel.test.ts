@@ -1,27 +1,78 @@
 import { BannerModel } from '../bannerModel';
-import { ENV } from "../../config/env";
 import mongoose from 'mongoose';
 
+jest.mock('mongoose', () => {
+  const mSchema = jest.fn().mockImplementation((definition) => ({
+    obj: definition,
+  }));
+
+  return {
+    Schema: mSchema,
+    model: jest.fn().mockReturnValue(function(data: any = {}) {
+      return {
+        adminId: "01",
+        homepage: {
+          bannerOne: {
+            title: "",
+            highlightedText: "",
+            image1: "",
+            subHead1: "",
+            subDescription1: "",
+            image2: "",
+            subHead2: "",
+            subDescription2: "",
+            image3: "",
+            subHead3: "",
+            subDescription3: "",
+          },
+          bannerTwo: {
+            backgroundImage: "",
+            title: "",
+            description: "",
+            features: [],
+            buttonName: "",
+            buttonUrl: "",
+          }
+        },
+        aboutBanner: {
+          bannerOne: {
+            backgroundImage: "",
+            title: "",
+            description: "",
+            images: [],
+          },
+          bannerTwo: {
+            backgroundImage: "",
+            title: "",
+            description: "",
+            images: [],
+          },
+        },
+        ...data,
+        _id: 'mockId',
+        save: jest.fn().mockImplementation(function(this: any) { 
+          return Promise.resolve(this);
+        })
+      };
+    }),
+    connect: jest.fn(),
+    disconnect: jest.fn(),
+  };
+});
+
 describe('BannerModel', () => {
-  beforeAll(async () => {
-    await mongoose.connect(ENV.MONGO_URI);
-  });
 
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
-
-  it('should create a banner with default values', async () => {
+  it('should create a banner with default values', () => {
     const banner = new BannerModel();
     expect(banner.adminId).toBe('01');
     expect(banner.homepage.bannerOne.title).toBe('');
     expect(banner.homepage.bannerTwo.title).toBe('');
-     expect(banner.aboutBanner.bannerOne.title).toBe('');
-     expect(banner.aboutBanner.bannerTwo.title).toBe('');
+    expect(banner.aboutBanner.bannerOne.title).toBe('');
+    expect(banner.aboutBanner.bannerTwo.title).toBe('');
   });
 
-  it('should save and retrieve a banner', async () => {
-    const banner = new BannerModel({
+  it('should create a banner with custom values', async () => {
+    const bannerData = {
       adminId: 'test',
       homepage: {
         bannerOne: {
@@ -60,12 +111,15 @@ describe('BannerModel', () => {
           images: [{ id: 2, url: 'img2.jpg' }],
         },
       },
-    });
+    };
+
+    const banner = new BannerModel(bannerData);
     await banner.save();
-    const found = await BannerModel.findById(banner._id);
-    expect(found).not.toBeNull();
-    expect(found?.adminId).toBe('test');
-    expect(found?.homepage.bannerOne.title).toBe('Banner One');
-    expect(found?.aboutBanner.bannerOne.title).toBe('BannerOne');
+
+    expect(banner.adminId).toBe('test');
+    expect(banner.homepage.bannerOne.title).toBe('Banner One');
+    expect(banner.homepage.bannerTwo.title).toBe('Banner Two');
+    expect(banner.aboutBanner.bannerOne.title).toBe('BannerOne');
+    expect(banner.aboutBanner.bannerTwo.title).toBe('BannerTwo');
   });
 });

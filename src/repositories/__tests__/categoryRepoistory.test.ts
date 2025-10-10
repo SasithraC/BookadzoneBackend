@@ -1,7 +1,6 @@
 import CategoryRepository from "../categoryRepository";
 import { CategoryModel, ICategory } from "../../models/catrgoryModel";
-import { CommonRepository } from "../common.repository";
-import { Types } from "mongoose";
+import { CommonRepository } from "../commonRepository";
 
 // Mocking Mongoose Model methods
 jest.mock("../../models/catrgoryModel", () => ({
@@ -16,7 +15,7 @@ jest.mock("../../models/catrgoryModel", () => ({
 }));
 
 // Mocking CommonRepository
-jest.mock("../common.repository", () => {
+jest.mock("../commonRepository", () => {
   return {
     CommonRepository: jest.fn().mockImplementation(() => ({
       getStats: jest.fn().mockResolvedValue({ total: 100 }),
@@ -26,31 +25,30 @@ jest.mock("../common.repository", () => {
 });
 
 describe("CategoryRepository", () => {
-  const repo = CategoryRepository; // ✅ Use the default-exported instance
+  const repo = CategoryRepository; 
 
   const mockCategory = {
-    _id: new Types.ObjectId(),
+    _id: "test-id-123",
     name: "Test Category",
     status: "active",
     isDeleted: false,
   };
 
-it("should create a category", async () => {
-  const mockCategory: Partial<ICategory> = {
+  it("should create a category", async () => {
+  const createMockCategory: Partial<ICategory> = {
+    _id: "test-id-123",
     name: "Test Category",
     status: "active",
     isDeleted: false,
   };
 
-  (CategoryModel.create as jest.Mock).mockResolvedValue(mockCategory);
+  (CategoryModel.create as jest.Mock).mockResolvedValue(createMockCategory);
 
   // Type assertion to ICategory to satisfy the type requirement
-  const result = await repo.createCategory(mockCategory as ICategory);
-  expect(result).toEqual(mockCategory);
-  expect(CategoryModel.create).toHaveBeenCalledWith(mockCategory);
-});
-
-  it("should get all categories", async () => {
+  const result = await repo.createCategory(createMockCategory as ICategory);
+  expect(result).toEqual(createMockCategory);
+  expect(CategoryModel.create).toHaveBeenCalledWith(createMockCategory);
+});  it("should get all categories", async () => {
     (CategoryModel.find as jest.Mock).mockReturnValue({
       skip: jest.fn().mockReturnThis(),
       limit: jest.fn().mockResolvedValue([mockCategory]),
@@ -63,39 +61,39 @@ it("should create a category", async () => {
 
   it("should get category by ID", async () => {
     (CategoryModel.findById as jest.Mock).mockResolvedValue(mockCategory);
-    const result = await repo.getCategoryById(mockCategory._id);
+    const result = await repo.getCategoryById("test-id-123");
     expect(result).toEqual(mockCategory);
   });
 
   it("should update category", async () => {
     const updated = { ...mockCategory, name: "Updated" };
     (CategoryModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(updated);
-    const result = await repo.updateCategory(mockCategory._id, { name: "Updated" });
+    const result = await repo.updateCategory("test-id-123", { name: "Updated" });
     expect(result).toEqual(updated);
   });
 
   it("should soft delete category", async () => {
     const deleted = { ...mockCategory, isDeleted: true };
     (CategoryModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(deleted);
-    const result = await repo.softDeleteCategory(mockCategory._id);
+    const result = await repo.softDeleteCategory("test-id-123");
     expect(result).toEqual(deleted);
   });
 
   it("should toggle status", async () => {
-    const result = await repo.toggleStatus(mockCategory._id);
+    const result = await repo.toggleStatus("test-id-123");
     expect(result).toEqual({ status: "inactive" });
   });
 
   it("should restore category", async () => {
     const restored = { ...mockCategory, isDeleted: false, status: "active" };
     (CategoryModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(restored);
-    const result = await repo.restoreCategory(mockCategory._id);
+    const result = await repo.restoreCategory("test-id-123");
     expect(result).toEqual(restored);
   });
 
   it("should permanently delete category", async () => {
     (CategoryModel.findByIdAndDelete as jest.Mock).mockResolvedValue(mockCategory);
-    const result = await repo.deleteCategoryPermanently(mockCategory._id);
+    const result = await repo.deleteCategoryPermanently("test-id-123");
     expect(result).toEqual(mockCategory);
   });
 

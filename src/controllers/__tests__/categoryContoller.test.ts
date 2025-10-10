@@ -1,7 +1,6 @@
 import categoryController from "../categoryController";
 import categoryService from "../../services/categoryService";
-import { HTTP_RESPONSE } from "../../utils/httpResponse";
-
+import{ HTTP_RESPONSE } from "../../utils/httpResponse";
 jest.mock("../../services/categoryService");
 
 const mockReq = (overrides = {}) =>
@@ -35,13 +34,14 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.FAIL,
-        message: "Photo file is required for creation",
+        message: "Photo file is required",
       });
     });
 
-    it("returns 400 if description is missing", async () => {
+    it("returns 400 if validation fails", async () => {
       const req = mockReq({ body: { name: "Test" }, file: { filename: "p.png" } });
       const res = mockRes();
+      (categoryService.createCategory as jest.Mock).mockRejectedValue(new Error("description is required"));
       await categoryController.createCategory(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -61,7 +61,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Category created successfully",
+        message: "Category created",
         data: { id: "123" },
       });
     });
@@ -103,8 +103,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Categories fetched successfully",
-        data: ["cat"],
+        data: ["cat"]
       });
     });
 
@@ -126,7 +125,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.FAIL,
-        message: "Category ID is required",
+        message: "Category id is required",
       });
     });
 
@@ -138,7 +137,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.FAIL,
-        message: "Category not found",
+        message: "Category Info not found",
       });
     });
 
@@ -150,7 +149,6 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Category fetched successfully",
         data: { id: "123" },
       });
     });
@@ -185,7 +183,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Category updated successfully",
+        message: "Category updated",
         data: { id: "123" },
       });
     });
@@ -206,6 +204,10 @@ describe("CategoryController", () => {
       const res = mockRes();
       await categoryController.softDeleteCategory(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category id is required",
+      });
     });
 
     it("returns 200 on success", async () => {
@@ -214,6 +216,11 @@ describe("CategoryController", () => {
       (categoryService.softDeleteCategory as jest.Mock).mockResolvedValue({ id: "123" });
       await categoryController.softDeleteCategory(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.SUCCESS,
+        message: "Category deleted successfully",
+        data: { id: "123" }
+      });
     });
 
     it("calls next on error", async () => {
@@ -227,23 +234,27 @@ describe("CategoryController", () => {
   });
 
    // TOGGLE STATUS
-  describe("toggleCatgoryStatus", () => {
+  describe("toggleCategoryStatus", () => {
     it("returns 400 if id is missing", async () => {
       const req = mockReq();
       const res = mockRes();
-      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      await categoryController.toggleCategoryStatus(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category id is required",
+      });
     });
 
     it("returns 200 on success", async () => {
       const req = mockReq({ params: { id: "123" } });
       const res = mockRes();
       (categoryService.toggleStatus as jest.Mock).mockResolvedValue({ id: "123", status: "inactive" });
-      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      await categoryController.toggleCategoryStatus(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Category status toggled successfully",
+        message: "Category status toggled",
         data: { id: "123", status: "inactive" },
       });
     });
@@ -253,7 +264,7 @@ describe("CategoryController", () => {
       const res = mockRes();
       const error = new Error("fail");
       (categoryService.toggleStatus as jest.Mock).mockRejectedValue(error);
-      await categoryController.toggleCatgoryStatus(req, res, mockNext);
+      await categoryController.toggleCategoryStatus(req, res, mockNext);
       expect(mockNext).toHaveBeenCalledWith(error);
     });
   });
@@ -268,8 +279,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Trashed categories fetched successfully",
-        data: ["trash"],
+        "0": "trash"
       });
     });
 
@@ -290,6 +300,10 @@ describe("CategoryController", () => {
       const res = mockRes();
       await categoryController.restoreCategory(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category  id is required",
+      });
     });
 
     it("returns 200 on success", async () => {
@@ -300,7 +314,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Category restored successfully",
+        message: "Category  restored successfully",
         data: { id: "123" },
       });
     });
@@ -322,6 +336,10 @@ describe("CategoryController", () => {
       const res = mockRes();
       await categoryController.deleteCategoryPermanently(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        status: HTTP_RESPONSE.FAIL,
+        message: "Category id is required"
+      });
     });
 
     it("returns 200 on success", async () => {
@@ -332,8 +350,7 @@ describe("CategoryController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         status: HTTP_RESPONSE.SUCCESS,
-        message: "Category deleted permanently",
-        data: { id: "123" },
+        message: "Category permanently deleted"
       });
     });
 

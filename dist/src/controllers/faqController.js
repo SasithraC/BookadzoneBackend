@@ -8,6 +8,12 @@ const httpResponse_1 = require("../utils/httpResponse");
 class FaqController {
     async createFaq(req, res, next) {
         try {
+            const { question, answer, status } = req.body;
+            if (!question || !answer || !status) {
+                // Return 400 for missing required fields
+                res.status(400).json({ status: httpResponse_1.HTTP_RESPONSE.FAIL, message: "Required fields are missing" });
+                return;
+            }
             const faq = await faqService_1.default.createFaq(req.body);
             res.status(201).json({ status: httpResponse_1.HTTP_RESPONSE.SUCCESS, message: "FAQ created", data: faq });
         }

@@ -3,6 +3,7 @@ import { BlogCategoryModel } from "../models/blogCategoryModel";
 // BlogCategory type optional ah define panniradhu
 interface IBlogCategory {
   name: string;
+  slug: string;
   status: "active" | "inactive";
   isDeleted: boolean;
 }
@@ -15,16 +16,19 @@ const seedBlogCategories = async (): Promise<void> => {
     const categories: IBlogCategory[] = [
       {
         name: "Outdoor Advertising",
+        slug: "outdoor-advertising",
         status: "active",
         isDeleted: false,
       },
       {
         name: "Digital Marketing",
+        slug: "digital-marketing",
         status: "active",
         isDeleted: false,
       },
       {
         name: "Billboard Design Tips",
+        slug: "billboard-design-tips",
         status: "inactive",
         isDeleted: false,
       },

@@ -1,4 +1,5 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
 export interface IBlogCategory extends Document {
   name: string;
@@ -19,4 +20,4 @@ const blogCategorySchema = new Schema<IBlogCategory>(
   { timestamps: true }
 );
 
-export const BlogCategoryModel = model<IBlogCategory>("BlogCategories", blogCategorySchema);
+export const BlogCategoryModel = mongoose.model<IBlogCategory>("BlogCategories", blogCategorySchema);

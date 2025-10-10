@@ -74,8 +74,11 @@ class ValidationHelper {
     return null;
   }
 
-  static validate(rules: (ValidationResult | null)[]): ValidationResult[] {
-    return rules.filter((rule): rule is ValidationResult => rule !== null);
+  static validate(rules: (ValidationResult | null | undefined)[]): ValidationResult[] {
+    if (!Array.isArray(rules) || !rules) {
+      return [];
+    }
+    return rules.filter((rule): rule is ValidationResult => rule !== null && rule !== undefined);
   }
 }
 

@@ -1,6 +1,6 @@
 import { BlogCategoryModel as BlogCategoryModel, IBlogCategory } from "../models/blogCategoryModel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class BlogCategoryRepository {
   private commonRepository: CommonRepository<IBlogCategory>;

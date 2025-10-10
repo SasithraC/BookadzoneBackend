@@ -106,7 +106,7 @@
 
 import { CategoryModel,ICategory } from "../models/catrgoryModel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class CategoryRepository {
   private commonRepository: CommonRepository<ICategory>;

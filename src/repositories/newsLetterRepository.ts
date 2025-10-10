@@ -1,6 +1,6 @@
 import { NewsLetter, ILetter } from "../models/newsLettermodel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class NewsLetterRepository {
   private commonRepository: CommonRepository<ILetter>;

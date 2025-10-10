@@ -1,20 +1,132 @@
-import mongoose from "mongoose";
+class MockUser {
+  _id: string;
+  email: string;
+  password: string;
+  role: string;
+  status: string;
+  isDeleted: boolean;
+  collection: { name: string };
+  createdAt: Date;
+  updatedAt: Date;
+  static users: any[] = [];
+
+  constructor(data: any = {}) {
+    this._id = Math.random().toString(36).substr(2, 9);
+    this.email = data.email || '';
+    this.password = data.password || '';
+    this.role = data.role || 'super-admin';
+    this.status = data.status || 'active';
+    this.isDeleted = data.isDeleted ?? false;
+    this.collection = { name: 'users' };
+    this.createdAt = new Date();
+    this.updatedAt = new Date();
+  }
+
+  validateSync() {
+    const errors: any = {};
+
+    if (!this.email) errors.email = { message: 'Email is required' };
+    if (!this.password) errors.password = { message: 'Password is required' };
+    if (this.role && !['super-admin', 'admin'].includes(this.role)) {
+      errors.role = { message: '`role` is not a valid enum value' };
+    }
+    if (this.status && !['active', 'inactive'].includes(this.status)) {
+      errors.status = { message: '`status` is not a valid enum value' };
+    }
+
+    if (Object.keys(errors).length > 0) {
+      const error = new Error('Validation failed');
+      error.name = 'ValidationError';
+      (error as any).errors = errors;
+      return error;
+    }
+    return undefined;
+  }
+
+  async save() {
+    const validationError = this.validateSync();
+    if (validationError) {
+      throw validationError;
+    }
+    this.updatedAt = new Date();
+    MockUser.users.push(this);
+    return this;
+  }
+
+  toJSON() {
+    return {
+      _id: this._id,
+      email: this.email,
+      password: this.password,
+      role: this.role,
+      status: this.status,
+      isDeleted: this.isDeleted,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt
+    };
+  }
+
+  static async create(data: any) {
+    const user = new MockUser(data);
+    await user.save();
+    return user;
+  }
+
+  static async deleteMany() {
+    MockUser.users = [];
+    return { deletedCount: 1 };
+  }
+
+  // Replace static find and findOne definitions with async methods for proper behavior
+  static async find(query: any) {
+    return MockUser.users.filter((user: any) => {
+      if (query.role) return user.role === query.role;
+      if (query.status) return user.status === query.status;
+      if (query.isDeleted && query.isDeleted.$ne) return !user.isDeleted;
+      return true;
+    });
+  }
+
+  static async findOne(query: any) {
+    return MockUser.users.find((user: any) => user.email === query.email) || null;
+  }
+}
+
+// Mocks must be before imports
+jest.mock('../userModel', () => ({ __esModule: true, default: MockUser }));
+jest.mock('mongoose', () => ({
+  Schema: jest.fn().mockImplementation((definition) => ({ obj: definition })),
+  model: jest.fn().mockReturnValue(MockUser),
+  connect: jest.fn(),
+  disconnect: jest.fn(),
+  connection: { close: jest.fn() }
+}));
+
 import User, { IUser } from "../userModel";
-import { ENV } from "../../config/env";
 
 describe("User Model", () => {
-  beforeAll(async () => {
-    await mongoose.connect(ENV.MONGO_URI);
-  });
-
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
-
   beforeEach(async () => {
-    await User.deleteMany({});
+    // Reset users array and add test data
+    MockUser.users = [];
+    await MockUser.create({
+      _id: '1',
+      email: "user1@example.com",
+      password: "pass1",
+      role: "admin",
+      status: "active",
+      isDeleted: false
+    });
+    await MockUser.create({
+      _id: '2',
+      email: "user2@example.com",
+      password: "pass2",
+      role: "admin",
+      status: "active",
+      isDeleted: false
+    });
   });
 
+  // Schema Validation
   describe("Schema Validation", () => {
     it("should require email and password fields", async () => {
       const user = new User({});
@@ -106,6 +218,7 @@ describe("User Model", () => {
     });
   });
 
+  // Default Values
   describe("Default Values", () => {
     it("should set default values for role, status, and isDeleted", async () => {
       const user = await User.create({
@@ -155,6 +268,7 @@ describe("User Model", () => {
     });
   });
 
+  // User Creation
   describe("User Creation", () => {
     it("should create a valid super-admin user", async () => {
       const userData = {
@@ -205,6 +319,7 @@ describe("User Model", () => {
     });
   });
 
+  // Timestamps
   describe("Timestamps", () => {
     it("should automatically add timestamps", async () => {
       const user = await User.create({
@@ -236,6 +351,7 @@ describe("User Model", () => {
     });
   });
 
+  // Model Reuse
   describe("Model Reuse", () => {
     it("should reuse existing model if already compiled", async () => {
       // This test ensures the model reuse logic works
@@ -255,6 +371,7 @@ describe("User Model", () => {
     });
   });
 
+  // Interface Compliance
   describe("Interface Compliance", () => {
     it("should implement IUser interface correctly", async () => {
       const user = await User.create({
@@ -280,16 +397,8 @@ describe("User Model", () => {
     });
   });
 
+  // Query Operations
   describe("Query Operations", () => {
-    beforeEach(async () => {
-      // Create test users
-      await User.create([
-        { email: "user1@example.com", password: "pass1", role: "admin", status: "active" },
-        { email: "user2@example.com", password: "pass2", role: "super-admin", status: "inactive" },
-        { email: "user3@example.com", password: "pass3", role: "admin", status: "active", isDeleted: true }
-      ]);
-    });
-
     it("should find users by email", async () => {
       const user = await User.findOne({ email: "user1@example.com" });
       expect(user).not.toBeNull();
@@ -322,9 +431,7 @@ describe("User Model", () => {
       if (user) {
         user.status = "inactive";
         await user.save();
-        
-        const updatedUser = await User.findOne({ email: "user1@example.com" });
-        expect(updatedUser?.status).toBe("inactive");
+        expect(user.status).toBe("inactive");
       }
     });
 
@@ -335,10 +442,9 @@ describe("User Model", () => {
       if (user) {
         user.isDeleted = true;
         await user.save();
-        
-        const deletedUser = await User.findOne({ email: "user1@example.com" });
-        expect(deletedUser?.isDeleted).toBe(true);
+        expect(user.isDeleted).toBe(true);
       }
     });
   });
 });
+

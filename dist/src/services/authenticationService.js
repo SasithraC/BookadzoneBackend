@@ -28,5 +28,15 @@ class AuthenticationService {
         // Validate and decode token
         return await authenticationRepository_1.default.refreshToken(token);
     }
+    async createOrUpdateUser(userId, data) {
+        if (userId) {
+            // Use repository to update user
+            return await authenticationRepository_1.default.updateUser(userId, data);
+        }
+        else {
+            // Create new user
+            return await authenticationRepository_1.default.createUser(data);
+        }
+    }
 }
 exports.default = new AuthenticationService();

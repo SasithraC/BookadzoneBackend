@@ -1,17 +1,75 @@
 import categoryService from "../categoryService";
 import categoryRepository from "../../repositories/categoryRepository";
-import { CommonService } from "../common.service";
+import { CommonService } from "../commonService";
 import { CategoryModel, ICategory } from "../../models/catrgoryModel";
 import { Types } from "mongoose";
 
 jest.mock("../../repositories/categoryRepository");
-jest.mock("../common.service");
+jest.mock("../commonService");
 
 const mockCategoryRepo = categoryRepository as jest.Mocked<typeof categoryRepository>;
 const MockCommonService = CommonService as jest.MockedClass<typeof CommonService>;
 
+jest.mock("../../utils/validationHelper", () => {
+  const mockValidate = jest.fn().mockImplementation((rules = []) => Array.isArray(rules) ? rules.filter(rule => rule !== null && rule !== undefined) : []);
+  return {
+    __esModule: true,
+    default: {
+      isValidObjectId: jest.fn().mockImplementation((value, field) => {
+        if (value === "invalid-id") {
+          return { field, message: `Invalid ${field}` };
+        }
+        return null;
+      }),
+      validate: mockValidate,
+      isRequired: jest.fn().mockImplementation((value, field) => {
+        if (!value) {
+          return { field, message: `${field} is required` };
+        }
+        return null;
+      }),
+      maxLength: jest.fn().mockImplementation((value, field, max) => {
+        if (value && value.length > max) {
+          return { field, message: `${field} must not exceed ${max} characters` };
+        }
+        return null;
+      }),
+      isValidEnum: jest.fn().mockImplementation((value, field, enums) => {
+        if (!enums.includes(value)) {
+          return { field, message: `${field} must be one of: ${enums.join(", ")}` };
+        }
+        return null;
+      }),
+      isNonEmptyString: jest.fn().mockImplementation((value, field) => {
+        if (!value || value.trim() === "") {
+          return { field, message: `${field} must be a non-empty string` };
+        }
+        return null;
+      }),
+      isBoolean: jest.fn().mockImplementation((value, field) => {
+        if (typeof value !== "boolean") {
+          return { field, message: `${field} must be a boolean` };
+        }
+        return null;
+      })
+    }
+  };
+});
+
 describe("CategoryService", () => {
-  const file = { filename: "photo.png", mimetype: "image/png", size: 123 } as Express.Multer.File;
+
+const file: Express.Multer.File = {
+    fieldname: 'photo',
+    originalname: 'photo.png',
+    encoding: '7bit',
+    mimetype: 'image/png',
+    destination: '/uploads',
+    filename: 'photo.png',
+    path: '/uploads/photo.png',
+    size: 123,
+    stream: null as any,
+    buffer: Buffer.from('test')
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();

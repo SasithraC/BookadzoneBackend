@@ -1,40 +1,40 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IAgency extends Document {
+  yourEmail: any;
   agencyName: string;
-  agencyLogo: string; // path to image file
+  agencyLogo: string;
   name: string;
-  photo: string; // path to image file
+  photo: string;
   position: string;
-  yourEmail: string;
+  userId: Types.ObjectId;  
   yourPhone: string;
   companyEmail: string;
   companyPhone: string;
   companyRegistrationNumberGST: string;
   website: string;
-  uploadIdProof: string; // path to PDF file
-  uploadBusinessProof: string; // path to PDF file
+  uploadIdProof: string;
+  uploadBusinessProof: string;
   agencyAddress: string;
   agencyLocation: string;
+  country: string;
   state: string;
   city: string;
   pincode: string;
-  password: string;
   status: "active" | "inactive";
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-
 const agencySchema = new Schema<IAgency>({
-  agencyName: { type: String, required: true },
+  agencyName: { type: String, required: [true, 'Agency name is required'] },
   agencyLogo: { type: String },
-  name: { type: String, required: true },
+  name: { type: String, required: [true, 'Name is required'] },
   photo: { type: String },
   position: { type: String },
-  yourEmail: { type: String, required: true },
-  yourPhone: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: [true, 'User ID is required'] },
+  yourPhone: { type: String, required: [true, 'Your phone is required'] },
   companyEmail: { type: String },
   companyPhone: { type: String },
   companyRegistrationNumberGST: { type: String },
@@ -43,12 +43,31 @@ const agencySchema = new Schema<IAgency>({
   uploadBusinessProof: { type: String },
   agencyAddress: { type: String },
   agencyLocation: { type: String },
+  country: { type: String },
   state: { type: String },
   city: { type: String },
   pincode: { type: String },
-  password: { type: String, required: true },
   status: { type: String, enum: ["active", "inactive"], default: "active" },
   isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
-export const AgencyModel = model<IAgency>("Agency", agencySchema);
+// Add unique indexes for companyEmail and userId (only for non-deleted records)
+agencySchema.index(
+  { companyEmail: 1 }, 
+  { 
+    unique: true, 
+    sparse: true,
+    partialFilterExpression: { isDeleted: false, companyEmail: { $exists: true, $ne: "" } }
+  }
+);
+
+agencySchema.index(
+  { userId: 1 }, 
+  { 
+    unique: true,
+    partialFilterExpression: { isDeleted: false }
+  }
+);
+
+const AgencyModel = mongoose.model<IAgency>("Agency", agencySchema);
+export default AgencyModel;

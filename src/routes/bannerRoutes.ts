@@ -22,16 +22,16 @@ router.get('/', (req, res) => controller.getAll(req, res));
 router.put(
 	'/',
 	setBannerManagementName,
-	upload.fields([
-		{ name: 'homepage.bannerOne.imageOne', maxCount: 1 },
-		{ name: 'homepage.bannerOne.imageTwo', maxCount: 1 },
-		{ name: 'homepage.bannerOne.imageThree', maxCount: 1 },
-		{ name: 'homepage.bannerTwo.backgroundImage', maxCount: 1 },
-		{ name: 'aboutBanner.bannerOne.backgroundImage', maxCount: 1 },
-		{ name: 'aboutBanner.bannerTwo.backgroundImage', maxCount: 1 },
-		{ name: 'aboutBanner.bannerOne.images', maxCount: 4 },
-		{ name: 'aboutBanner.bannerTwo.images', maxCount: 4 }
-	]),
+	 upload.fields([
+	 { name: 'homepage.bannerOne.image1', maxCount: 1 },
+	 { name: 'homepage.bannerOne.image2', maxCount: 1 },
+	 { name: 'homepage.bannerOne.image3', maxCount: 1 },
+	 { name: 'homepage.bannerTwo.backgroundImage', maxCount: 1 },
+	 { name: 'aboutBanner.bannerOne.backgroundImage', maxCount: 1 },
+	 { name: 'aboutBanner.bannerTwo.backgroundImage', maxCount: 1 },
+	 { name: 'aboutBanner.bannerOne.newImages', maxCount: 4 },
+	 { name: 'aboutBanner.bannerTwo.newImages', maxCount: 4 }
+	 ]),
 	(req, res, next) => {
 		console.log('Incoming file fields:', Object.keys(req.files || {}));
 		next();

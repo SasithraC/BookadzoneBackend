@@ -1,5 +1,5 @@
-import { Schema, model, Document } from "mongoose";
-
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
 export interface ISettings extends Document {
   general: {
@@ -94,4 +94,4 @@ const settingsSchema = new Schema<ISettings>({
   },
 }, { timestamps: true });
 
-export const SettingsModel = model<ISettings>("Settings", settingsSchema);
+export const SettingsModel = mongoose.model<ISettings>("Settings", settingsSchema);

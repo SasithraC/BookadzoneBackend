@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { BannerService } from '../services/bannerService';
-import fs from 'fs';
-import path from 'path';
+import { ImageHandler, ImageFile, ProcessedImage } from '../utils/imageHandler';
 
 export class BannerController {
   private service: BannerService;
   constructor(service?: BannerService) {
     this.service = service || new BannerService();
   }
+
   async getAll(req: Request, res: Response) {
     try {
       const banners = await this.service.getAllBanners();
@@ -18,45 +18,45 @@ export class BannerController {
     }
   }
 
-  private async deleteFileFromDisk(filePath: string) {
-    try {
-      // Handle both relative and absolute paths
-      const fullPath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
-      
-      if (fs.existsSync(fullPath)) {
-        await fs.promises.unlink(fullPath);
-        console.log(`[FILE DELETION] Successfully deleted: ${fullPath}`);
-      } else {
-        console.log(`[FILE DELETION] File not found: ${fullPath}`);
-      }
-    } catch (error) {
-      console.error(`[FILE DELETION] Error deleting file ${filePath}:`, error);
-    }
+  private processBannerImages(
+    body: any, 
+    bannerKey: 'bannerOne' | 'bannerTwo',
+    existingFiles: ImageFile[],
+    removedFiles: string[],
+    newFiles?: Express.Multer.File[]
+  ): ProcessedImage[] {
+    console.log(`[IMAGE PROCESSING] Processing ${bannerKey} images:`);
+    console.log('Existing files:', existingFiles);
+    console.log('Removed files:', removedFiles);
+    console.log('New files:', newFiles?.map(f => f.originalname));
+
+    return ImageHandler.processImages(existingFiles, removedFiles, newFiles);
   }
 
   async update(req: Request, res: Response) {
+    const uploadedNewFiles: Express.Multer.File[] = []; // Track all newly uploaded files for rollback
+    const filesToDeleteAfterSuccess: string[] = []; // Track files to delete after successful save
+
     try {
-      // Log incoming request body and files for debugging
       console.log('[DEBUG] Raw req.body:', JSON.stringify(req.body, null, 2));
       console.log('[DEBUG] Raw req.files:', req.files);
 
-      // Parse nested fields using qs
-      const qs = require('qs');
-      const body = qs.parse(req.body);
+      let body = { ...req.body };
 
-      // ...existing code...
+      // Parse JSON strings
       function safeParse(obj: any, key: string) {
         if (typeof obj[key] === 'string') {
           try { obj[key] = JSON.parse(obj[key]); } catch {}
         }
       }
+
       safeParse(body, 'homepage');
       safeParse(body, 'aboutBanner');
-      // ...existing code...
+
       if (body.homepage && body.homepage.bannerTwo && typeof body.homepage.bannerTwo.features === 'string') {
         try { body.homepage.bannerTwo.features = JSON.parse(body.homepage.bannerTwo.features); } catch {}
       }
-      // ...existing code...
+
       if (body.aboutBanner) {
         ['bannerOne', 'bannerTwo'].forEach(sub => {
           if (body.aboutBanner[sub]) {
@@ -68,9 +68,11 @@ export class BannerController {
             }
           }
         });
+
         if (body.aboutBanner.bannerFour && typeof body.aboutBanner.bannerFour === 'string') {
           try { body.aboutBanner.bannerFour = JSON.parse(body.aboutBanner.bannerFour); } catch {}
         }
+
         if (body.aboutBanner.bannerFour && typeof body.aboutBanner.bannerFour === 'object') {
           if (!('title' in body.aboutBanner.bannerFour)) {
             body.aboutBanner.bannerFour.title = '';
@@ -81,104 +83,225 @@ export class BannerController {
         }
       }
 
-      // ...existing code...
-      let filteredSubmenu1Images: { id: number; url: string }[] = [];
-      let filteredSubmenu2Images: { id: number; url: string }[] = [];
-
-      // ...existing code...
-      if (body.aboutBanner) {
-        for (const [index, submenuKey] of ['submenu1', 'submenu2'].entries()) {
-          const submenu = body.aboutBanner[submenuKey];
-          if (submenu && submenu.removedImages && Array.isArray(submenu.removedImages)) {
-            console.log(`[FILE REMOVAL] Processing removed images for ${submenuKey}:`, submenu.removedImages);
-            for (const removedFile of submenu.removedImages) {
-              if (typeof removedFile === 'string' && removedFile.trim() !== '') {
-                await this.deleteFileFromDisk(removedFile);
-              }
-            }
-            const banners = await this.service.getAllBanners();
-            const currentBanner = Array.isArray(banners) ? banners[0] : banners;
-            let filteredImages: { id: number; url: string }[] = [];
-            if (currentBanner?.aboutBanner?.[submenuKey]?.images) {
-              const currentImages = currentBanner.aboutBanner[submenuKey].images;
-              filteredImages = currentImages.filter((img: any) => {
-                if (typeof img === 'object' && img.url) {
-                  return !submenu.removedImages.includes(img.url);
-                }
-                return true;
-              });
-            }
-            if (index === 0) {
-              filteredSubmenu1Images = filteredImages;
-            } else {
-              filteredSubmenu2Images = filteredImages;
-            }
-            submenu.images = filteredImages;
-            delete submenu.removedImages;
+      // Restructure flat body to nested structure
+      const restructuredBody: any = {};
+      Object.keys(body).forEach(key => {
+        const parts = key.split('.');
+        let current = restructuredBody;
+        
+        parts.forEach((part, index) => {
+          if (index === parts.length - 1) {
+            current[part] = body[key];
           } else {
-            const banners = await this.service.getAllBanners();
-            const currentBanner = Array.isArray(banners) ? banners[0] : banners;
-            if (currentBanner?.aboutBanner?.[submenuKey]?.images) {
-              if (index === 0) {
-                filteredSubmenu1Images = currentBanner.aboutBanner[submenuKey].images;
-              } else {
-                filteredSubmenu2Images = currentBanner.aboutBanner[submenuKey].images;
+            current[part] = current[part] || {};
+            current = current[part];
+          }
+        });
+      });
+
+      body = restructuredBody;
+
+      if (body.aboutBanner) {
+        ['bannerOne', 'bannerTwo'].forEach(section => {
+          if (body.aboutBanner[section]) {
+            console.log(`Processing ${section} data before parsing:`, {
+              existingImages: body.aboutBanner[section].existingImages,
+              removedImages: body.aboutBanner[section].removedImages
+            });
+
+            // Parse existing images
+            if (typeof body.aboutBanner[section].existingImages === 'string') {
+              try {
+                const parsed = JSON.parse(body.aboutBanner[section].existingImages);
+                console.log(`Parsed existing images for ${section}:`, parsed);
+                body.aboutBanner[section].existingImages = parsed;
+              } catch (e) {
+                console.error(`Error parsing existingImages for ${section}:`, e);
+                body.aboutBanner[section].existingImages = [];
               }
             }
+
+            // Parse removed images
+            if (typeof body.aboutBanner[section].removedImages === 'string') {
+              try {
+                const parsed = JSON.parse(body.aboutBanner[section].removedImages);
+                console.log(`Parsed removed images for ${section}:`, parsed);
+                body.aboutBanner[section].removedImages = parsed;
+              } catch (e) {
+                console.error(`Error parsing removedImages for ${section}:`, e);
+                body.aboutBanner[section].removedImages = [];
+              }
+            }
+
+            // Ensure arrays are properly initialized
+            if (!Array.isArray(body.aboutBanner[section].existingImages)) {
+              body.aboutBanner[section].existingImages = [];
+            }
+            if (!Array.isArray(body.aboutBanner[section].removedImages)) {
+              body.aboutBanner[section].removedImages = [];
+            }
+
+            // Handle backgroundImageUrl if present
+            if (body.aboutBanner[section].backgroundImageUrl) {
+              body.aboutBanner[section].backgroundImage = body.aboutBanner[section].backgroundImageUrl;
+              delete body.aboutBanner[section].backgroundImageUrl;
+            }
+          }
+        });
+      }
+
+      // Handle file uploads
+      if (req.files) {
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+        // Handle background images
+        const backgroundImageFields = [
+          'homepage.bannerOne.image1',
+          'homepage.bannerOne.image2',
+          'homepage.bannerOne.image3',
+          'homepage.bannerTwo.backgroundImage',
+          'aboutBanner.bannerOne.backgroundImage',
+          'aboutBanner.bannerTwo.backgroundImage'
+        ];
+
+        backgroundImageFields.forEach(field => {
+          if (files[field]?.[0]) {
+            uploadedNewFiles.push(files[field][0]); // Track for rollback
+            const pathParts = field.split('.');
+            let current = body;
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              if (!current[pathParts[i]]) current[pathParts[i]] = {};
+              current = current[pathParts[i]];
+            }
+            current[pathParts[pathParts.length - 1]] = files[field][0].path;
+          }
+        });
+
+        // Handle banner image collections
+        for (const section of ['bannerOne', 'bannerTwo']) {
+          if (!body.aboutBanner?.[section]) {
+            continue;
+          }
+
+          const newImagesField = `aboutBanner.${section}.newImages`;
+          
+          if (!body.aboutBanner[section].images) {
+            body.aboutBanner[section].images = [];
+          }
+
+          let existingImages = [];
+          if (body.aboutBanner[section].existingImages) {
+            existingImages = Array.isArray(body.aboutBanner[section].existingImages)
+              ? body.aboutBanner[section].existingImages
+              : typeof body.aboutBanner[section].existingImages === 'string'
+                ? JSON.parse(body.aboutBanner[section].existingImages)
+                : [];
+          }
+
+          let removedImages = [];
+          if (body.aboutBanner[section].removedImages) {
+            removedImages = Array.isArray(body.aboutBanner[section].removedImages)
+              ? body.aboutBanner[section].removedImages
+              : typeof body.aboutBanner[section].removedImages === 'string'
+                ? JSON.parse(body.aboutBanner[section].removedImages)
+                : [];
+          }
+
+          const newFiles = files[newImagesField];
+
+          // Track new files for potential rollback
+          if (newFiles && newFiles.length > 0) {
+            uploadedNewFiles.push(...newFiles);
+          }
+
+          console.log(`Processing ${section}:`, {
+            existingImagesCount: existingImages.length,
+            removedImagesCount: removedImages.length,
+            newFilesCount: newFiles?.length || 0
+          });
+
+          // Add removed files to deletion list (to be deleted AFTER successful save)
+          if (Array.isArray(removedImages) && removedImages.length > 0) {
+            console.log(`[${section}] Marking files for deletion:`, removedImages);
+            filesToDeleteAfterSuccess.push(...removedImages.filter(f => f && typeof f === 'string'));
+          }
+
+          // Process and combine images
+          console.log('Processing images for section:', section);
+          console.log('Existing images before processing:', existingImages);
+          
+          const combinedImages = this.processBannerImages(
+            body,
+            section as 'bannerOne' | 'bannerTwo',
+            existingImages,
+            removedImages,
+            newFiles
+          );
+
+          console.log('Combined images after processing:', combinedImages);
+
+          // Validate that we have at least one image (if this is a required field)
+          // Uncomment if you want to enforce minimum images
+          // if (!ImageHandler.validateImageArray(combinedImages, 1)) {
+          //   throw new Error(`${section} must have at least one image`);
+          // }
+
+          // Process and merge all images
+          const processedImages = combinedImages.map(img => {
+            const processedImage: ProcessedImage = {
+              id: img.id || Date.now() + Math.floor(Math.random() * 1000),
+              url: img.url.replace(/\\/g, '/')
+            };
+            if ('_id' in img && img._id) {
+              processedImage._id = img._id;
+            }
+            return processedImage;
+          });
+
+          // Update the section's images
+          body.aboutBanner[section].images = processedImages;
+
+          console.log(`Final ${section} processed images:`, processedImages);
+          
+          // Handle background image if it exists
+          if (body.aboutBanner[section].backgroundImageUrl) {
+            body.aboutBanner[section].backgroundImage = 
+              body.aboutBanner[section].backgroundImageUrl.replace(/\\/g, '/');
+          }
+
+          console.log(`Final ${section} images:`, body.aboutBanner[section].images);
+
+          // Clean up temporary fields
+          if (body.aboutBanner?.[section]) {
+            delete body.aboutBanner[section].existingImages;
+            delete body.aboutBanner[section].removedImages;
+            delete body.aboutBanner[section].backgroundImageUrl;
           }
         }
       }
 
-      // ...existing code...
-      if (req.files) {
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-        if (files['homepage.bannerOne.image1']) {
-          body.homepage = { ...body.homepage, bannerOne: { ...body.homepage?.bannerOne, image1: files['homepage.bannerOne.image1'][0].path } };
-        }
-        if (files['homepage.bannerOne.image2']) {
-          body.homepage = { ...body.homepage, bannerOne: { ...body.homepage?.bannerOne, image2: files['homepage.bannerOne.image2'][0].path } };
-        }
-        if (files['homepage.bannerOne.image3']) {
-          body.homepage = { ...body.homepage, bannerOne: { ...body.homepage?.bannerOne, image3: files['homepage.bannerOne.image3'][0].path } };
-        }
-        if (files['homepage.bannerTwo.backgroundImage']) {
-          body.homepage = { ...body.homepage, bannerTwo: { ...body.homepage?.bannerTwo, backgroundImage: files['homepage.bannerTwo.backgroundImage'][0].path } };
-        }
-        if (files['aboutBanner.bannerOne.backgroundImage']) {
-          body.aboutBanner = { ...body.aboutBanner, bannerOne: { ...body.aboutBanner?.bannerOne, backgroundImage: files['aboutBanner.bannerOne.backgroundImage'][0].path } };
-        }
-        if (files['aboutBanner.bannerTwo.backgroundImage']) {
-          body.aboutBanner = { ...body.aboutBanner, bannerTwo: { ...body.aboutBanner?.bannerTwo, backgroundImage: files['aboutBanner.bannerTwo.backgroundImage'][0].path } };
-        }
-        if (files['aboutBanner.bannerOne.images']) {
-          const newImagePaths = files['aboutBanner.bannerOne.images'].map((f, idx) => ({ id: Date.now() + idx, url: f.path }));
-          const combinedImages = [...filteredSubmenu1Images, ...newImagePaths];
-          body.aboutBanner = {
-            ...body.aboutBanner,
-            bannerOne: {
-              ...body.aboutBanner?.bannerOne,
-              images: combinedImages
-            }
-          };
-        }
-        if (files['aboutBanner.bannerTwo.images']) {
-          const newImagePaths = files['aboutBanner.bannerTwo.images'].map((f, idx) => ({ id: Date.now() + idx, url: f.path }));
-          const combinedImages = [...filteredSubmenu2Images, ...newImagePaths];
-          body.aboutBanner = {
-            ...body.aboutBanner,
-            bannerTwo: {
-              ...body.aboutBanner?.bannerTwo,
-              images: combinedImages
-            }
-          };
-        }
-      }
-
+      // Log the final state before update
       console.log('[DEBUG] Final body data before update:', JSON.stringify(body, null, 2));
 
+      // SAVE TO DATABASE FIRST
       const banner = await this.service.updateBanner(body);
+
+      // ONLY delete removed files AFTER successful database save
+      if (filesToDeleteAfterSuccess.length > 0) {
+        console.log('[FILE CLEANUP] Deleting removed files after successful save:', filesToDeleteAfterSuccess);
+        await ImageHandler.deleteMultipleFiles(filesToDeleteAfterSuccess);
+      }
+
       res.json(banner);
     } catch (error) {
+      console.error('[BANNER UPDATE ERROR]', error);
+
+      // ROLLBACK: Delete newly uploaded files if database save failed
+      if (uploadedNewFiles.length > 0) {
+        console.log('[ROLLBACK] Deleting newly uploaded files due to error');
+        await ImageHandler.rollbackNewFiles(uploadedNewFiles);
+      }
+
       const message = error instanceof Error ? error.message : String(error);
       res.status(500).json({ error: message });
     }

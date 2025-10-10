@@ -3,27 +3,26 @@ import { IFooterInfo } from "../models/footerinfoModel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
 import { FooterInfoModel } from "../models/footerinfoModel";
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
 
 class FooterInfoService {
   private commonService = new CommonService<IFooterInfo>(FooterInfoModel);
 
   private validateFooterInfoData(data: Partial<IFooterInfo>, file?: Express.Multer.File, isUpdate: boolean = false): void {
-    console.log(`validateFooterInfoData: file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
+    console.log(`validateFooterInfoData: file:`, file ? { filename: file.filename, path: file.path, size: file.size, mimetype: file.mimetype } : null);
     console.log(`validateFooterInfoData: isUpdate: ${isUpdate}, data:`, data);
 
     const rules = [
-      !isUpdate
-        ? ValidationHelper.isRequired(file, "logo") // Check if file object exists for creation
-        : (file ? ValidationHelper.isNonEmptyString(file.filename, "logo") : null),
-      (file ? ValidationHelper.maxLength(file.filename, "logo", 500) : null),
+      !isUpdate && !data.logo
+        ? ValidationHelper.isRequired(file, "logo")
+        : null,
+      data.logo ? ValidationHelper.isNonEmptyString(data.logo, "logo") : null,
 
       !isUpdate
         ? ValidationHelper.isRequired(data.description, "description")
         : (data.description !== undefined ? ValidationHelper.isNonEmptyString(data.description, "description") : null),
       (data.description !== undefined ? ValidationHelper.maxLength(data.description, "description", 2000) : null),
 
-      // Optional fields
       (data.socialmedia !== undefined ? ValidationHelper.maxLength(data.socialmedia, "socialmedia", 200) : null),
       (data.socialmedialinks !== undefined ? ValidationHelper.maxLength(data.socialmedialinks, "socialmedialinks", 200) : null),
       (data.google !== undefined ? ValidationHelper.maxLength(data.google, "google", 200) : null),
@@ -43,33 +42,36 @@ class FooterInfoService {
   }
 
   async createFooterInfo(data: Partial<IFooterInfo>, file?: Express.Multer.File): Promise<IFooterInfo> {
-    console.log(`createFooterInfo: data:`, data, `file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
-    if (!file) {
-      console.log(`createFooterInfo: No logo file provided`);
+    console.log(`createFooterInfo: data:`, data, `file:`, file ? { filename: file.filename, path: file.path, size: file.size, mimetype: file.mimetype } : null);
+    
+    if (!data.logo) {
+      console.log(`createFooterInfo: No logo path provided`);
       throw new Error("Logo file is required for creation");
     }
 
-    const createData: Partial<IFooterInfo> = { ...data, logo: file.filename };
-    this.validateFooterInfoData(createData, file);
+    this.validateFooterInfoData(data, file);
 
     const footerInfoData: Partial<IFooterInfo> = {
-      logo: file.filename,
-      description: createData.description!,
-      socialmedia: createData.socialmedia ?? "",
-      socialmedialinks: createData.socialmedialinks ?? "",
-      google: createData.google ?? "",
-      appstore: createData.appstore ?? "",
-      status: createData.status || 'active',
-      priority: createData.priority ? parseInt(createData.priority as any) : 1,
+      logo: data.logo, // Use the full path passed from controller
+      description: data.description!,
+      socialmedia: data.socialmedia ?? "",
+      socialmedialinks: data.socialmedialinks ?? "",
+      google: data.google ?? "",
+      appstore: data.appstore ?? "",
+      status: data.status || 'active',
+      priority: data.priority ? parseInt(data.priority as any) : 1,
       isDeleted: false,
     };
 
     console.log(`createFooterInfo: Creating footer info with data:`, footerInfoData);
+    
+    // Check if logo already exists
     const exists = await this.commonService.existsByField("logo", footerInfoData.logo);
     if (exists) {
       console.log(`createFooterInfo: Logo already exists: ${footerInfoData.logo}`);
       throw new Error("Footer Info with this logo already exists");
     }
+    
     const result = await footerInfoRepository.createFooterInfo(footerInfoData);
     console.log(`createFooterInfo: Footer info created successfully:`, result);
     return result;
@@ -86,14 +88,18 @@ class FooterInfoService {
   }
 
   async updateFooterInfo(id: string | Types.ObjectId, data: Partial<IFooterInfo>, file?: Express.Multer.File): Promise<IFooterInfo | null> {
-    console.log(`updateFooterInfo: id: ${id}, data:`, data, `file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
+    console.log(`updateFooterInfo: id: ${id}, data:`, data, `file:`, file ? { filename: file.filename, path: file.path, size: file.size, mimetype: file.mimetype } : null);
+    
     const error = ValidationHelper.isValidObjectId(id, "id");
     if (error) throw new Error(error.message);
+    
     this.validateFooterInfoData(data, file, true);
+    
     const updateData: Partial<IFooterInfo> = { ...data };
-    if (file?.filename) {
-      updateData.logo = file.filename;
-    }
+    
+    // Logo is already set in data from controller if a new file was uploaded
+    // No need to overwrite it here
+    
     const result = await footerInfoRepository.updateFooterInfo(id, updateData);
     console.log(`updateFooterInfo: Footer info updated successfully:`, result);
     return result;

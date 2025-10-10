@@ -1,4 +1,5 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
 export interface IPage extends Document {
   title: string; // Select field (values from config)
@@ -27,4 +28,4 @@ const pageSchema = new Schema<IPage>(
   { timestamps: true }
 );
 
-export const PageModel = model<IPage>("Page", pageSchema);
+export const PageModel = mongoose.model<IPage>("Page", pageSchema);

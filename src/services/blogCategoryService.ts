@@ -3,7 +3,7 @@ import { IBlogCategory } from "../models/blogCategoryModel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
 import { BlogCategoryModel } from "../models/blogCategoryModel";
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
 
 class BlogCategoryService {
   private commonService = new CommonService<IBlogCategory>(BlogCategoryModel);

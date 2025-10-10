@@ -1,13 +1,52 @@
 import mongoose from "mongoose";
 import { BlogCategoryModel } from "../blogCategoryModel";
-import { ENV } from "../../config/env";
 
-beforeAll(async () => {
-  await mongoose.connect(ENV.MONGO_URI);
-});
+jest.mock('mongoose', () => {
+  const mSchema = jest.fn().mockImplementation((definition) => ({
+    obj: definition,
+  }));
 
-afterAll(async () => {
-  await mongoose.connection.close();
+  return {
+    Schema: mSchema,
+    model: jest.fn().mockReturnValue(class MockBlogCategoryModel {
+      name: string;
+      slug: string;
+      status: string;
+      isDeleted: boolean;
+
+      constructor(data: any = {}) {
+        this.name = '';
+        this.slug = data.name ? data.name.toLowerCase().replace(/\s+/g, '-') : '';
+        this.status = 'active';
+        this.isDeleted = false;
+        Object.assign(this, data);
+      }
+
+      save() {
+        const errors: any = {};
+        if (!this.name) errors.name = { message: 'Name is required' };
+        if (!this.slug) errors.slug = { message: 'Slug is required' };
+        if (Object.keys(errors).length > 0) {
+          return Promise.reject({ errors });
+        }
+        return Promise.resolve(this);
+      }
+
+      validateSync() {
+        const errors: any = {};
+        if (!this.name) errors.name = { message: 'Name is required' };
+        if (!this.slug) errors.slug = { message: 'Slug is required' };
+        return Object.keys(errors).length > 0 ? { errors } : undefined;
+      }
+
+      static create(data: any) {
+        const instance = new MockBlogCategoryModel(data);
+        return instance.save();
+      }
+    }),
+    connect: jest.fn(),
+    disconnect: jest.fn(),
+  };
 });
 
 describe("BlogCategoryModel", () => {

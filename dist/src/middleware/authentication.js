@@ -14,6 +14,8 @@ const excludedPaths = [
 ];
 const authenticate = async (req, res, next) => {
     try {
+        // Debug: Log all incoming headers
+        console.log('Incoming headers:', req.headers);
         // PATH exclusion check
         const apiPath = req.path.replace("/api/v1/", "");
         if (excludedPaths.includes(apiPath)) {

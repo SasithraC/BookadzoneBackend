@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const configService_1 = __importDefault(require("../configService"));
 const configRepository_1 = __importDefault(require("../../repositories/configRepository"));
 const validationHelper_1 = __importDefault(require("../../utils/validationHelper"));
-const common_service_1 = require("../common.service");
+const commonService_1 = require("../commonService");
 jest.mock("../../repositories/configRepository");
 jest.mock("../../utils/validationHelper");
 jest.mock("../common.service");
@@ -23,12 +23,12 @@ describe("ConfigService", () => {
         });
         it("should throw if slug exists", async () => {
             validationHelper_1.default.validate.mockReturnValue([]);
-            jest.spyOn(common_service_1.CommonService.prototype, "existsByField").mockResolvedValue(true);
+            jest.spyOn(commonService_1.CommonService.prototype, "existsByField").mockResolvedValue(true);
             await expect(configService_1.default.createConfig(mockConfig)).rejects.toThrow("Config with this slug already exists");
         });
         it("should create config if valid and slug not exists", async () => {
             validationHelper_1.default.validate.mockReturnValue([]);
-            jest.spyOn(common_service_1.CommonService.prototype, "existsByField").mockResolvedValue(false);
+            jest.spyOn(commonService_1.CommonService.prototype, "existsByField").mockResolvedValue(false);
             configRepository_1.default.createConfig.mockResolvedValue(mockConfig);
             const result = await configService_1.default.createConfig(mockConfig);
             expect(result).toBe(mockConfig);
@@ -64,14 +64,14 @@ describe("ConfigService", () => {
         validationHelper_1.default.isValidObjectId.mockReturnValue(null);
         validationHelper_1.default.validate.mockReturnValue([]);
         configRepository_1.default.getConfigById.mockResolvedValue({ ...mockConfig, slug: "old" });
-        jest.spyOn(common_service_1.CommonService.prototype, "existsByField").mockResolvedValue(true);
+        jest.spyOn(commonService_1.CommonService.prototype, "existsByField").mockResolvedValue(true);
         await expect(configService_1.default.updateConfig("1", { slug: "slug" })).rejects.toThrow("Config with this slug already exists");
     });
     it("updateConfig should update config if valid", async () => {
         validationHelper_1.default.isValidObjectId.mockReturnValue(null);
         validationHelper_1.default.validate.mockReturnValue([]);
         configRepository_1.default.getConfigById.mockResolvedValue({ ...mockConfig, slug: "old" });
-        jest.spyOn(common_service_1.CommonService.prototype, "existsByField").mockResolvedValue(false);
+        jest.spyOn(commonService_1.CommonService.prototype, "existsByField").mockResolvedValue(false);
         configRepository_1.default.updateConfig.mockResolvedValue(mockConfig);
         const result = await configService_1.default.updateConfig("1", { slug: "slug" });
         expect(result).toBe(mockConfig);

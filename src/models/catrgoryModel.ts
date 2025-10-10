@@ -27,7 +27,8 @@
 // export const CategoryModel = model<ICategory>("CATEGORY", categorySchema);
 
 
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
 export interface ICategory extends Document {
   name: string;
@@ -55,4 +56,4 @@ const categorySchema = new Schema<ICategory>(
   { timestamps: true }
 );
 
-export const CategoryModel = model<ICategory>("Category", categorySchema);
+export const CategoryModel = mongoose.model<ICategory>("Category", categorySchema);

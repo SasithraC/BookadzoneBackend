@@ -18,6 +18,19 @@ interface IUser extends Document {
 }
 
 class AuthenticationRepository {
+  async updateUser(userId: string, data: { email?: string, password?: string, role?: string, status?: string, isDeleted?: boolean }) {
+    const updateData: any = {};
+    if (data.email) updateData.email = data.email;
+    if (typeof data.password !== 'undefined' && data.password !== '') {
+      updateData.password = await bcrypt.hash(data.password, 10);
+    }
+    if (data.role) updateData.role = data.role;
+    if (data.status) updateData.status = data.status;
+    if (typeof data.isDeleted !== 'undefined') updateData.isDeleted = data.isDeleted;
+    // Always update user by userId, even if only email is present
+    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    return user ? user.toObject() : null;
+  }
   async authLogin(data: IAuthLoginInput): Promise<{ token: string; data: Partial<IUser>; expiresIn: StringValue }> {
     const { email, password } = data;
 
@@ -74,6 +87,41 @@ class AuthenticationRepository {
     const { password: _, ...userWithoutPassword } = user;
     return { token, data: userWithoutPassword, expiresIn: expiresIn as StringValue };
   }
-}
+
+  async createUser(data: { email: string, password: string, role: string, status: string, isDeleted: boolean }) {
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const userData = {
+      ...data,
+      password: hashedPassword,
+    };
+    // Create the new user with the hashed password
+    const user = await User.create(userData);
+    return user;
+  }
+
+  async getUserById(id: string) {
+    return await User.findById(id);
+  }
+
+  async checkEmailExists(email: string, currentUserId?: string | null): Promise<boolean> {
+    const query: any = { 
+      email, 
+      isDeleted: false 
+    };
+    // Exclude current user from the check if currentUserId is provided
+    if (currentUserId) {
+      query._id = { $ne: currentUserId };
+    }
+    const exists = await User.findOne(query);
+    return !!exists;
+  }
+
+  async deleteUserPermanently(userId: string): Promise<void> {
+    await User.findByIdAndDelete(userId);
+  }
+
+  }
+
 
 export default new AuthenticationRepository();

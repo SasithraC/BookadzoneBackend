@@ -6,8 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const faqModel_1 = require("../faqModel");
 const env_1 = require("../../config/env");
-beforeAll(async () => { await mongoose_1.default.connect(env_1.ENV.MONGO_URI); });
-afterAll(async () => { await mongoose_1.default.connection.close(); });
+beforeAll(async () => {
+    await mongoose_1.default.connect(env_1.ENV.MONGO_URI);
+});
+afterAll(async () => {
+    await mongoose_1.default.connection.close();
+    await mongoose_1.default.disconnect();
+});
 describe("FaqModel", () => {
     it("requires question and answer", async () => {
         const faq = new faqModel_1.FaqModel({});

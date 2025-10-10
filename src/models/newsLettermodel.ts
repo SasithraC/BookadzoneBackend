@@ -1,6 +1,7 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
-export interface ILetter  extends Document {
+export interface ILetter extends Document {
     name: string;
     slug : string;
     template : string;
@@ -8,7 +9,7 @@ export interface ILetter  extends Document {
     isDeleted: boolean;
 }
 
-const newsLetterSchema: Schema<ILetter> = new Schema(
+const newsLetterSchema = new Schema<ILetter>(
     {
         name: { type: String, required: true },
         slug : { type: String, required: true },

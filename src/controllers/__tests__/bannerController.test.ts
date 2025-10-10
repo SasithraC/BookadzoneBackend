@@ -3,6 +3,9 @@ import { Request, Response } from 'express';
 jest.mock('../../services/bannerService');
 import { BannerController } from '../../controllers/bannerController';
 import { BannerService } from '../../services/bannerService';
+import { ImageHandler } from '../../utils/imageHandler';
+
+jest.mock('../../services/bannerService');
 
 describe('BannerController', () => {
   let controller: BannerController;
@@ -260,45 +263,57 @@ describe('BannerController', () => {
     });
   });
 
-  describe('deleteFileFromDisk', () => {
+  describe('ImageHandler.deleteFileFromDisk', () => {
+    beforeEach(() => {
+      jest.spyOn(ImageHandler, 'deleteFileFromDisk');
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
     it('should log file not found', async () => {
-      const controllerInstance = new BannerController(mockService);
       const spyExistsSync = jest.spyOn(require('fs'), 'existsSync').mockReturnValue(false);
       const spyConsole = jest.spyOn(console, 'log').mockImplementation(() => {});
-      await (controllerInstance as any).deleteFileFromDisk('fakepath');
+      
+      await ImageHandler.deleteFileFromDisk('fakepath');
+      
       expect(spyConsole).toHaveBeenCalledWith(expect.stringContaining('File not found'));
       spyExistsSync.mockRestore();
       spyConsole.mockRestore();
     });
 
     it('should handle error during file deletion', async () => {
-      const controllerInstance = new BannerController(mockService);
       jest.spyOn(require('fs'), 'existsSync').mockReturnValue(true);
       jest.spyOn(require('fs').promises, 'unlink').mockRejectedValue(new Error('fail'));
       const spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {});
-      await (controllerInstance as any).deleteFileFromDisk('fakepath');
+      
+      await ImageHandler.deleteFileFromDisk('fakepath');
+      
       expect(spyConsole.mock.calls[0][0]).toContain('Error deleting file');
       expect(spyConsole.mock.calls[0][1]).toBeInstanceOf(Error);
       spyConsole.mockRestore();
     });
 
     it('should log successful file deletion', async () => {
-      const controllerInstance = new BannerController(mockService);
       jest.spyOn(require('fs'), 'existsSync').mockReturnValue(true);
       jest.spyOn(require('fs').promises, 'unlink').mockResolvedValue(undefined);
       const spyConsole = jest.spyOn(console, 'log').mockImplementation(() => {});
-      await (controllerInstance as any).deleteFileFromDisk('fakepath');
+      
+      await ImageHandler.deleteFileFromDisk('fakepath');
+      
       expect(spyConsole).toHaveBeenCalledWith(expect.stringContaining('Successfully deleted'));
       spyConsole.mockRestore();
     });
 
     it('should delete file if absolute path', async () => {
-      const controllerInstance = new BannerController(mockService);
       jest.spyOn(require('path'), 'isAbsolute').mockReturnValue(true);
       jest.spyOn(require('fs'), 'existsSync').mockReturnValue(true);
       jest.spyOn(require('fs').promises, 'unlink').mockResolvedValue(undefined);
       const spyConsole = jest.spyOn(console, 'log').mockImplementation(() => {});
-      await (controllerInstance as any).deleteFileFromDisk('C:/absolute/path/file.txt');
+      
+      await ImageHandler.deleteFileFromDisk('C:/absolute/path/file.txt');
+      
       expect(spyConsole).toHaveBeenCalledWith(expect.stringContaining('Successfully deleted'));
       spyConsole.mockRestore();
     });
@@ -315,8 +330,7 @@ describe('BannerController', () => {
         }
       };
       req.files = {};
-      // Simulate file deletion and filtering
-      jest.spyOn(BannerController.prototype as any, 'deleteFileFromDisk').mockResolvedValue(undefined);
+      jest.spyOn(ImageHandler, 'deleteFileFromDisk').mockResolvedValue(undefined);
       mockService.getAllBanners.mockResolvedValue({ aboutBanner: { submenu1: { images: [{ id: 1, url: 'img1.jpg' }, { id: 2, url: 'img2.jpg' }] }, submenu2: { images: [] } } } as any);
       mockService.updateBanner.mockResolvedValue({ adminId: '01' } as any);
       await controller.update(req as Request, res as Response);
@@ -334,7 +348,7 @@ describe('BannerController', () => {
         }
       };
       req.files = {};
-      jest.spyOn(BannerController.prototype as any, 'deleteFileFromDisk').mockResolvedValue(undefined);
+      jest.spyOn(ImageHandler, 'deleteFileFromDisk').mockResolvedValue(undefined);
       mockService.getAllBanners.mockResolvedValue({ aboutBanner: { submenu1: { images: [{ id: 1, url: 'img1.jpg' }, { id: 2, url: 'img2.jpg' }] }, submenu2: { images: [] } } } as any);
       mockService.updateBanner.mockResolvedValue({ adminId: '01' } as any);
       await controller.update(req as Request, res as Response);

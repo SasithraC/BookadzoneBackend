@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const footerInfoRepository_1 = __importDefault(require("../repositories/footerInfoRepository"));
 const validationHelper_1 = __importDefault(require("../utils/validationHelper"));
 const footerinfoModel_1 = require("../models/footerinfoModel");
-const common_service_1 = require("./common.service");
+const commonService_1 = require("./commonService");
 class FooterInfoService {
     constructor() {
-        this.commonService = new common_service_1.CommonService(footerinfoModel_1.FooterInfoModel);
+        this.commonService = new commonService_1.CommonService(footerinfoModel_1.FooterInfoModel);
     }
     validateFooterInfoData(data, file, isUpdate = false) {
         console.log(`validateFooterInfoData: file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);

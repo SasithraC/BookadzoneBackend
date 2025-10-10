@@ -1,6 +1,6 @@
 import { PageModel, IPage } from "../models/pageModel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class PagesRepository {
   private commonRepository: CommonRepository<IPage>;
@@ -20,7 +20,7 @@ class PagesRepository {
 
     const skip = (page - 1) * limit;
     const [data, stats] = await Promise.all([
-      PageModel.find(query).skip(skip).limit(limit),
+      PageModel.find(query).skip(skip).limit(limit).exec(),
       this.commonRepository.getStats(),
     ]);
 
@@ -36,38 +36,51 @@ class PagesRepository {
     };
   }
 
-  async getPageById(id: string | Types.ObjectId): Promise<IPage | null> {
-    return await PageModel.findById(id);
+  async getPageById(id: string | Types.ObjectId): Promise<IPage | undefined> {
+    const result = await PageModel.findById(id).exec();
+    return result || undefined;
   }
 
-  async updatePage(id: string | Types.ObjectId, data: Partial<IPage>): Promise<IPage | null> {
-    return await PageModel.findByIdAndUpdate(id, data, { new: true });
+  async updatePage(id: string | Types.ObjectId, data: Partial<IPage>): Promise<IPage | undefined> {
+    const result = await PageModel.findByIdAndUpdate(id, data, { new: true }).exec();
+    return result || undefined;
   }
 
-  async softDeletePage(id: string | Types.ObjectId): Promise<IPage | null> {
-    return await PageModel.findByIdAndUpdate(
+  async softDeletePage(id: string | Types.ObjectId): Promise<IPage | undefined> {
+    const result = await PageModel.findByIdAndUpdate(
       id,
       { isDeleted: true },
       { new: true }
-    );
+    ).exec();
+    return result || undefined;
   }
 
-  async toggleStatus(id: string | Types.ObjectId): Promise<IPage | null> {
+  async toggleStatus(id: string | Types.ObjectId): Promise<IPage | undefined> {
     // Ensure id is a string for CommonRepository
-    const stringId = typeof id === "string" ? id : id.toString();
-    return await this.commonRepository.toggleStatus(stringId);
+    let stringId: string;
+    if (typeof id === 'string') {
+      stringId = id;
+    } else if (id && id.toString) {
+      stringId = id.toString();
+    } else {
+      return undefined;
+    }
+    const result = await this.commonRepository.toggleStatus(stringId);
+    return result || undefined;
   }
 
-  async restorePage(id: string | Types.ObjectId): Promise<IPage | null> {
-    return await PageModel.findByIdAndUpdate(
+  async restorePage(id: string | Types.ObjectId): Promise<IPage | undefined> {
+    const result = await PageModel.findByIdAndUpdate(
       id,
       { isDeleted: false, status: "active" },
       { new: true }
-    );
+    ).exec();
+    return result || undefined;
   }
 
-  async deletePagePermanently(id: string | Types.ObjectId): Promise<IPage | null> {
-    return await PageModel.findByIdAndDelete(id);
+  async deletePagePermanently(id: string | Types.ObjectId): Promise<IPage | undefined> {
+    const result = await PageModel.findByIdAndDelete(id).exec();
+    return result || undefined;
   }
   async getAllTrashPages(page = 1, limit = 10, filter?: string) {
     const query: any = { isDeleted: true };
@@ -76,8 +89,8 @@ class PagesRepository {
 
     const skip = (page - 1) * limit;
     const [data, count, stats] = await Promise.all([
-      PageModel.find(query).skip(skip).limit(limit),
-      PageModel.countDocuments(query),
+      PageModel.find(query).skip(skip).limit(limit).exec(),
+      PageModel.countDocuments(query).exec(),
       this.commonRepository.getStats(),
     ]);
 

@@ -8,6 +8,10 @@ const env_1 = require("../config/env");
 const faqSeeder_1 = __importDefault(require("./faqSeeder"));
 const configSeeder_1 = __importDefault(require("./configSeeder"));
 const settingsSeeder_1 = __importDefault(require("./settingsSeeder"));
+const blogCategorySeeder_1 = __importDefault(require("./blogCategorySeeder"));
+const categorySeeder_1 = __importDefault(require("./categorySeeder"));
+const bannerSeeder_1 = __importDefault(require("./bannerSeeder"));
+const pageSeeder_1 = __importDefault(require("./pageSeeder"));
 const seedAll = async () => {
     try {
         if (!env_1.ENV.MONGO_URI) {
@@ -18,6 +22,13 @@ const seedAll = async () => {
         await (0, faqSeeder_1.default)();
         await (0, configSeeder_1.default)();
         await (0, settingsSeeder_1.default)();
+        await (0, categorySeeder_1.default)();
+        await (0, faqSeeder_1.default)();
+        await (0, configSeeder_1.default)();
+        await (0, settingsSeeder_1.default)();
+        await (0, blogCategorySeeder_1.default)();
+        await (0, bannerSeeder_1.default)();
+        await (0, pageSeeder_1.default)();
         console.log("All seeders executed successfully");
         await mongoose_1.default.connection.close();
     }

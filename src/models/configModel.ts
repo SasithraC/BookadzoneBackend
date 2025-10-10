@@ -1,4 +1,5 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+const { Schema } = mongoose;
 
 export interface IConfigField {
   key: string;
@@ -29,4 +30,4 @@ const configSchema = new Schema<IConfig>(
   { timestamps: true }
 );
 
-export const ConfigModel = model<IConfig>("Config", configSchema);
+export const ConfigModel = mongoose.model<IConfig>("Config", configSchema);

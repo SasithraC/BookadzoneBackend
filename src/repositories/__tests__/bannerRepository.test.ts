@@ -1,7 +1,23 @@
 import { BannerRepository } from '../bannerRepository';
 import { BannerModel, IBanner } from '../../models/bannerModel';
 
-jest.mock('../../models/bannerModel');
+// Mock BannerModel with chainable query methods
+jest.mock('../../models/bannerModel', () => ({
+  BannerModel: {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findOne: jest.fn(),
+    find: jest.fn().mockReturnValue({
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      exec: jest.fn()
+    }),
+    findByIdAndUpdate: jest.fn(),
+    findByIdAndDelete: jest.fn(),
+    updateOne: jest.fn()
+  }
+}));
 
 describe('BannerRepository', () => {
   let repo: BannerRepository;
@@ -145,10 +161,38 @@ describe('BannerRepository', () => {
   });
 
   it('should find all banners', async () => {
-  const mockBanner: Partial<IBanner> = { adminId: '01' };
-  jest.spyOn(BannerModel, 'find').mockResolvedValue([mockBanner] as any);
-  const result = await repo.findAll();
-  expect(result).toEqual([mockBanner]);
+    const mockBanner: Partial<IBanner> = { adminId: '01' };
+    const mockQuery = {
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([mockBanner])
+    };
+    (BannerModel.find as jest.Mock).mockReturnValue(mockQuery);
+    const result = await repo.findAll();
+    expect(result).toEqual([mockBanner]);
+  });
+
+  it('should support pagination in findAll', async () => {
+    const mockBanner: Partial<IBanner> = { adminId: '01' };
+    const mockQuery = {
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([mockBanner])
+    };
+    (BannerModel.find as jest.Mock).mockReturnValue(mockQuery);
+    await repo.findAll({ page: 2, limit: 10 });
+    expect(mockQuery.skip).toHaveBeenCalledWith(10);
+    expect(mockQuery.limit).toHaveBeenCalledWith(10);
+  });
+
+  it('should handle empty pagination params', async () => {
+    const mockBanner: Partial<IBanner> = { adminId: '01' };
+    const mockQuery = {
+      exec: jest.fn().mockResolvedValue([mockBanner])
+    };
+    (BannerModel.find as jest.Mock).mockReturnValue(mockQuery);
+    const result = await repo.findAll({});
+    expect(result).toEqual([mockBanner]);
   });
 
   it('should update banner by id', async () => {

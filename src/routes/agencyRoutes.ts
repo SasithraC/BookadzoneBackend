@@ -3,7 +3,7 @@ interface agencyRequest extends Request {
 	managementName?: string;
 }
 import agencyController from "../controllers/agencyController";
-import { upload } from "../utils/fileUpload"; 
+import { upload, processUpload } from "../utils/fileUpload"; 
 const router = Router();
 
 const setBannerManagementName = (req: agencyRequest, res: Response, next: NextFunction) => {
@@ -34,9 +34,27 @@ router.put(
 		{ name: "uploadIdProof", maxCount: 1 },
 		{ name: "uploadBusinessProof", maxCount: 1 }
 	]),
-	(req, res, next) => agencyController.updateAgency(req, res, next)
+	async (req, res, next) => {
+		try {
+			const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+			// Process each uploaded file
+			if (files) {
+				for (const [fieldname, fieldFiles] of Object.entries(files)) {
+					for (const file of fieldFiles) {
+						const result = await processUpload(req, file);
+						// Update the request body with processed file paths
+						req.body[fieldname] = result.filename;
+					}
+				}
+			}
+			return agencyController.updateAgency(req, res, next);
+		} catch (error) {
+			next(error);
+		}
+	}
 );
 
+router.post("/check-emails", (req, res, next) => agencyController.checkEmailsExist(req, res, next));
 router.delete("/softDelete/:id", (req, res, next) => agencyController.deleteAgency(req, res, next));
 router.patch("/restore/:id", (req, res, next) => agencyController.restoreAgency(req, res, next));
 router.patch("/toggleStatus/:id", (req, res, next) => agencyController.toggleAgencyStatus(req, res, next));

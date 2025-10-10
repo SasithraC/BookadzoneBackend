@@ -4,14 +4,18 @@ import { SettingsModel } from '../../models/settingsModel';
 jest.mock('../../models/settingsModel');
 
 describe('settingsRepository', () => {
+  const originalConsoleError = console.error;
   beforeAll(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    console.error = jest.fn();
   });
 
   afterAll(() => {
-    (console.error as jest.Mock).mockRestore();
+    console.error = originalConsoleError;
   });
-  afterEach(() => jest.clearAllMocks());
+  
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should get settings', async () => {
     (SettingsModel.findOne as jest.Mock).mockResolvedValue({

@@ -202,41 +202,61 @@ import ValidationHelper from "../utils/validationHelper";
 // import { FooterInfoModel } from "../models/footerinfoModel";
 import { CategoryModel } from "../models/catrgoryModel";
 
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
 
 class CategoryService {
   private commonService = new CommonService<ICategory>(CategoryModel);
 
   private validateCategoryData(data: Partial<ICategory>, file?: Express.Multer.File, isUpdate: boolean = false): void {
-    console.log(`validateCategoryData: file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
-    console.log(`validateCategoryData: isUpdate: ${isUpdate}, data:`, data);
+    const rules: (any | null | undefined)[] = [];
 
-    const rules = [
-      !isUpdate
-        ? ValidationHelper.isRequired(file, "photo") // Check if file object exists for creation
-        : (file ? ValidationHelper.isNonEmptyString(file.filename, "photo") : null),
-      (file ? ValidationHelper.maxLength(file.filename, "photo", 500) : null),
+    // Required fields - only for creation
+    if (!isUpdate) {
+      rules.push(ValidationHelper.isRequired(data.description, "description"));
+      rules.push(ValidationHelper.isRequired(file, "photo"));
+    }
 
-      !isUpdate
-        ? ValidationHelper.isRequired(data.description, "description")
-        : (data.description !== undefined ? ValidationHelper.isNonEmptyString(data.description, "description") : null),
-      (data.description !== undefined ? ValidationHelper.maxLength(data.description, "description", 2000) : null),
+    // Optional field validations
+    if (data.description !== undefined) {
+      rules.push(ValidationHelper.maxLength(data.description, "description", 2000));
+    }
+    if (data.name !== undefined) {
+      rules.push(ValidationHelper.maxLength(data.name, "name", 200));
+    }
+    if (data.slug !== undefined) {
+      rules.push(ValidationHelper.maxLength(data.slug, "slug", 200));
+    }
+    if (file?.filename !== undefined) {
+      rules.push(ValidationHelper.maxLength(file.filename, "photo", 500));
+    }
+    if (data.status !== undefined) {
+      rules.push(ValidationHelper.isValidEnum(data.status, "status", ["active", "inactive"]));
+    }
+    if (data.isDeleted !== undefined) {
+      rules.push(ValidationHelper.isBoolean(data.isDeleted, "isDeleted"));
+    }
 
-      // Optional fields
-      (data.name !== undefined ? ValidationHelper.maxLength(data.name, "name", 200) : null),
-      (data.slug !== undefined ? ValidationHelper.maxLength(data.slug, "slug", 200) : null),
-      // (data.google !== undefined ? ValidationHelper.maxLength(data.google, "google", 200) : null),
-      // (data.appstore !== undefined ? ValidationHelper.maxLength(data.appstore, "appstore", 200) : null),
-
-      data.status !== undefined ? ValidationHelper.isValidEnum(data.status, "status", ["active", "inactive"]) : null,
-      // (typeof data.priority === 'number' ? ValidationHelper.isNumber(data.priority, "priority") : null),
-
-      data.isDeleted !== undefined ? ValidationHelper.isBoolean(data.isDeleted, "isDeleted") : null,
-    ].filter(Boolean);
-
-    const errors = ValidationHelper.validate(rules);
-    if (errors.length > 0) {
-      console.log(`Validation errors in validateCategoryData:`, errors);
+    const errors = ValidationHelper.validate(rules) || [];
+    // Throw if any required field is missing or invalid
+    if (!isUpdate) {
+      if (!data.name) {
+        throw new Error('name is required');
+      }
+      if (!data.slug) {
+        throw new Error('slug is required');
+      }
+      if (!data.description) {
+        throw new Error('description is required');
+      }
+      if (!file) {
+        throw new Error('photo is required');
+      }
+    }
+    // Validate status field if present
+    if (data.status !== undefined && !['active', 'inactive', 'deleted'].includes(data.status)) {
+      throw new Error('status must be one of: active, inactive, deleted');
+    }
+    if (Array.isArray(errors) && errors.length > 0) {
       throw new Error(errors.map(e => e.message).join(", "));
     }
   }
@@ -278,16 +298,21 @@ class CategoryService {
     return await categoryRepository.getCategory(page, limit, filter);
   }
 
-  async getCategoryById(id: string | Types.ObjectId): Promise<ICategory | null> {
+  private validateId(id: string | Types.ObjectId): void {
     const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) throw new Error(error.message);
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getCategoryById(id: string | Types.ObjectId): Promise<ICategory | null> {
+    this.validateId(id);
     return await categoryRepository.getCategoryById(id);
   }
 
   async updateCategory(id: string | Types.ObjectId, data: Partial<ICategory>, file?: Express.Multer.File): Promise<ICategory | null> {
     console.log(`updateCategory: id: ${id}, data:`, data, `file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
-    const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) throw new Error(error.message);
+    this.validateId(id);
     this.validateCategoryData(data, file, true);
     const updateData: Partial<ICategory> = { ...data };
     if (file?.filename) {
@@ -299,14 +324,12 @@ class CategoryService {
   }
 
   async softDeleteCategory(id: string | Types.ObjectId): Promise<ICategory | null> {
-    const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) throw new Error(error.message);
+    this.validateId(id);
     return await categoryRepository.softDeleteCategory(id);
   }
 
   async toggleStatus(id: string | Types.ObjectId): Promise<ICategory | null> {
-    const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) throw new Error(error.message);
+    this.validateId(id);
     return await categoryRepository.toggleStatus(id);
   }
 
@@ -315,14 +338,12 @@ class CategoryService {
   }
 
   async restoreCategory(id: string | Types.ObjectId): Promise<ICategory | null> {
-    const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) throw new Error(error.message);
+    this.validateId(id);
     return await categoryRepository.restoreCategory(id);
   }
 
   async deleteCategoryPermanently(id: string | Types.ObjectId): Promise<ICategory | null> {
-    const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) throw new Error(error.message);
+    this.validateId(id);
     return await categoryRepository.deleteCategoryPermanently(id);
   }
 }

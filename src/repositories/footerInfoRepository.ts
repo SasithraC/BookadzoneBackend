@@ -1,6 +1,6 @@
 import { FooterInfoModel, IFooterInfo } from "../models/footerinfoModel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class FooterInfoRepository {
   private commonRepository: CommonRepository<IFooterInfo>;

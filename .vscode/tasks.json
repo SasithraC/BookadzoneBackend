@@ -1,0 +1,59 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		},
+		{
+			"label": "Run User Model Tests",
+			"type": "shell",
+			"command": "npm test src/models/__tests__/userModel.test.ts",
+			"group": "test"
+		}
+	]
+}

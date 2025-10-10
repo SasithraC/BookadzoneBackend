@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IBanner extends Document {
   adminId: string;
@@ -125,4 +125,4 @@ const bannerSchema = new Schema<IBanner>({
   },
 }, { timestamps: true });
 
-export const BannerModel = model<IBanner>("Banners", bannerSchema);
+export const BannerModel = mongoose.model<IBanner>("Banners", bannerSchema);

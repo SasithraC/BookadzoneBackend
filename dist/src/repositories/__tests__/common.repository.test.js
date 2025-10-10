@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const common_repository_1 = require("../common.repository");
+const commonRepository_1 = require("../commonRepository");
 const faqModel_1 = require("../../models/faqModel");
 const env_1 = require("../../config/env");
 beforeAll(async () => {
@@ -13,7 +13,7 @@ beforeAll(async () => {
 afterAll(async () => {
     await mongoose_1.default.connection.close();
 });
-const repo = new common_repository_1.CommonRepository(faqModel_1.FaqModel);
+const repo = new commonRepository_1.CommonRepository(faqModel_1.FaqModel);
 describe('CommonRepository', () => {
     it('existsByField returns false if none', async () => {
         const exists = await repo.existsByField('question', 'no_such_question');

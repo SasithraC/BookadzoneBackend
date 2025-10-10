@@ -7,6 +7,23 @@ const userModel_1 = __importDefault(require("../models/userModel"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = require("jsonwebtoken");
 class AuthenticationRepository {
+    async updateUser(userId, data) {
+        const updateData = {};
+        if (data.email)
+            updateData.email = data.email;
+        if (typeof data.password !== 'undefined' && data.password !== '') {
+            updateData.password = await bcryptjs_1.default.hash(data.password, 10);
+        }
+        if (data.role)
+            updateData.role = data.role;
+        if (data.status)
+            updateData.status = data.status;
+        if (typeof data.isDeleted !== 'undefined')
+            updateData.isDeleted = data.isDeleted;
+        // Always update user by userId, even if only email is present
+        const user = await userModel_1.default.findByIdAndUpdate(userId, updateData, { new: true });
+        return user ? user.toObject() : null;
+    }
     async authLogin(data) {
         const { email, password } = data;
         const user = await userModel_1.default
@@ -53,6 +70,17 @@ class AuthenticationRepository {
         const token = (0, jsonwebtoken_1.sign)({ _id: user._id, id: user._id, email: user.email, role: user.role }, jwtSecret, signOptions);
         const { password: _, ...userWithoutPassword } = user;
         return { token, data: userWithoutPassword, expiresIn: expiresIn };
+    }
+    async createUser(data) {
+        // Hash the password before saving
+        const hashedPassword = await bcryptjs_1.default.hash(data.password, 10);
+        const userData = {
+            ...data,
+            password: hashedPassword,
+        };
+        // Create the new user with the hashed password
+        const user = await userModel_1.default.create(userData);
+        return user;
     }
 }
 exports.default = new AuthenticationRepository();

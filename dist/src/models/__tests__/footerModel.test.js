@@ -6,12 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const footerinfoModel_1 = require("../footerinfoModel");
 const env_1 = require("../../config/env");
-beforeAll(async () => {
-    await mongoose_1.default.connect(env_1.ENV.MONGO_URI);
-});
-afterAll(async () => {
-    await mongoose_1.default.connection.close();
-});
+beforeAll(async () => { await mongoose_1.default.connect(env_1.ENV.MONGO_URI); });
+afterAll(async () => { await mongoose_1.default.connection.close(); });
 describe('FooterInfoModel', () => {
     it('requires logo and description', async () => {
         const footer = new footerinfoModel_1.FooterInfoModel({});

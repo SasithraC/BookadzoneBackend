@@ -1,6 +1,6 @@
 import { ConfigModel, IConfig } from "../models/configModel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class ConfigRepository {
   private commonRepository: CommonRepository<IConfig>;
