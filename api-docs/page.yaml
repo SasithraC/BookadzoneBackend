@@ -1,0 +1,542 @@
+# Page endpoints and schemas
+paths:
+  /pages:
+    get:
+      summary: Get all Pages
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 10
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Page'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      active:
+                        type: integer
+                      inactive:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+        summary: Add a new Page
+        tags:
+          - Pages
+        security:
+          - bearerAuth: []
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageInput'
+        responses:
+          '201':
+            description: Page created successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      example: success
+                    message:
+                      type: string
+                      example: Page created successfully
+                    data:
+                      $ref: '#/components/schemas/Page'
+          '400':
+            description: Validation error
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+  /pages/getPageById/{id}:
+    get:
+      summary: Get a Page by ID
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Page ID
+      responses:
+        '200':
+          description: Page found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/Page'
+        '400':
+          description: Page id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages/updatePage/{id}:
+    put:
+      summary: Update a Page by ID
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Page ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageInput'
+      responses:
+        '200':
+          description: Page updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Page updated
+                  data:
+                    $ref: '#/components/schemas/Page'
+        '400':
+          description: Page id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages/softDeletePage/{id}:
+    delete:
+      summary: Soft delete a Page by ID
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Page ID
+      responses:
+        '200':
+          description: Page deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Page deleted successfully
+        '400':
+          description: Page id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages/togglestatus/{id}:
+    patch:
+      summary: Toggle the status of a Page (active/inactive)
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Page ID
+      responses:
+        '200':
+          description: Page status toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Page status toggled
+                  data:
+                    $ref: '#/components/schemas/Page'
+        '400':
+          description: Page id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages/trash:
+    get:
+      summary: Get all trashed Pages
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: List of trashed Pages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Page'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 1
+                      active:
+                        type: integer
+                        example: 1
+                      inactive:
+                        type: integer
+                        example: 0
+                      totalPages:
+                        type: integer
+                        example: 1
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages/restore/{id}:
+    patch:
+      summary: Restore a soft-deleted Page
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Page ID
+      responses:
+        '200':
+          description: Page restored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Page restored successfully
+        '400':
+          description: Page id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pages/permanentDelete/{id}:
+    delete:
+      summary: Permanently delete a Page
+      tags:
+        - Pages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Page ID
+      responses:
+        '200':
+          description: Page permanently deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Page permanently deleted
+        '400':
+          description: Page id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Page not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Page:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 68ad430b8089095867639823
+        title:
+          type: string
+          example: Test Page Title
+        name:
+          type: string
+          example: Test Page Name
+        slug:
+          type: string
+          example: test-page-slug
+        type:
+          type: string
+          enum:
+            - link
+            - template
+          example: template
+        description:
+          type: string
+          example: This is a test page description
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+          example: active
+        isDeleted:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-09-09T12:00:00Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2025-09-09T12:00:00Z
+      required:
+        - title
+        - name
+        - slug
+        - type
+
+    PageInput:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Test Page Title
+        name:
+          type: string
+          example: Test Page Name
+        slug:
+          type: string
+          example: test-page-slug
+        type:
+          type: string
+          enum:
+            - link
+            - template
+          example: template
+        description:
+          type: string
+          example: This is a test page description
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+          example: active
+        isDeleted:
+          type: boolean
+          example: false
+      required:
+        - title
+        - name
+        - slug
+        - type
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        message:
+          type: string
+          example: Invalid input

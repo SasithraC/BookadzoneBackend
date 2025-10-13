@@ -21,6 +21,7 @@
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
+    "coverage": "^0.4.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.1.0",
@@ -30,6 +31,7 @@
     "swagger": "^0.7.5",
     "swagger-cli": "^4.0.4",
     "multer": "^2.0.2",
+    "swagger-cli": "^4.0.4",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
