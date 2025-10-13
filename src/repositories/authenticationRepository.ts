@@ -101,7 +101,9 @@ class AuthenticationRepository {
   }
 
   async getUserById(id: string) {
-    return await User.findById(id);
+    return await User.findById(id)
+      .select("_id email role status")
+      .lean();
   }
 
   async checkEmailExists(email: string, currentUserId?: string | null): Promise<boolean> {

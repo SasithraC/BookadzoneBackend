@@ -7,8 +7,6 @@ interface RouteConfig {
   middleware?: Array<any>;
 }
 
-const defaultMiddleware = [authenticate];
-
 export const routes: RouteConfig[] = [
   { path: "/api/v1/auth", router: require("./authenticationRoutes").default },
   { 
@@ -51,14 +49,8 @@ export const routes: RouteConfig[] = [
   }
 ];
 
-// Apply default middleware to all routes except those specified
-const routesWithAuth = routes.map(route => ({
-  ...route,
-  middleware: route.path === "/api/v1/auth" ? [] : [...(route.middleware || []), ...defaultMiddleware]
-}));
-
 export function registerRoutes(app: Express) {
-  routesWithAuth.forEach(({ path, router, middleware = [] }) => {
+  routes.forEach(({ path, router, middleware = [] }) => {
     app.use(path, ...middleware, router);
   });
 }

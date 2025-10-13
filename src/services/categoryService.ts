@@ -268,18 +268,21 @@ class CategoryService {
       throw new Error("Photo file is required for creation");
     }
 
-    const createData: Partial<ICategory> = { ...data, photo: file.filename };
+    // Get the relative path from the absolute path that multer created
+    const filePath = file.path.split('uploads')[1].replace(/\\/g, '/');
+    const relativeFilePath = `uploads${filePath}`;
+
+    // Use the relative path for storage
+    const createData: Partial<ICategory> = { ...data, photo: relativeFilePath };
     this.validateCategoryData(createData, file);
 
     const CategoryData: Partial<ICategory> = {
-      photo: file.filename,
+      photo: relativeFilePath,
       description: createData.description!,
       name: createData.name ?? "",
       slug: createData.slug ?? "",
       isFeatured: createData.isFeatured ?? true,
-      // appstore: createData.appstore ?? "",/
       status: createData.status || 'active',
-      // priority: createData.priority ? parseInt(createData.priority as any) : 1,
       isDeleted: false,
     };
 
@@ -315,9 +318,14 @@ class CategoryService {
     this.validateId(id);
     this.validateCategoryData(data, file, true);
     const updateData: Partial<ICategory> = { ...data };
-    if (file?.filename) {
-      updateData.photo = file.filename;
+    
+    if (file) {
+      // Get the relative path from the absolute path that multer created
+      const filePath = file.path.split('uploads')[1].replace(/\\/g, '/');
+      const relativeFilePath = `uploads${filePath}`;
+      updateData.photo = relativeFilePath;
     }
+    
     const result = await categoryRepository.updateCategory(id, updateData);
     console.log(`updateCategory: Category updated successfully:`, result);
     return result;

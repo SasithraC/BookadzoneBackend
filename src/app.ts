@@ -9,9 +9,6 @@ import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
-// Initialize all middleware
-setupMiddleware(app);
-
 // Initialize database connection
 import dbConnection from './config/database';
 dbConnection.connect().catch(error => {
@@ -19,6 +16,10 @@ dbConnection.connect().catch(error => {
   process.exit(1);
 });
 
+// Initialize basic middleware first
+setupMiddleware(app);
+
+// Register routes
 registerRoutes(app);
 
 

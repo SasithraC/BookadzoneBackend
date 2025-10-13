@@ -321,19 +321,15 @@ class CategoryController {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Photo file is required' });
         return;
       }
-      let photoUrl = req.body.photo;
-      if (req.file) {
-        photoUrl = path.join('uploads', 'category', 'photo', req.file.filename).replace(/\\/g, '/'); // Full path
-        // Alternatively, use only filename: categoryUrl = req.file.filename;
-      }
-      const categoryinfo = await categoryService.createCategory({ ...req.body, photo: photoUrl }, req.file);
+      // Just pass the request file directly, the service will handle the file path
+      const categoryinfo = await categoryService.createCategory(req.body, req.file);
       res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Category created', data: categoryinfo });
     } catch (err: any) {
       if (err.message && err.message.includes('already exists')) {
         res.status(409).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
         return;
       }
-      res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
+      next(err); // Pass error to global error handler
     }
   }
 
@@ -374,12 +370,8 @@ class CategoryController {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Category id is required' });
         return;
       }
-      let photoUrl = req.body.photo;
-      if (req.file) {
-        photoUrl = path.join('uploads', 'category', 'photo', req.file.filename).replace(/\\/g, '/'); // Full path
-        // Alternatively, use only filename: photoUrl = req.file.filename;
-      }
-      const category = await categoryService.updateCategory(id, { ...req.body, photo: photoUrl }, req.file);
+      // Let service handle file path management
+      const category = await categoryService.updateCategory(id, req.body, req.file);
       if (!category) {
         res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Category not found' });
         return;

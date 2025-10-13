@@ -4,6 +4,8 @@ import cors from "cors";
 import compression from "compression";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import { generateCSRFToken } from './csrf';
+import { authenticate } from './authentication';
 
 export const setupMiddleware = (app: Express) => {
   // Security middleware
@@ -15,6 +17,9 @@ export const setupMiddleware = (app: Express) => {
     origin: process.env.CORS_ORIGIN || '*',
     credentials: true
   }));
+
+  // CSRF Protection
+  app.use(generateCSRFToken);
 
   // Performance middleware
   app.use(compression());

@@ -289,17 +289,26 @@ class AgencyController {
 
       // Get current agency and user if we're in edit mode
       let currentAgency = null;
-      let currentUser = null;
+      let currentUserId = null;
+      
       if (currentId) {
         currentAgency = await agencyService.getAgencyById(currentId);
+        console.log('Current agency:', currentAgency); // Debug log
+        
         if (currentAgency?.userId) {
-          currentUser = await authenticationService.getUserById(currentAgency.userId.toString());
+          const currentUser = await authenticationService.getUserById(currentAgency.userId.toString());
+          console.log('Found user:', currentUser); // Debug log
+          
+          if (currentUser && currentUser._id) {
+            currentUserId = currentUser._id.toString();
+            console.log('Current user ID for email check:', currentUserId); // Debug log
+          }
         }
       }
 
       // Check both emails in parallel
       const [yourEmailExists, companyEmailExists] = await Promise.all([
-        authenticationService.checkEmailExists(yourEmail, currentUser?._id ? String(currentUser._id) : undefined),
+        authenticationService.checkEmailExists(yourEmail, currentUserId),
         agencyService.checkCompanyEmailExists(companyEmail, currentId)
       ]);
 

@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 export interface IUser extends Document {
     email: string;
     password: string;
+    name: string;
     comparePassword(candidatePassword: string): Promise<boolean>;
     role: "super-admin" | "admin" | "agency";
     status: "active" | "inactive";
@@ -17,6 +18,7 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>(
     {
         email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+        name: { type: String, required: true },
         password: { type: String, required: true, minlength: 8 },
         role: { type: String, enum: ["super-admin", "admin", "agency"], default: "super-admin" },
         status: { type: String, enum: ["active", "inactive"], default: "active" },

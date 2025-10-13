@@ -3,7 +3,7 @@ import authenticationController from "../controllers/authenticationController";
 import { loginRateLimiter } from "../middleware/rateLimiter";
 import { validateCSRFToken } from "../middleware/csrf";
 import { validateRequest } from "../middleware/validation";
-import { loginSchema, resetPasswordSchema, forgotPasswordSchema } from "../validators/authSchemas";
+import { loginSchema, resetPasswordSchema, forgotPasswordSchema, profileUpdateSchema, passwordChangeSchema } from "../validators/authSchemas";
 
 const router: Router = Router();
 
@@ -34,6 +34,32 @@ router.post(
     "/reset-password",
     loginRateLimiter,
     validateRequest(resetPasswordSchema),
-    authenticationController.resetPassword);
+    authenticationController.resetPassword
+);
+
+// Profile management routes (protected by authentication)
+import { authenticate } from "../middleware/authentication";
+
+router.get(
+    "/me",
+    authenticate,
+    authenticationController.getCurrentUser
+);
+
+router.put(
+    "/profile",
+    authenticate,
+    validateCSRFToken,
+    validateRequest(profileUpdateSchema),
+    authenticationController.updateProfile
+);
+
+router.put(
+    "/change-password",
+    authenticate,
+    validateCSRFToken,
+    validateRequest(passwordChangeSchema),
+    authenticationController.changePassword
+);
 
 export default router;

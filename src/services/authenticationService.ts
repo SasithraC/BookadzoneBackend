@@ -133,6 +133,68 @@ class AuthenticationService {
   async deleteUserPermanently(userId: string): Promise<void> {
     await authenticationRepository.deleteUserPermanently(userId);
   }
+
+  async updateProfile(userId: string, data: { email: string; name: string }): Promise<void> {
+    const { email, name } = data;
+    // Validate email and name
+    const rules = [
+      ValidationHelper.isRequired(email, "email"),
+      ValidationHelper.isValidEmail(email, "email"),
+      ValidationHelper.isRequired(name, "name"),
+      ValidationHelper.minLength(name, "name", 2),
+      ValidationHelper.maxLength(name, "name", 50),
+    ];
+
+    const errors = ValidationHelper.validate(rules);
+    if (errors.length > 0) {
+      throw new CustomError(errors.map((e) => e.message).join(", "), HTTP_STATUS_CODE.BAD_REQUEST);
+    }
+
+    // Check if email exists for another user
+    const emailExists = await this.checkEmailExists(email, userId);
+    if (emailExists) {
+      throw new CustomError("Email already exists", HTTP_STATUS_CODE.BAD_REQUEST);
+    }
+
+    // Update user with both email and name
+    await User.findByIdAndUpdate(userId, { email, name });
+  }
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
+    // Validate password
+    const rules = [
+      ValidationHelper.isRequired(oldPassword, "current password"),
+      ValidationHelper.isRequired(newPassword, "new password"),
+      ValidationHelper.minLength(newPassword, "new password", 6),
+      ValidationHelper.maxLength(newPassword, "new password", 100),
+    ];
+
+    const errors = ValidationHelper.validate(rules);
+    if (errors.length > 0) {
+      throw new CustomError(errors.map((e) => e.message).join(", "), HTTP_STATUS_CODE.BAD_REQUEST);
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new CustomError("User not found", HTTP_STATUS_CODE.NOT_FOUND);
+    }
+
+    // Verify old password
+    const isValidPassword = await bcrypt.compare(oldPassword, user.password);
+    if (!isValidPassword) {
+      throw new CustomError("Current password is incorrect", HTTP_STATUS_CODE.BAD_REQUEST);
+    }
+
+    // Check if new password is same as old password
+    const isSameAsOld = await bcrypt.compare(newPassword, user.password);
+    if (isSameAsOld) {
+      throw new CustomError("New password cannot be the same as your current password", HTTP_STATUS_CODE.BAD_REQUEST);
+    }
+
+    // Update password
+    user.password = newPassword; // Password will be hashed by mongoose pre-save hook
+    await user.save();
+  }
 }
 
 export default new AuthenticationService();

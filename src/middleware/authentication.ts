@@ -9,30 +9,33 @@ interface DecodedToken extends JwtPayload {
   role: "super-admin" | "admin" | "user";
 }
 
-const excludedPaths: string[] = [
-  "auth/login",
-  "auth/register",
-  "auth/forgotpassword",
-  "auth/resetpassword",
-];
+// No need for excluded paths as we'll explicitly add auth middleware where needed
+const excludedPaths: string[] = [];
 
 export const authenticate = async (
-  req: Request & { id?: string; email?: string; accountdetails?: any },
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-      // Debug: Log all incoming headers
+      // Debug: Log request info
+      console.log('Request path:', req.path);
       console.log('Incoming headers:', req.headers);
+      console.log('Authorization header:', req.headers.authorization);
+      
     // PATH exclusion check
     const apiPath = req.path.replace("/api/v1/", "");
+    console.log('API Path:', apiPath); // Debug log
+    
     if (excludedPaths.includes(apiPath)) {
+      console.log('Path excluded from auth:', apiPath); // Debug log
       return next();
     }
 
     // Authorization Header Check
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log('Missing or invalid bearer token:', authHeader); // Debug log
       res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
         status: HTTP_RESPONSE.FAIL,
         message: "Bearer token missing",
@@ -63,12 +66,16 @@ export const authenticate = async (
         return;
       }
 
+      console.log('Decoded token:', decoded); // Debug log
+
       const userId = decoded._id || decoded.id;
+      console.log('User ID from token:', userId); // Debug log
+
       let user;
       try {
-        user = await User.findOne({ _id: userId }).select("role status isDeleted");
+        user = await User.findOne({ _id: userId }).select("_id role status isDeleted email");
+        console.log('Found user:', user); // Debug log
       } catch (dbErr: any) {
-        // Database connection/query error
         console.error("Authentication Error:", dbErr.message, dbErr.stack);
         res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           status: HTTP_RESPONSE.FAIL,
@@ -78,7 +85,9 @@ export const authenticate = async (
         });
         return;
       }
+
       if (!user) {
+        console.log('No user found for ID:', userId); // Debug log
         res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
           status: HTTP_RESPONSE.FAIL,
           message: "User not found. Contact admin.",
@@ -110,10 +119,12 @@ export const authenticate = async (
         return;
       }
 
-      // Attach info to request object
-      req.id = user._id;
-      req.email = decoded.email;
-      req.accountdetails = decoded;
+      // Attach user info to request object
+      req.user = {
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role
+      };
 
       next();
     } catch (error: any) {
