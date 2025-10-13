@@ -1,22 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
 import footerInfoService from '../services/footerInfoService';
 import { HTTP_RESPONSE } from '../utils/httpResponse';
-import path from 'path';
 
 class FooterInfoController {
   async createFooterInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      if (!req.file && !req.body.logo) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      if (!files?.logo?.[0]) {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Logo file is required' });
         return;
       }
-      let logoUrl = req.body.logo;
-      if (req.file) {
-        logoUrl = path.join('uploads', 'footer', 'logo', req.file.filename).replace(/\\/g, '/'); 
-       
-      }
-      const footerinfo = await footerInfoService.createFooterInfo({ ...req.body, logo: logoUrl }, req.file);
-      res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info created', data: footerinfo });
+
+      // Use the full path from multer (it already includes uploads/footer/)
+      const logoPath = files.logo[0].path.replace(/\\/g, '/');
+      
+      const footerinfo = await footerInfoService.createFooterInfo(
+        { ...req.body, logo: logoPath }, 
+        files.logo[0]
+      );
+      
+      res.status(201).json({ 
+        status: HTTP_RESPONSE.SUCCESS, 
+        message: 'Footer Info created', 
+        data: footerinfo 
+      });
     } catch (err: any) {
       if (err.message && err.message.includes('already exists')) {
         res.status(409).json({ status: HTTP_RESPONSE.FAIL, message: err.message });
@@ -63,17 +71,31 @@ class FooterInfoController {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info id is required' });
         return;
       }
-      let logoUrl = req.body.logo;
-      if (req.file) {
-        logoUrl = path.join('uploads', 'footer', 'logo', req.file.filename).replace(/\\/g, '/'); // Full path
-        // Alternatively, use only filename: logoUrl = req.file.filename;
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      let updateData = { ...req.body };
+
+      // If a new logo file is uploaded, use its full path
+      if (files?.logo?.[0]) {
+        updateData.logo = files.logo[0].path.replace(/\\/g, '/');
       }
-      const footerinfo = await footerInfoService.updateFooterInfo(id, { ...req.body, logo: logoUrl }, req.file);
+
+      const footerinfo = await footerInfoService.updateFooterInfo(
+        id, 
+        updateData, 
+        files?.logo?.[0]
+      );
+      
       if (!footerinfo) {
         res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: 'Footer Info not found' });
         return;
       }
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info updated', data: footerinfo });
+      
+      res.status(200).json({ 
+        status: HTTP_RESPONSE.SUCCESS, 
+        message: 'Footer Info updated', 
+        data: footerinfo 
+      });
     } catch (err: any) {
       next(err);
     }

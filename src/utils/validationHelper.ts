@@ -72,29 +72,11 @@ class ValidationHelper {
     return null;
   }
 
-  static isNumber(value: any, field: string): ValidationResult | null {
-    if (typeof value !== "number" || isNaN(value)) {
-      return { field, message: `${field} must be a numeric value` };
+  static validate(rules: (ValidationResult | null | undefined)[]): ValidationResult[] {
+    if (!Array.isArray(rules) || !rules) {
+      return [];
     }
-    return null;
-  }
-
-  static isNonEmptyArray(value: any, field: string): ValidationResult | null {
-    if (!Array.isArray(value) || value.length === 0) {
-      return { field, message: `${field} must be a non-empty array` };
-    }
-    return null;
-  }
-
-  static isValidArrayOfStrings(value: any, field: string): ValidationResult | null {
-    if (!Array.isArray(value) || !value.every(item => typeof item === "string" && item.trim() !== "")) {
-      return { field, message: `${field} must be an array of non-empty strings` };
-    }
-    return null;
-  }
-
-  static validate(rules: (ValidationResult | null)[]): ValidationResult[] {
-    return rules.filter((rule): rule is ValidationResult => rule !== null);
+    return rules.filter((rule): rule is ValidationResult => rule !== null && rule !== undefined);
   }
 }
 

@@ -3,7 +3,7 @@ import { IConfig } from "../models/configModel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
 import { ConfigModel } from "../models/configModel";
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
 
 class ConfigService {
   private commonService = new CommonService<IConfig>(ConfigModel);

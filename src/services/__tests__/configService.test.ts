@@ -1,11 +1,11 @@
 import configService from "../configService";
 import configRepository from "../../repositories/configRepository";
 import ValidationHelper from "../../utils/validationHelper";
-import { CommonService } from "../common.service";
+import { CommonService } from "../commonService";
 
 jest.mock("../../repositories/configRepository");
 jest.mock("../../utils/validationHelper");
-jest.mock("../common.service");
+jest.mock("../commonService");
 
 const mockConfig = { _id: "1", name: "Test", slug: "slug", configFields: [], status: "active", isDeleted: false };
 

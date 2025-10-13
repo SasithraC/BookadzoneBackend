@@ -3,7 +3,7 @@ import { IFaq } from "../models/faqModel";
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
 import { FaqModel } from "../models/faqModel";
-import { CommonService } from "./common.service";
+import { CommonService } from "./commonService";
 
 class FaqService {
   private commonService = new CommonService<IFaq>(FaqModel);

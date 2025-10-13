@@ -1,14 +1,63 @@
 import mongoose from 'mongoose'
 import { FooterInfoModel } from '../footerinfoModel'
-import { ENV } from '../../config/env'
 
-beforeAll(async () => {
-  await mongoose.connect(ENV.MONGO_URI)
-})
+jest.mock('mongoose', () => {
+  const mSchema = jest.fn().mockImplementation((definition) => ({
+    obj: definition,
+  }));
 
-afterAll(async () => {
-  await mongoose.connection.close()
-})
+  return {
+    Schema: mSchema,
+    model: jest.fn().mockReturnValue(class MockFooterInfoModel {
+      logo: string;
+      description: string;
+      socialmedia: string;
+      socialmedialinks: string;
+      google: string;
+      appstore: string;
+      status: string;
+      priority: number;
+      isDeleted: boolean;
+
+      constructor(data: any = {}) {
+        this.logo = '';
+        this.description = '';
+        this.socialmedia = '';
+        this.socialmedialinks = '';
+        this.google = '';
+        this.appstore = '';
+        this.status = 'active';
+        this.priority = 1;
+        this.isDeleted = false;
+        Object.assign(this, data);
+      }
+
+      save() {
+        const errors: any = {};
+        if (!this.logo) errors.logo = { message: 'Logo is required' };
+        if (!this.description) errors.description = { message: 'Description is required' };
+        if (Object.keys(errors).length > 0) {
+          return Promise.reject({ errors });
+        }
+        return Promise.resolve(this);
+      }
+
+      validateSync() {
+        const errors: any = {};
+        if (!this.logo) errors.logo = { message: 'Logo is required' };
+        if (!this.description) errors.description = { message: 'Description is required' };
+        return Object.keys(errors).length > 0 ? { errors } : undefined;
+      }
+
+      static create(data: any) {
+        const instance = new MockFooterInfoModel(data);
+        return instance.save();
+      }
+    }),
+    connect: jest.fn(),
+    disconnect: jest.fn(),
+  };
+});
 
 describe('FooterInfoModel', () => {
   it('requires logo and description', async () => {

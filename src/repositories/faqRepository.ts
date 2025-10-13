@@ -1,6 +1,6 @@
 import { FaqModel, IFaq } from "../models/faqModel";
 import { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "./commonRepository";
 
 class FaqRepository {
   private commonRepository: CommonRepository<IFaq>;
@@ -14,26 +14,31 @@ class FaqRepository {
   }
 
   async getAllFaqs(page = 1, limit = 10, filter?: string) {
-    const query: any = { isDeleted: false };
-    if (filter === 'active') query.status = 'active';
-    if (filter === 'inactive') query.status = 'inactive';
+    try {
+      const query: any = { isDeleted: false };
+      if (filter === 'active') query.status = 'active';
+      if (filter === 'inactive') query.status = 'inactive';
 
-    const skip = (page - 1) * limit;
-    const [data, stats] = await Promise.all([
-      FaqModel.find(query).skip(skip).limit(limit),
-      this.commonRepository.getStats(),
-    ]);
+      const skip = (page - 1) * limit;
+      const [data, stats] = await Promise.all([
+        FaqModel.find(query).skip(skip).limit(limit).exec(),
+        this.commonRepository.getStats(),
+      ]);
 
-    const totalPages = Math.ceil(stats.total / limit) || 1;
-    return {
-      data,
-      meta: {
-        ...stats,
-        totalPages,
-        page,
-        limit
-      }
-    };
+      const totalPages = Math.ceil(stats.total / limit) || 1;
+      return {
+        data,
+        meta: {
+          ...stats,
+          totalPages,
+          page,
+          limit
+        }
+      };
+    } catch (error) {
+      console.error('Error in getAllFaqs:', error);
+      throw error;
+    }
   }
 
   async getFaqById(id: string | Types.ObjectId): Promise<IFaq | null> {
@@ -70,28 +75,33 @@ class FaqRepository {
     return await FaqModel.findByIdAndDelete(id);
   }
   async getAllTrashFaqs(page = 1, limit = 10, filter?: string) {
-    const query: any = { isDeleted: true };
-    if (filter === 'active') query.status = 'active';
-    if (filter === 'inactive') query.status = 'inactive';
+    try {
+      const query: any = { isDeleted: true };
+      if (filter === 'active') query.status = 'active';
+      if (filter === 'inactive') query.status = 'inactive';
 
-    const skip = (page - 1) * limit;
-    const [data, count, stats] = await Promise.all([
-      FaqModel.find(query).skip(skip).limit(limit),
-      FaqModel.countDocuments(query),
-      this.commonRepository.getStats(),
-    ]);
+      const skip = (page - 1) * limit;
+      const [data, count, stats] = await Promise.all([
+        FaqModel.find(query).skip(skip).limit(limit).exec(),
+        FaqModel.countDocuments(query).exec(),
+        this.commonRepository.getStats(),
+      ]);
 
-    const totalPages = Math.max(1, Math.ceil(count / limit));
-    return {
-      data,
-      meta: {
-        ...stats,
-        total: count,
-        totalPages,
-        page,
-        limit
-      }
-    };
+      const totalPages = Math.max(1, Math.ceil(count / limit));
+      return {
+        data,
+        meta: {
+          ...stats,
+          total: count,
+          totalPages,
+          page,
+          limit
+        }
+      };
+    } catch (error) {
+      console.error('Error in getAllTrashFaqs:', error);
+      throw error;
+    }
   }
 }
 

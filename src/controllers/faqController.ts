@@ -5,6 +5,12 @@ import { HTTP_RESPONSE } from "../utils/httpResponse";
 class FaqController {
   async createFaq(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const { question, answer, status } = req.body;
+      if (!question || !answer || !status) {
+        // Return 400 for missing required fields
+        res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Required fields are missing" });
+        return;
+      }
       const faq = await faqService.createFaq(req.body);
       res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: "FAQ created", data: faq });
     } catch (err: any) {
@@ -22,7 +28,20 @@ class FaqController {
       const limit = parseInt(req.query.limit as string) || 10;
       const filter = req.query.status as string | undefined;
       const result = await faqService.getAllFaqs(page, limit, filter);
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, ...result });
+      res.status(200).json({ 
+        status: HTTP_RESPONSE.SUCCESS, 
+        data: {
+          data: result.data,
+          meta: {
+            total: result.meta.total,
+            active: result.meta.active,
+            inactive: result.meta.inactive,
+            totalPages: result.meta.totalPages,
+            page: result.meta.page,
+            limit: result.meta.limit
+          }
+        }
+      });
     } catch (err: any) {
       next(err);
     }
@@ -108,7 +127,20 @@ class FaqController {
       const limit = parseInt(req.query.limit as string) || 10;
       const filter = req.query.status as string | undefined;
       const result = await faqService.getAllTrashFaqs(page, limit, filter);
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, ...result });
+      res.status(200).json({ 
+        status: true, 
+        data: {
+          data: result.data,
+          meta: {
+            total: result.meta.total,
+            active: result.meta.active,
+            inactive: result.meta.inactive,
+            totalPages: result.meta.totalPages,
+            page: page,
+            limit: limit
+          }
+        }
+      });
     } catch (err: any) {
       next(err);
     }

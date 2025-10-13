@@ -2,12 +2,12 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Bookadzone Backend API",
-    "description": "API for managing FAQs, Configs, and user authentication for the Bookadzone platform.",
+    "description": "API for managing FAQs, Configs, BlogCategorie, and user authentication for the Bookadzone platform.",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://localhost:5001/api/v1",
+      "url": "http://localhost:5000/api/v1",
       "description": "Local development server"
     }
   ],
@@ -925,6 +925,3381 @@
         }
       }
     },
+    "/blogCategory": {
+      "get": {
+        "summary": "Get all BlogCategories",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/blogCategory"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new BlogCategory",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/blogCategoryInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "BlogCategory created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/getblogCategoryById/{id}": {
+      "get": {
+        "summary": "Get a BlogCategory by ID",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/updateblogCategory/{id}": {
+      "put": {
+        "summary": "Update a BlogCategory by ID",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/blogCategoryInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "BlogCategory updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/softDeleteblogCategory/{id}": {
+      "delete": {
+        "summary": "Soft delete a BlogCategory by ID",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a BlogCategory (active/inactive)",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/blogCategory"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/trash": {
+      "get": {
+        "summary": "Get all trashed BlogCategories",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed BlogCategories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/blogCategory"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted BlogCategory",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blogCategory/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a BlogCategory",
+        "tags": [
+          "BlogCategories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "BlogCategory ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BlogCategory permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "BlogCategory permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlogCategory id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BlogCategory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1blogCategory/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category": {
+      "post": {
+        "summary": "Create a new category",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "digitalscreen"
+                  },
+                  "slug": {
+                    "type": "string",
+                    "example": "digitalscreen"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "The amount of the element is the form"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Upload category image"
+                  },
+                  "isFeatured": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "photo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all categories",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/getcategoryById/{id}": {
+      "get": {
+        "summary": "Get category by ID",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/updatecategory/{id}": {
+      "put": {
+        "summary": "Update category by ID",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "slug": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "isFeatured": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/softDeletecategory/{id}": {
+      "delete": {
+        "summary": "Soft delete a category",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category soft deleted"
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle category status (active/inactive)",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Bearer token missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - You do not have access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1category/get/responses/401/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/trash": {
+      "get": {
+        "summary": "Get all trashed categories",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted category",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category restored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a category",
+        "tags": [
+          "Category"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category permanently deleted"
+          }
+        }
+      }
+    },
+    "/agencies": {
+      "get": {
+        "summary": "Get all Agencies",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agency"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new Agency",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agency created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/{id}": {
+      "get": {
+        "summary": "Get an Agency by ID",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an Agency by ID",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgencyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agency updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/softDelete/{id}": {
+      "delete": {
+        "summary": "Soft delete an Agency by ID",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/trash": {
+      "get": {
+        "summary": "Get all trashed Agencies",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed Agencies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agency"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted Agency",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/toggleStatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of an Agency (active/inactive)",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Agency"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agencies/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete an Agency",
+        "tags": [
+          "Agencies"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Agency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agency permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Agency permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Agency id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agency not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1agencies/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters": {
+      "get": {
+        "summary": "Get all NewsLetters",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NewsLetter"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new NewsLetter",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsLetterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "NewsLetter created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/getNewsLetterById/{id}": {
+      "get": {
+        "summary": "Get a NewsLetter by ID",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/updateNewsLetter/{id}": {
+      "put": {
+        "summary": "Update a NewsLetter by ID",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsLetterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "NewsLetter updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/softDeleteNewsLetter/{id}": {
+      "delete": {
+        "summary": "Soft delete a NewsLetter by ID",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a NewsLetter (active/inactive)",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/NewsLetter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/trash": {
+      "get": {
+        "summary": "Get all trashed NewsLetters",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed NewsLetters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/NewsLetter"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted NewsLetter",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newsletters/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a NewsLetter",
+        "tags": [
+          "NewsLetters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "NewsLetter ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NewsLetter permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "NewsLetter permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "NewsLetter id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NewsLetter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1newsletters/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages": {
+      "get": {
+        "summary": "Get all Pages",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Page"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "active": {
+                          "type": "integer"
+                        },
+                        "inactive": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new Page",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Page created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Page created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/getPageById/{id}": {
+      "get": {
+        "summary": "Get a Page by ID",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Page id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/updatePage/{id}": {
+      "put": {
+        "summary": "Update a Page by ID",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Page updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Page updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Page id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/softDeletePage/{id}": {
+      "delete": {
+        "summary": "Soft delete a Page by ID",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Page deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Page id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a Page (active/inactive)",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Page status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Page id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/trash": {
+      "get": {
+        "summary": "Get all trashed Pages",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed Pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Page"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted Page",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Page restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Page id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a Page",
+        "tags": [
+          "Pages"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Page ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Page permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Page id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1pages/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/configs": {
       "post": {
         "summary": "Create a new config",
@@ -1701,6 +5076,793 @@
         }
       }
     },
+    "/footerinfo": {
+      "post": {
+        "summary": "Create a new FooterInfo",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FooterInfoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "FooterInfo created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo created"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "FooterInfo with this logo already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all FooterInfo records",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of FooterInfo records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FooterInfo"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid input"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/getfooterinfoById/{id}": {
+      "get": {
+        "summary": "Get a FooterInfo by ID",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/updatefooterinfo/{id}": {
+      "put": {
+        "summary": "Update a FooterInfo by ID",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FooterInfoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "FooterInfo updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo updated"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/softDeletefooterinfo/{id}": {
+      "delete": {
+        "summary": "Soft delete a FooterInfo by ID",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/togglestatus/{id}": {
+      "patch": {
+        "summary": "Toggle the status of a FooterInfo (active/inactive)",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo status toggled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo status toggled"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FooterInfo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/trash": {
+      "get": {
+        "summary": "Get all trashed FooterInfo records",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trashed FooterInfo records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FooterInfo"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "active": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "inactive": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/restore/{id}": {
+      "patch": {
+        "summary": "Restore a soft-deleted FooterInfo",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo restored successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/footerinfo/permanentDelete/{id}": {
+      "delete": {
+        "summary": "Permanently delete a FooterInfo",
+        "tags": [
+          "FooterInfo"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "FooterInfo ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FooterInfo permanently deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "FooterInfo permanently deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "FooterInfo id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "FooterInfo not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1footerinfo/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/settings": {
       "get": {
         "summary": "Get all settings",
@@ -1830,6 +5992,267 @@
           }
         }
       }
+    },
+    "/banners": {
+      "get": {
+        "summary": "Get banner management data",
+        "tags": [
+          "Banner Management"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Banner management retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/paths/~1banners/put/requestBody/content/multipart~1form-data/schema"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Banner management retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update banner management data",
+        "tags": [
+          "Banner Management"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "homepage": {
+                    "type": "object",
+                    "properties": {
+                      "bannerOne": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "highlightedText": {
+                            "type": "string"
+                          },
+                          "image1": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead1": {
+                            "type": "string"
+                          },
+                          "subDescription1": {
+                            "type": "string"
+                          },
+                          "image2": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead2": {
+                            "type": "string"
+                          },
+                          "subDescription2": {
+                            "type": "string"
+                          },
+                          "image3": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "subHead3": {
+                            "type": "string"
+                          },
+                          "subDescription3": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "bannerTwo": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "features": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "icon": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "buttonName": {
+                            "type": "string"
+                          },
+                          "buttonUrl": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "aboutBanner": {
+                    "type": "object",
+                    "properties": {
+                      "submenu1": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "binary"
+                            }
+                          }
+                        }
+                      },
+                      "submenu2": {
+                        "type": "object",
+                        "properties": {
+                          "backgroundImage": {
+                            "type": "string",
+                            "format": "binary"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "binary"
+                            }
+                          }
+                        }
+                      },
+                      "submenu3": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "smallBoxes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Banner management updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1banners/get/responses/200/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1904,6 +6327,334 @@
         "required": [
           "question",
           "answer"
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "digitalscreen"
+          },
+          "slug": {
+            "type": "string",
+            "example": "digitalscreen"
+          },
+          "description": {
+            "type": "string",
+            "example": "The amount of the element is the form"
+          },
+          "photo": {
+            "type": "string",
+            "example": "uploads/634883ce21e5949b7c2b7bcf3f22665e"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isFeatured": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-20T08:09:14.217Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-22T07:32:27.140Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "description",
+          "isFeatured",
+          "photo"
+        ]
+      },
+      "CategoryInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "string",
+            "format": "binary"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "description",
+          "photo"
+        ]
+      },
+      "Agency": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "agencyName": {
+            "type": "string"
+          },
+          "agencyLogo": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "yourEmail": {
+            "type": "string"
+          },
+          "yourPhone": {
+            "type": "string"
+          },
+          "companyEmail": {
+            "type": "string"
+          },
+          "companyPhone": {
+            "type": "string"
+          },
+          "companyRegistrationNumberGST": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "uploadIdProof": {
+            "type": "string"
+          },
+          "uploadBusinessProof": {
+            "type": "string"
+          },
+          "agencyAddress": {
+            "type": "string"
+          },
+          "agencyLocation": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "pincode": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "agencyName",
+          "name",
+          "yourEmail",
+          "yourPhone",
+          "password"
+        ]
+      },
+      "AgencyInput": {
+        "type": "object",
+        "properties": {
+          "agencyName": {
+            "type": "string"
+          },
+          "agencyLogo": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "photo": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "yourEmail": {
+            "type": "string"
+          },
+          "yourPhone": {
+            "type": "string"
+          },
+          "companyEmail": {
+            "type": "string"
+          },
+          "companyPhone": {
+            "type": "string"
+          },
+          "companyRegistrationNumberGST": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "uploadIdProof": {
+            "type": "string"
+          },
+          "uploadBusinessProof": {
+            "type": "string"
+          },
+          "agencyAddress": {
+            "type": "string"
+          },
+          "agencyLocation": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "pincode": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "agencyName",
+          "name",
+          "yourEmail",
+          "yourPhone",
+          "password"
+        ]
+      },
+      "FooterInfo": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68d0d79c088e29730b6f7193"
+          },
+          "logo": {
+            "type": "string",
+            "example": "logo.png"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main Street, Bangalore"
+          },
+          "email": {
+            "type": "string",
+            "example": "support@bookadzone.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91-9876543210"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "logo",
+          "address",
+          "email",
+          "phone"
+        ]
+      },
+      "FooterInfoInput": {
+        "type": "object",
+        "properties": {
+          "logo": {
+            "type": "string",
+            "format": "binary"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main Street, Bangalore"
+          },
+          "email": {
+            "type": "string",
+            "example": "support@bookadzone.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+91-9876543210"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "logo",
+          "address",
+          "email",
+          "phone"
         ]
       },
       "Config": {
@@ -2187,6 +6938,268 @@
             "example": "Settings retrieved successfully"
           }
         }
+      },
+      "blogCategory": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "name": {
+            "type": "string",
+            "example": "Technology"
+          },
+          "slug": {
+            "type": "string",
+            "example": "technology"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "blogCategoryInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Technology"
+          },
+          "slug": {
+            "type": "string",
+            "example": "technology"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "NewsLetter": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "name": {
+            "type": "string",
+            "example": "This API manages NewsLetters for the Bookadzone platform."
+          },
+          "slug": {
+            "type": "string",
+            "example": "This API manages NewsLetters for the Bookadzone platform."
+          },
+          "template": {
+            "type": "string",
+            "example": "This API manages NewsLetters for the Bookadzone platform."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "template"
+        ]
+      },
+      "NewsLetterInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "This API manages NEWSLETTERs for the Bookadzone platform."
+          },
+          "slug": {
+            "type": "string",
+            "example": "This API manages NEWSLETTERs for the Bookadzone platform."
+          },
+          "template": {
+            "type": "string",
+            "example": "This API manages NEWSLETTERs for the Bookadzone platform."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "template"
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "68ad430b8089095867639823"
+          },
+          "title": {
+            "type": "string",
+            "example": "Test Page Title"
+          },
+          "name": {
+            "type": "string",
+            "example": "Test Page Name"
+          },
+          "slug": {
+            "type": "string",
+            "example": "test-page-slug"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "link",
+              "template"
+            ],
+            "example": "template"
+          },
+          "description": {
+            "type": "string",
+            "example": "This is a test page description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-09T12:00:00Z"
+          }
+        },
+        "required": [
+          "title",
+          "name",
+          "slug",
+          "type"
+        ]
+      },
+      "PageInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Test Page Title"
+          },
+          "name": {
+            "type": "string",
+            "example": "Test Page Name"
+          },
+          "slug": {
+            "type": "string",
+            "example": "test-page-slug"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "link",
+              "template"
+            ],
+            "example": "template"
+          },
+          "description": {
+            "type": "string",
+            "example": "This is a test page description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "title",
+          "name",
+          "slug",
+          "type"
+        ]
       },
       "Error": {
         "type": "object",

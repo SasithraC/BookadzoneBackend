@@ -52,13 +52,16 @@ const mockSettings = {
 } as ISettings;
 
 describe('settingsService', () => {
+  let consoleSpy: jest.SpyInstance;
+
   beforeAll(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {
-    (console.error as jest.Mock).mockRestore();
+    consoleSpy.mockRestore();
   });
+
   afterEach(() => {
     jest.clearAllMocks();
   });

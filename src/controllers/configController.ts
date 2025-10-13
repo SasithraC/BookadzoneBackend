@@ -22,7 +22,18 @@ class ConfigController {
       const limit = parseInt(req.query.limit as string) || 10;
       const filter = req.query.status as string | undefined;
       const result = await configService.getAllConfigs(page, limit, filter);
-      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, ...result });
+      res.status(200).json({ 
+        status: true, 
+        data: result.data,
+        meta: {
+          total: result.meta.total,
+          active: result.meta.active,
+          inactive: result.meta.inactive,
+          totalPages: result.meta.totalPages,
+          page: page,
+          limit: limit
+        }
+      });
     } catch (err: any) {
       next(err);
     }

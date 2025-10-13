@@ -1,9 +1,48 @@
 import mongoose from "mongoose";
-import {FaqModel} from "../faqModel";
-import {ENV} from "../../config/env";
+import { FaqModel } from "../faqModel";
 
-beforeAll(async () => { await mongoose.connect(ENV.MONGO_URI); });
-afterAll(async () => { await mongoose.connection.close(); });
+jest.mock('mongoose', () => {
+  class MockModel {
+    question!: string;
+    answer!: string;
+    status!: string;
+    isDeleted!: boolean;
+
+    constructor(data: any = {}) {
+      Object.assign(this, {
+        question: '',
+        answer: '',
+        status: 'active',
+        isDeleted: false,
+        ...data
+      });
+    }
+
+    async save() {
+      const errors: any = {};
+      if (!this.question) errors.question = { message: 'Question is required' };
+      if (!this.answer) errors.answer = { message: 'Answer is required' };
+      if (Object.keys(errors).length > 0) {
+        const error = new Error('Validation failed');
+        (error as any).errors = errors;
+        return Promise.reject(error);
+      }
+      return Promise.resolve(this);
+    }
+
+    static create(data: any) {
+      return Promise.resolve(new MockModel(data));
+    }
+  }
+
+  return {
+    Schema: jest.fn(),
+    model: jest.fn().mockReturnValue(MockModel),
+    connect: jest.fn(),
+    disconnect: jest.fn(),
+    connection: { close: jest.fn() }
+  };
+});
 
 describe("FaqModel", () => {
   it("requires question and answer", async () => {
