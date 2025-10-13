@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-import { CommonRepository } from "./common.repository";
+import { CommonRepository } from "../repositories/commonRepository";
 import { IRole, RoleModel } from "../models/roleModel";
 import { MenuModel as MainMenuModel, IMenu } from "../models/menuModel";
 import { SubmenuModel as SubMenuModel, ISubmenu } from "../models/subMenuModel";
@@ -66,18 +66,18 @@ class RoleRepository {
     };
   }
 
-  async getRoleById(id: string | Types.ObjectId): Promise<IRole | null> {
-    try {
-      const objectId = typeof id === 'string' ? new Types.ObjectId(id) : id;
-      const role = await RoleModel.findOne({ _id: objectId, isDeleted: false }).lean();
-      return role;
-    } catch (err: any) {
-      throw err;
-    }
+ async getRoleById(id: string | Types.ObjectId): Promise<IRole | null> {
+  try {
+    const objectId = typeof id === 'string' ? new Types.ObjectId(id) : id;
+    const role = await RoleModel.findOne({ _id: objectId, isDeleted: false }); 
+    return role;
+  } catch (err: any) {
+    throw err;
   }
+}
   async getRolePrivileges(roleId: string | Types.ObjectId): Promise<IRolePrivilge[]> {
     const objectId = typeof roleId === 'string' ? new Types.ObjectId(roleId) : roleId;
-    const privileges = await RolePrivilgeModel.find({ roleId: objectId, isDeleted: false, status: true }).lean();
+    const privileges = await RolePrivilgeModel.find({ roleId: objectId, isDeleted: false, status: true });
     return privileges;
   }
 
@@ -92,9 +92,9 @@ class RoleRepository {
   }
   // In RoleRepository (already present)
   async updateRole(id: string | Types.ObjectId, data: Partial<IRole>): Promise<IRole | null> {
-    const role = await RoleModel.findByIdAndUpdate(id, data, { new: true }).lean();
-    return role;
-  }
+  const role = await RoleModel.findByIdAndUpdate(id, data, { new: true });
+  return role;
+}
   async getAllTrashRoles(page = 1, limit = 10, filter?: string) {
     const query: any = { isDeleted: true };
     if (filter === "active") query.status = "active";
@@ -139,7 +139,7 @@ class RoleRepository {
 
   async getActiveMainMenus(): Promise<IMenu[]> {
     try {
-      const menus = await MainMenuModel.find({ status: 'active', isDeleted: false }).lean();
+      const menus = await MainMenuModel.find({ status: 'active', isDeleted: false });
       return menus as IMenu[];
     } catch (error) {
       return [];

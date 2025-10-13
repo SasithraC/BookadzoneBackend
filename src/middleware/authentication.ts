@@ -1,3 +1,4 @@
+// middleware/authenticate.ts
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { HTTP_STATUS_CODE, HTTP_RESPONSE } from "../utils/httpResponse";
@@ -9,8 +10,11 @@ interface DecodedToken extends JwtPayload {
   role: "super-admin" | "admin" | "user";
 }
 
-// No need for excluded paths as we'll explicitly add auth middleware where needed
-const excludedPaths: string[] = [];
+const excludedPaths: string[] = [
+  'auth/login',
+  'auth/forgotPassword',
+  'auth/resetPassword'
+];
 
 export const authenticate = async (
   req: Request,
@@ -18,23 +22,24 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Debug: Log request info
     console.log('Request path:', req.path);
     console.log('Incoming headers:', req.headers);
     console.log('Authorization header:', req.headers.authorization);
 
-    // PATH exclusion check
-    const apiPath = req.path.replace("/api/v1/", "");
-    console.log('API Path:', apiPath); // Debug log
+    // Normalize path by removing leading/trailing slashes and /api/v1/ prefix
+    let apiPath = req.path
+      .replace(/^\/+|\/+$/g, '') // Remove leading/trailing slashes
+      .replace(/^api\/v1\//, ''); // Remove /api/v1/ prefix
+    console.log('Normalized API Path:', apiPath);
 
     if (excludedPaths.includes(apiPath)) {
-      console.log('Path excluded from auth:', apiPath); // Debug log
+      console.log('Path excluded from auth:', apiPath);
       return next();
     }
 
     const authHeader = req.headers["authorization"];
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.log('Missing or invalid bearer token:', authHeader); // Debug log
+      console.log('Missing or invalid bearer token:', authHeader);
       res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
         status: HTTP_RESPONSE.FAIL,
         message: "Bearer token missing",
@@ -51,7 +56,6 @@ export const authenticate = async (
       return;
     }
 
-    // Dynamic User model requiring
     const User = require("../models/userModel").default;
 
     let decoded: DecodedToken;
@@ -74,15 +78,15 @@ export const authenticate = async (
       return;
     }
 
-    console.log('Decoded token:', decoded); // Debug log
+    console.log('Decoded token:', decoded);
 
     const userId = decoded._id || decoded.id;
-    console.log('User ID from token:', userId); // Debug log
+    console.log('User ID from token:', userId);
 
     let user;
     try {
-      user = await User.findOne({ _id: userId }).select("_id role status isDeleted email");
-      console.log('Found user:', user); // Debug log
+      user = await User.findOne({ _id: userId }).select("_id role status isDeleted email").lean();
+      console.log('Found user:', user);
     } catch (dbErr: any) {
       console.error("Authentication Error:", dbErr.message, dbErr.stack);
       res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR).json({
@@ -95,7 +99,7 @@ export const authenticate = async (
     }
 
     if (!user) {
-      console.log('No user found for ID:', userId); // Debug log
+      console.log('No user found for ID:', userId);
       res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
         status: HTTP_RESPONSE.FAIL,
         message: "User not found. Contact admin.",
@@ -119,23 +123,17 @@ export const authenticate = async (
       return;
     }
 
-    if (user.role !== "admin" && user.role !== "super-admin") {
-      res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
-        status: HTTP_RESPONSE.FAIL,
-        message: "User does not have sufficient permissions",
-      });
-      return;
-    }
+   
 
-    // Attach user info to request object
     req.user = {
-      id: user._id.toString(),
+      id: user._id,
       email: user.email,
       role: user.role
     };
 
     next();
   } catch (error: any) {
+    console.error('Authentication error:', error.message);
     res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
       status: HTTP_RESPONSE.FAIL,
       message: "Invalid or expired token",

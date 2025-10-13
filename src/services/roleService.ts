@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import ValidationHelper from "../utils/validationHelper";
-import { CommonService } from "./common.service";
+import { CommonService } from "../services/commonService";
 import RoleRepository from "../repositories/roleRepository";
 import { IRole, RoleModel } from "../models/roleModel";
 import { IRolePrivilge, RolePrivilgeModel } from "../models/rolePrivilegeModel";

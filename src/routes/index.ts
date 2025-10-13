@@ -10,7 +10,7 @@ import { registerRoutes as configureRoutes } from "./routeConfig";
 
 
 export default function registerRoutes(app: Express) {
-  app.use("/api/v1/auth",authenticate,authenticationRoutes);
+  app.use("/api/v1/auth",authenticationRoutes);
   app.use("/api/v1/faqs", authenticate,authenticate,faqRoutes);
   app.use("/api/v1/footerinfo", authenticate,footerInfoRoutes);
   app.use("/api/v1/configs", authenticate,configRoutes);
