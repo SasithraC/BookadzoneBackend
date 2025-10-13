@@ -1,5 +1,9 @@
+import { Types } from "mongoose";
 
-type ValidationResult = { field: string; message: string };
+interface ValidationResult {
+  field: string;
+  message: string;
+}
 
 class ValidationHelper {
   static isRequired(value: any, field: string): ValidationResult | null {
@@ -8,12 +12,6 @@ class ValidationHelper {
     }
     return null;
   }
-  static isNumber(value: any, field: string): ValidationResult | null {
-      if (typeof value !== "number" || isNaN(value)) {
-        return { field, message: `${field} must be a numeric value` };
-      }
-      return null;
-    }
 
   static isNonEmptyString(value: string, field: string): ValidationResult | null {
     if (typeof value !== "string" || value.trim() === "") {
@@ -70,6 +68,27 @@ class ValidationHelper {
       if (!emailRegex.test(value)) {
         return { field, message: `${field} must be a valid email address` };
       }
+    }
+    return null;
+  }
+
+  static isNumber(value: any, field: string): ValidationResult | null {
+    if (typeof value !== "number" || isNaN(value)) {
+      return { field, message: `${field} must be a numeric value` };
+    }
+    return null;
+  }
+
+  static isNonEmptyArray(value: any, field: string): ValidationResult | null {
+    if (!Array.isArray(value) || value.length === 0) {
+      return { field, message: `${field} must be a non-empty array` };
+    }
+    return null;
+  }
+
+  static isValidArrayOfStrings(value: any, field: string): ValidationResult | null {
+    if (!Array.isArray(value) || !value.every(item => typeof item === "string" && item.trim() !== "")) {
+      return { field, message: `${field} must be an array of non-empty strings` };
     }
     return null;
   }

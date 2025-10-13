@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const roleController_1 = require("../controllers/roleController");
+const router = (0, express_1.Router)();
+router.get("/createprivilegetable", (req, res, next) => roleController_1.roleController.createPrivilegeTable(req, res, next));
+router.post("/", (req, res, next) => roleController_1.roleController.createRole(req, res, next));
+router.get("/listuserrole", (req, res, next) => roleController_1.roleController.getAllRoles(req, res, next));
+router.patch('/togglestatus/:id', (req, res, next) => roleController_1.roleController.toggleRoleStatus(req, res, next));
+router.delete("/softDeleteuserrole/:id", (req, res, next) => roleController_1.roleController.softDeleteRole(req, res, next));
+router.put("/updateuserrole/:id", (req, res, next) => roleController_1.roleController.updateRole(req, res, next));
+router.get("/getuserroleById/:id", (req, res, next) => roleController_1.roleController.getRoleById(req, res, next));
+exports.default = router;

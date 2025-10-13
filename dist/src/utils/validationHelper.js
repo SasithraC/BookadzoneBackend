@@ -7,12 +7,6 @@ class ValidationHelper {
         }
         return null;
     }
-    static isNumber(value, field) {
-        if (typeof value !== "number" || isNaN(value)) {
-            return { field, message: `${field} must be a numeric value` };
-        }
-        return null;
-    }
     static isNonEmptyString(value, field) {
         if (typeof value !== "string" || value.trim() === "") {
             return { field, message: `${field} must be a non-empty string` };
@@ -61,6 +55,24 @@ class ValidationHelper {
             if (!emailRegex.test(value)) {
                 return { field, message: `${field} must be a valid email address` };
             }
+        }
+        return null;
+    }
+    static isNumber(value, field) {
+        if (typeof value !== "number" || isNaN(value)) {
+            return { field, message: `${field} must be a numeric value` };
+        }
+        return null;
+    }
+    static isNonEmptyArray(value, field) {
+        if (!Array.isArray(value) || value.length === 0) {
+            return { field, message: `${field} must be a non-empty array` };
+        }
+        return null;
+    }
+    static isValidArrayOfStrings(value, field) {
+        if (!Array.isArray(value) || !value.every(item => typeof item === "string" && item.trim() !== "")) {
+            return { field, message: `${field} must be an array of non-empty strings` };
         }
         return null;
     }

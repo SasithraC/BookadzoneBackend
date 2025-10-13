@@ -1,7 +1,30 @@
 // services/authenticationService.ts
 import authenticationRepository, { IAuthLoginInput } from "../repositories/authenticationRepository";
 import ValidationHelper from "../utils/validationHelper";
+import type { StringValue } from "ms";
 
+interface IMenuItem {
+  name: string;
+  slug: string;
+  icon: string;
+  path?: string;
+  sequenceOrder: number;
+  children?: ISubmenuItem[];
+  special?: boolean;
+}
+
+interface ISubmenuItem {
+  name: string;
+  slug: string;
+  path: string;
+}
+
+interface IUser {
+  _id: string;
+  email: string;
+  role: string;
+  status: string;
+}
 
 class AuthenticationService {
   private validateLoginData(data: IAuthLoginInput): void {
@@ -19,13 +42,22 @@ class AuthenticationService {
     }
   }
 
-  async authLogin(data: IAuthLoginInput): Promise<any> {
+  async authLogin(data: IAuthLoginInput): Promise<{
+    token: string;
+    data: Partial<IUser>;
+    expiresIn: StringValue;
+    menus: IMenuItem[];
+  }> {
     this.validateLoginData(data);
     return await authenticationRepository.authLogin(data);
   }
 
-  async refreshToken(token: string): Promise<any> {
-    // Validate and decode token
+  async refreshToken(token: string): Promise<{
+    token: string;
+    data: Partial<IUser>;
+    expiresIn: StringValue;
+    menus: IMenuItem[];
+  }> {
     return await authenticationRepository.refreshToken(token);
   }
 }

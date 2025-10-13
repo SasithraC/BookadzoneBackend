@@ -6,6 +6,6 @@ const router: Router = Router();
 
 
 router.post("/login", (req, res, next) => authenticationController.authLogin(req, res, next));
-router.post("/refresh", (req, res, next) => authenticationController.refreshToken(req, res, next));
+router.get("/refresh", (req, res, next) => authenticationController.refreshToken(req, res, next));
 
 export default router;

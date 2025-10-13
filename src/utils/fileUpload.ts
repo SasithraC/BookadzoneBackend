@@ -20,16 +20,13 @@ interface MulterFile {
 type MulterCallback = (error: Error | null, destination: string) => void;
 
 export const destination = (req: MulterRequest, file: MulterFile, cb: MulterCallback): void => {
-  try {
-    console.log('destination: managementName:', req.managementName); // Debug log
+  try {  
     const managementName = req.managementName || 'default';
     const sanitizedManagementName = managementName.replace(/[^a-zA-Z0-9-_]/g, '');
-    const folderPath = path.join('uploads', sanitizedManagementName, 'logo'); // Nested structure: uploads/{managementName}/logo/
-    fs.mkdirSync(folderPath, { recursive: true });
-    console.log(`[MULTER] Saving file ${file.originalname} to: ${folderPath}`);
+    const folderPath = path.join('uploads', sanitizedManagementName, 'logo'); 
+    fs.mkdirSync(folderPath, { recursive: true }); 
     cb(null, folderPath);
-  } catch (err) {
-    console.error('[MULTER] Error creating upload folder:', err);
+  } catch (err) {    
     cb(err as Error, '');
   }
 };
@@ -38,8 +35,7 @@ export const filename = (req: MulterRequest, file: MulterFile, cb: (error: Error
   const timestamp = Date.now();
   const randomNum = Math.floor(Math.random() * 99999);
   const ext = path.extname(file.originalname);
-  const newFilename = `${timestamp}_${randomNum}${ext}`;
-  console.log(`[MULTER] Saving file as: ${newFilename}`);
+  const newFilename = `${timestamp}_${randomNum}${ext}`; 
   cb(null, newFilename);
 };
 
@@ -51,8 +47,7 @@ export const storage = multer.diskStorage({
 export const fileFilterFunc = (req: MulterRequest, file: MulterFile, cb: multer.FileFilterCallback): void => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
   if (!allowedTypes.includes(file.mimetype)) {
-    const error = new Error('Only jpg, png, webp, and pdf files are allowed');
-    console.log(`[MULTER] Rejected file type: ${file.mimetype}`);
+    const error = new Error('Only jpg, png, webp, and pdf files are allowed');   
     return cb(null, false);
   }
   cb(null, true);

@@ -25,7 +25,6 @@ class AuthenticationService {
         return await authenticationRepository_1.default.authLogin(data);
     }
     async refreshToken(token) {
-        // Validate and decode token
         return await authenticationRepository_1.default.refreshToken(token);
     }
 }

@@ -14,6 +14,8 @@ const excludedPaths = [
 ];
 const authenticate = async (req, res, next) => {
     try {
+        // Debug: Log all incoming headers
+        console.log('Incoming headers:', req.headers);
         // PATH exclusion check
         const apiPath = req.path.replace("/api/v1/", "");
         if (excludedPaths.includes(apiPath)) {
@@ -85,13 +87,13 @@ const authenticate = async (req, res, next) => {
                 });
                 return;
             }
-            if (user.role !== "admin" && user.role !== "super-admin") {
-                res.status(httpResponse_1.HTTP_STATUS_CODE.FORBIDDEN).json({
-                    status: httpResponse_1.HTTP_RESPONSE.FAIL,
-                    message: "User does not have sufficient permissions",
-                });
-                return;
-            }
+            // if (user.role !== "admin" && user.role !== "super-admin") {
+            //   res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
+            //     status: HTTP_RESPONSE.FAIL,
+            //     message: "User does not have sufficient permissions",
+            //   });
+            //   return;
+            // }
             // Attach info to request object
             req.id = user._id;
             req.email = decoded.email;

@@ -9,11 +9,12 @@ const faqRoutes_1 = __importDefault(require("./faqRoutes"));
 const footerInfoRoutes_1 = __importDefault(require("./footerInfoRoutes"));
 const configRoutes_1 = __importDefault(require("./configRoutes"));
 const settingsRoutes_1 = __importDefault(require("./settingsRoutes"));
-const authentication_1 = require("../middleware/authentication");
+const useroleRoutes_1 = __importDefault(require("./useroleRoutes"));
 function registerRoutes(app) {
     app.use("/api/v1/auth", authenticationRoutes_1.default);
-    app.use("/api/v1/faqs", authentication_1.authenticate, faqRoutes_1.default);
-    app.use("/api/v1/footerinfo", authentication_1.authenticate, footerInfoRoutes_1.default);
-    app.use("/api/v1/configs", authentication_1.authenticate, configRoutes_1.default);
-    app.use("/api/v1/settings", authentication_1.authenticate, settingsRoutes_1.default);
+    app.use("/api/v1/faqs", faqRoutes_1.default);
+    app.use("/api/v1/footerinfo", footerInfoRoutes_1.default);
+    app.use("/api/v1/configs", configRoutes_1.default);
+    app.use("/api/v1/settings", settingsRoutes_1.default);
+    app.use("/api/v1/userrole", useroleRoutes_1.default);
 }

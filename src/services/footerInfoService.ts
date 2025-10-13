@@ -9,8 +9,6 @@ class FooterInfoService {
   private commonService = new CommonService<IFooterInfo>(FooterInfoModel);
 
   private validateFooterInfoData(data: Partial<IFooterInfo>, file?: Express.Multer.File, isUpdate: boolean = false): void {
-    console.log(`validateFooterInfoData: file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
-    console.log(`validateFooterInfoData: isUpdate: ${isUpdate}, data:`, data);
 
     const rules = [
       !isUpdate
@@ -37,15 +35,12 @@ class FooterInfoService {
 
     const errors = ValidationHelper.validate(rules);
     if (errors.length > 0) {
-      console.log(`Validation errors in validateFooterInfoData:`, errors);
       throw new Error(errors.map(e => e.message).join(", "));
     }
   }
 
   async createFooterInfo(data: Partial<IFooterInfo>, file?: Express.Multer.File): Promise<IFooterInfo> {
-    console.log(`createFooterInfo: data:`, data, `file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
     if (!file) {
-      console.log(`createFooterInfo: No logo file provided`);
       throw new Error("Logo file is required for creation");
     }
 
@@ -64,14 +59,11 @@ class FooterInfoService {
       isDeleted: false,
     };
 
-    console.log(`createFooterInfo: Creating footer info with data:`, footerInfoData);
     const exists = await this.commonService.existsByField("logo", footerInfoData.logo);
     if (exists) {
-      console.log(`createFooterInfo: Logo already exists: ${footerInfoData.logo}`);
       throw new Error("Footer Info with this logo already exists");
     }
     const result = await footerInfoRepository.createFooterInfo(footerInfoData);
-    console.log(`createFooterInfo: Footer info created successfully:`, result);
     return result;
   }
 
@@ -86,7 +78,6 @@ class FooterInfoService {
   }
 
   async updateFooterInfo(id: string | Types.ObjectId, data: Partial<IFooterInfo>, file?: Express.Multer.File): Promise<IFooterInfo | null> {
-    console.log(`updateFooterInfo: id: ${id}, data:`, data, `file:`, file ? { filename: file.filename, size: file.size, mimetype: file.mimetype } : null);
     const error = ValidationHelper.isValidObjectId(id, "id");
     if (error) throw new Error(error.message);
     this.validateFooterInfoData(data, file, true);
@@ -95,7 +86,6 @@ class FooterInfoService {
       updateData.logo = file.filename;
     }
     const result = await footerInfoRepository.updateFooterInfo(id, updateData);
-    console.log(`updateFooterInfo: Footer info updated successfully:`, result);
     return result;
   }
 

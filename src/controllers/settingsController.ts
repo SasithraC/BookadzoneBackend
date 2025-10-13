@@ -28,21 +28,17 @@ class SettingsController {
         });
       }
 
-      // Handle file uploads
+
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const updateData = { ...req.body };
 
-      // Process uploaded files and construct proper URLs
+  
       if (files) {
         if (files.siteLogo && files.siteLogo[0]) {
-          const file = files.siteLogo[0];
-          // file.path is already relative (e.g., "uploads/settings/siteLogo/filename.jpg")
-          // Convert backslashes to forward slashes for URL consistency
+          const file = files.siteLogo[0];       
           const fileUrl = file.path.replace(/\\/g, '/');
           
-          console.log('Site Logo uploaded:', fileUrl);
-          
-          // Parse general data if it exists
+    
           if (updateData.general && typeof updateData.general === 'string') {
             const generalData = JSON.parse(updateData.general);
             generalData.siteLogo = fileUrl;
@@ -55,14 +51,11 @@ class SettingsController {
         }
 
         if (files.favicon && files.favicon[0]) {
-          const file = files.favicon[0];
-          // file.path is already relative (e.g., "uploads/settings/favicon/filename.jpg")
-          // Convert backslashes to forward slashes for URL consistency
+          const file = files.favicon[0];      
           const fileUrl = file.path.replace(/\\/g, '/');
           
-          console.log('Favicon uploaded:', fileUrl);
-          
-          // Parse general data if it exists
+       
+       
           if (updateData.general && typeof updateData.general === 'string') {
             const generalData = JSON.parse(updateData.general);
             generalData.favicon = fileUrl;
@@ -75,12 +68,12 @@ class SettingsController {
         }
       }
 
-      // Parse general data if it's a string (from FormData)
+  
       if (updateData.general && typeof updateData.general === 'string') {
         try {
           updateData.general = JSON.parse(updateData.general);
         } catch (parseError) {
-          console.error('Error parsing general data:', parseError);
+      
           return res.status(400).json({
             status: "fail",
             message: "Invalid general data format",
@@ -88,7 +81,6 @@ class SettingsController {
         }
       }
 
-      console.log('Final update data:', JSON.stringify(updateData, null, 2));
 
       const updated = await settingsService.updateSettings(updateData);
       res.status(200).json({
@@ -97,7 +89,7 @@ class SettingsController {
         data: updated,
       });
     } catch (err: any) {
-      console.error('Controller - updateSettings error:', err);
+    
       if (err.name === 'ValidationError') {
         return res.status(400).json({
           status: "fail",

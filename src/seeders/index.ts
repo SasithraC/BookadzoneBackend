@@ -4,6 +4,10 @@ import seedFaqs from "./faqSeeder";
 import seedConfigs from "./configSeeder";
 import seedSettings from "./settingsSeeder";
 
+
+
+import seedUser from "./userSeeder";
+
 const seedAll = async (): Promise<void> => {
   try {
     if (!ENV.MONGO_URI) {
@@ -15,6 +19,8 @@ const seedAll = async (): Promise<void> => {
   await seedFaqs();
   await seedConfigs();
   await seedSettings();
+  await seedUser();
+
     console.log("All seeders executed successfully");
     await mongoose.connection.close();
   } catch (error) {

@@ -37,7 +37,8 @@ const mongoose_1 = __importStar(require("mongoose"));
 const userSchema = new mongoose_1.Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ["super-admin", "admin"], default: "super-admin" },
+    roleId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Role", required: true },
+    rolePrivilegeIds: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "RolePrivilege" }],
     status: { type: String, enum: ["active", "inactive"], default: "active" },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });

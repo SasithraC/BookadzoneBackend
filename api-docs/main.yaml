@@ -81,7 +81,7 @@ components:
     FaqInput:
       $ref: './faqs.yaml#/components/schemas/FaqInput'
 
-      FooterInfo:
+    FooterInfo:
       $ref: './footerinfo.yaml#/components/schemas/FooterInfo'
     FooterInfoInput:
       $ref: './footerinfo.yaml#/components/schemas/FooterInfoInput'

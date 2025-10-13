@@ -12,8 +12,8 @@ class FooterInfoController {
       }
       let logoUrl = req.body.logo;
       if (req.file) {
-        logoUrl = path.join('uploads', 'footer', 'logo', req.file.filename).replace(/\\/g, '/'); // Full path
-        // Alternatively, use only filename: logoUrl = req.file.filename;
+        logoUrl = path.join('uploads', 'footer', 'logo', req.file.filename).replace(/\\/g, '/'); 
+       
       }
       const footerinfo = await footerInfoService.createFooterInfo({ ...req.body, logo: logoUrl }, req.file);
       res.status(201).json({ status: HTTP_RESPONSE.SUCCESS, message: 'Footer Info created', data: footerinfo });
