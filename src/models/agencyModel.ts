@@ -51,23 +51,17 @@ const agencySchema = new Schema<IAgency>({
   isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 
-// Add unique indexes for companyEmail and userId (only for non-deleted records)
-agencySchema.index(
-  { companyEmail: 1 }, 
-  { 
-    unique: true, 
-    sparse: true,
-    partialFilterExpression: { isDeleted: false, companyEmail: { $exists: true, $ne: "" } }
-  }
-);
+// Add compound indexes for unique constraints
+agencySchema.index({ companyEmail: 1, isDeleted: 1 }, { 
+  unique: true,
+  sparse: true,
+  partialFilterExpression: { isDeleted: false, companyEmail: { $exists: true, $ne: "" } }
+});
 
-agencySchema.index(
-  { userId: 1 }, 
-  { 
-    unique: true,
-    partialFilterExpression: { isDeleted: false }
-  }
-);
+agencySchema.index({ userId: 1, isDeleted: 1 }, { 
+  unique: true,
+  partialFilterExpression: { isDeleted: false }
+});
 
 const AgencyModel = mongoose.model<IAgency>("Agency", agencySchema);
 export default AgencyModel;

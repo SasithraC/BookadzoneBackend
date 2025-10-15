@@ -51,7 +51,7 @@ class ValidationHelper {
   }
 
   static isValidObjectId(value: any, field: string): ValidationResult | null {
-    if (!value || !/^[0-9a-fA-F]{24}$/.test(value)) {
+    if (!value || !(/^[0-9a-fA-F]{24}$/.test(String(value)))) {
       return { field, message: `Invalid ${field}` };
     }
     return null;

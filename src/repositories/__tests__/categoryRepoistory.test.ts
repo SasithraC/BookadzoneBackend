@@ -16,10 +16,13 @@ jest.mock("../../models/catrgoryModel", () => ({
 
 // Mocking CommonRepository
 jest.mock("../commonRepository", () => {
+  const mockGetStats = jest.fn().mockResolvedValue({ total: 100 });
+  const mockToggleStatus = jest.fn().mockResolvedValue({ status: "inactive" });
+
   return {
     CommonRepository: jest.fn().mockImplementation(() => ({
-      getStats: jest.fn().mockResolvedValue({ total: 100 }),
-      toggleStatus: jest.fn().mockResolvedValue({ status: "inactive" }),
+      getStats: mockGetStats,
+      toggleStatus: mockToggleStatus,
     })),
   };
 });
@@ -49,6 +52,13 @@ describe("CategoryRepository", () => {
   expect(result).toEqual(createMockCategory);
   expect(CategoryModel.create).toHaveBeenCalledWith(createMockCategory);
 });  it("should get all categories", async () => {
+    const mockCommonStats = { total: 100 };
+    
+    // Setup CommonRepository mock
+    const mockStats = jest.spyOn(repo["commonRepository"], "getStats");
+    mockStats.mockResolvedValue(mockCommonStats);
+
+    // Setup CategoryModel.find mock
     (CategoryModel.find as jest.Mock).mockReturnValue({
       skip: jest.fn().mockReturnThis(),
       limit: jest.fn().mockResolvedValue([mockCategory]),
@@ -57,6 +67,7 @@ describe("CategoryRepository", () => {
     const result = await repo.getCategory(1, 10);
     expect(result.data).toEqual([mockCategory]);
     expect(result.meta.totalPages).toBe(10);
+    expect(mockStats).toHaveBeenCalled();
   });
 
   it("should get category by ID", async () => {

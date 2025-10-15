@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import pageRepository from "../pageRepository";
 import { ENV } from "../../config/env";
 import { PageModel } from "../../models/pageModel";
+import { CommonRepository } from "../commonRepository";
 
 // Mock Mongoose Types
 jest.mock('mongoose', () => ({
@@ -42,7 +43,7 @@ jest.mock("../commonRepository", () => {
     CommonRepository: jest.fn().mockImplementation(() => ({
       getStats: jest.fn().mockResolvedValue({ total: 1, active: 1, inactive: 0 }),
       toggleStatus: jest.fn().mockImplementation((id) => {
-        return Promise.resolve({ id, status: "inactive" });
+        return Promise.resolve({ _id: id, status: "inactive" });
       })
     }))
   };
@@ -144,10 +145,18 @@ describe("PageRepository", () => {
 
   it("toggles status", async () => {
     const mockPage = { ...defaultMockPage, status: "active" };
-    const mockExec = jest.fn().mockResolvedValue({ ...mockPage, status: "inactive" });
-    (PageModel.findByIdAndUpdate as jest.Mock).mockImplementation(() => ({
-      exec: mockExec
+    const mockToggledPage = { ...mockPage, status: "inactive" };
+
+    // Mock findById for initial check
+    (PageModel.findById as jest.Mock).mockImplementation(() => ({
+      exec: jest.fn().mockResolvedValue(mockPage)
     }));
+
+    // Mock findByIdAndUpdate for final update
+    (PageModel.findByIdAndUpdate as jest.Mock).mockImplementation(() => ({
+      exec: jest.fn().mockResolvedValue(mockToggledPage)
+    }));
+
     const toggled = await pageRepository.toggleStatus(pageId);
     expect(toggled?.status).toBe("inactive");
   });
@@ -155,7 +164,8 @@ describe("PageRepository", () => {
   it("gets all pages", async () => {
     const mockPages = [defaultMockPage];
     const mockFindExec = jest.fn().mockResolvedValue(mockPages);
-    const mockStats = [{ total: 1, active: 1, inactive: 0 }];
+    const mockCountExec = jest.fn().mockResolvedValue(1);
+    const mockStats = { total: 1, active: 1, inactive: 0 };
     
     (PageModel.find as jest.Mock).mockImplementation(() => ({
       skip: jest.fn().mockReturnThis(),
@@ -163,8 +173,10 @@ describe("PageRepository", () => {
       exec: mockFindExec
     }));
     
-    (PageModel.aggregate as jest.Mock).mockResolvedValue(mockStats);
-
+    (PageModel.countDocuments as jest.Mock).mockImplementation(() => ({
+      exec: mockCountExec
+    }));
+    
     const result = await pageRepository.getAllPages(1, 10);
     expect(result.data).toEqual(mockPages);
     expect(result.meta.total).toBe(1);

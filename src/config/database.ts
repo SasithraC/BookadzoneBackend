@@ -23,13 +23,7 @@ class DatabaseConnection extends EventEmitter {
   }
 
   private setupMongooseOptions(): void {
-    mongoose.set('strictQuery', true);
-    
-    // Optimize Mongoose performance
-    mongoose.set('bufferCommands', false);
-    
-    // Add timeout to operations
-    mongoose.set('maxTimeMS', 10000);
+    // These options are now set in the connection options
   }
 
   private setupEventListeners(): void {
@@ -96,7 +90,8 @@ class DatabaseConnection extends EventEmitter {
         minPoolSize: 2,
         maxIdleTimeMS: 30000,
         connectTimeoutMS: 10000,
-        family: 4 // Force IPv4
+        family: 4, // Force IPv4
+        bufferCommands: false
       });
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);

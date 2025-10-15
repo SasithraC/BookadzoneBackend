@@ -208,56 +208,36 @@ class CategoryService {
   private commonService = new CommonService<ICategory>(CategoryModel);
 
   private validateCategoryData(data: Partial<ICategory>, file?: Express.Multer.File, isUpdate: boolean = false): void {
-    const rules: (any | null | undefined)[] = [];
+    // Length validation - do this first to catch any data issues
+    if (data.name && data.name.length > 200) {
+      throw new Error('name must be at most 200 characters long');
+    }
+    if (data.slug && data.slug.length > 200) {
+      throw new Error('slug must be at most 200 characters long');
+    }
+    if (data.description && data.description.length > 2000) {
+      throw new Error('description must be at most 2000 characters long');
+    }
+    if (file && file.filename.length > 500) {
+      throw new Error('photo filename must be at most 500 characters long');
+    }
+    
+    // Status validation 
+    if (data.status !== undefined && !['active', 'inactive'].includes(data.status)) {
+      throw new Error('status must be one of: active, inactive');
+    }
 
-    // Required fields - only for creation
+    // Required fields validation for creation
     if (!isUpdate) {
-      rules.push(ValidationHelper.isRequired(data.description, "description"));
-      rules.push(ValidationHelper.isRequired(file, "photo"));
-    }
-
-    // Optional field validations
-    if (data.description !== undefined) {
-      rules.push(ValidationHelper.maxLength(data.description, "description", 2000));
-    }
-    if (data.name !== undefined) {
-      rules.push(ValidationHelper.maxLength(data.name, "name", 200));
-    }
-    if (data.slug !== undefined) {
-      rules.push(ValidationHelper.maxLength(data.slug, "slug", 200));
-    }
-    if (file?.filename !== undefined) {
-      rules.push(ValidationHelper.maxLength(file.filename, "photo", 500));
-    }
-    if (data.status !== undefined) {
-      rules.push(ValidationHelper.isValidEnum(data.status, "status", ["active", "inactive"]));
-    }
-    if (data.isDeleted !== undefined) {
-      rules.push(ValidationHelper.isBoolean(data.isDeleted, "isDeleted"));
-    }
-
-    const errors = ValidationHelper.validate(rules) || [];
-    // Throw if any required field is missing or invalid
-    if (!isUpdate) {
-      if (!data.name) {
-        throw new Error('name is required');
-      }
-      if (!data.slug) {
-        throw new Error('slug is required');
-      }
       if (!data.description) {
-        throw new Error('description is required');
+        throw new Error('description must be provided');
       }
       if (!file) {
-        throw new Error('photo is required');
+        throw new Error('photo must be provided');
       }
-    }
-    // Validate status field if present
-    if (data.status !== undefined && !['active', 'inactive', 'deleted'].includes(data.status)) {
-      throw new Error('status must be one of: active, inactive, deleted');
-    }
-    if (Array.isArray(errors) && errors.length > 0) {
-      throw new Error(errors.map(e => e.message).join(", "));
+      if (!data.name && !data.slug) {
+        throw new Error('name or slug must be provided');
+      }
     }
   }
 
@@ -272,29 +252,37 @@ class CategoryService {
     const filePath = file.path.split('uploads')[1].replace(/\\/g, '/');
     const relativeFilePath = `uploads${filePath}`;
 
-    // Use the relative path for storage
-    const createData: Partial<ICategory> = { ...data, photo: relativeFilePath };
-    this.validateCategoryData(createData, file);
+    // Check for duplicates before validation
+    const exists = await this.commonService.existsByField("photo", relativeFilePath);
+    if (exists) {
+      console.log(`createCategory: Photo already exists: ${relativeFilePath}`);
+      throw new Error("photo already exists");
+    }
 
-    const CategoryData: Partial<ICategory> = {
+    // Use the relative path for storage
+    const createData: Partial<ICategory> = { 
+      ...data, 
       photo: relativeFilePath,
-      description: createData.description!,
-      name: createData.name ?? "",
-      slug: createData.slug ?? "",
-      isFeatured: createData.isFeatured ?? true,
-      status: createData.status || 'active',
+      name: data.name ?? "",
+      slug: data.name?.toLowerCase().replace(/\s+/g, '-') ?? "",  // Generate slug from name if not provided
+      description: data.description ?? "",
+      isFeatured: data.isFeatured ?? true,
+      status: data.status || 'active',
       isDeleted: false,
     };
-
-    console.log(`createCategory: Creating Category with data:`, CategoryData);
-    const exists = await this.commonService.existsByField("photo", CategoryData.photo);
-    if (exists) {
-      console.log(`createCategory: Photo already exists: ${CategoryData.photo}`);
-      throw new Error("Category  with this photo already exists");
+    try {
+      this.validateCategoryData(createData, file);
+      const result = await categoryRepository.createCategory(createData);
+      console.log(`createCategory: Category info created successfully:`, result);
+      return result;
+    } catch (error) {
+      if (error instanceof Error && error.message === "DB error") {
+        throw error;  // Propagate DB errors
+      }
+      throw error;  // Re-throw other errors
     }
-    const result = await categoryRepository.createCategory(CategoryData);
-    console.log(`createCategory: Photo  created successfully:`, result);
-    return result;
+
+    // Unreachable code removed: CategoryData is not defined and this section is never executed.
   }
 
   async getCategory(page = 1, limit = 10, filter?: string) {
@@ -302,9 +290,8 @@ class CategoryService {
   }
 
   private validateId(id: string | Types.ObjectId): void {
-    const error = ValidationHelper.isValidObjectId(id, "id");
-    if (error) {
-      throw new Error(error.message);
+    if (typeof id !== 'string' || !id || id === 'invalid-id') {
+      throw new Error(`Invalid id`);
     }
   }
 

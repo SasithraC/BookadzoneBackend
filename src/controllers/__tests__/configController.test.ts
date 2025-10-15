@@ -55,15 +55,30 @@ describe("ConfigController", () => {
 
   describe("getAllConfigs", () => {
     it("should return all configs", async () => {
-      (configService.getAllConfigs as any).mockResolvedValue({ data: [], total: 0 });
+      (configService.getAllConfigs as any).mockResolvedValue({ 
+        data: [], 
+        meta: { 
+          total: 0, 
+          active: 0, 
+          inactive: 0, 
+          totalPages: 0 
+        } 
+      });
       const req: any = { query: {} };
       const res = mockRes();
       await configController.getAllConfigs(req, res, mockNext);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        status: HTTP_RESPONSE.SUCCESS,
+        status: true,
         data: [],
-        total: 0,
+        meta: {
+          total: 0,
+          active: 0,
+          inactive: 0,
+          totalPages: 0,
+          page: 1,
+          limit: 10
+        }
       });
     });
   });

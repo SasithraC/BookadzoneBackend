@@ -1,4 +1,4 @@
-import multer from 'multer';
+const multer = require('multer');
 import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
@@ -119,7 +119,11 @@ const createThumbnail = async (filePath: string, mimetype: string): Promise<stri
   try {
     const filename = path.basename(filePath);
     const thumbnailFilename = `thumb_${filename}`;
-    const thumbnailPath = path.join('uploads', 'thumbnails', thumbnailFilename);
+    const managementName = path.dirname(filePath).split(path.sep).pop() || 'default';
+    const thumbnailPath = path.join('uploads', managementName, 'thumbnails', thumbnailFilename);
+    
+    // Ensure thumbnail directory exists
+    await mkdir(path.dirname(thumbnailPath), { recursive: true });
     
     await sharp(filePath)
       .resize(CONFIG.THUMBNAIL_SIZE, CONFIG.THUMBNAIL_SIZE, {
@@ -129,7 +133,7 @@ const createThumbnail = async (filePath: string, mimetype: string): Promise<stri
       .toFile(thumbnailPath);
     
     console.log(`Created thumbnail: ${thumbnailPath}`);
-    return thumbnailPath;
+    return thumbnailFilename; // Return only the filename, not the full path
   } catch (err) {
     console.error(`Error creating thumbnail:`, err);
     return '';
@@ -152,15 +156,22 @@ export const processUpload = async (req: MulterRequest, file: Express.Multer.Fil
     const filePath = file.path;
     const filename = path.basename(filePath);
 
+    // Ensure upload directories exist
+    const managementName = req.managementName || 'default';
+    const uploadPath = path.join('uploads', managementName);
+    const thumbnailPath = path.join(uploadPath, 'thumbnails');
+
+    await fs.promises.mkdir(uploadPath, { recursive: true });
+    await fs.promises.mkdir(thumbnailPath, { recursive: true });
+
     // For images, optimize and create thumbnail
     if (file.mimetype.startsWith('image/')) {
       // Optimize the image
       await optimizeImage(filePath, file.mimetype);
 
       // Create thumbnail
-      const thumbnailPath = await createThumbnail(filePath, file.mimetype);
-      const thumbnailFilename = path.basename(thumbnailPath);
-      return { filename, thumbnail: thumbnailFilename };
+      const thumb = await createThumbnail(filePath, file.mimetype);
+      return { filename, thumbnail: thumb };
     }
 
     return { filename };

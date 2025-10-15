@@ -14,7 +14,7 @@ class FooterInfoService {
 
     const rules = [
       !isUpdate && !data.logo
-        ? ValidationHelper.isRequired(file, "logo")
+        ? { field: 'logo', message: 'Logo file is required for creation' }
         : null,
       data.logo ? ValidationHelper.isNonEmptyString(data.logo, "logo") : null,
 
@@ -44,12 +44,12 @@ class FooterInfoService {
   async createFooterInfo(data: Partial<IFooterInfo>, file?: Express.Multer.File): Promise<IFooterInfo> {
     console.log(`createFooterInfo: data:`, data, `file:`, file ? { filename: file.filename, path: file.path, size: file.size, mimetype: file.mimetype } : null);
     
+    this.validateFooterInfoData(data, file);
+
     if (!data.logo) {
       console.log(`createFooterInfo: No logo path provided`);
       throw new Error("Logo file is required for creation");
     }
-
-    this.validateFooterInfoData(data, file);
 
     const footerInfoData: Partial<IFooterInfo> = {
       logo: data.logo, // Use the full path passed from controller

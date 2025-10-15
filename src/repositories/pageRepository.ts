@@ -19,19 +19,21 @@ class PagesRepository {
     if (filter === 'inactive') query.status = 'inactive';
 
     const skip = (page - 1) * limit;
-    const [data, stats] = await Promise.all([
+    const [data, count, stats] = await Promise.all([
       PageModel.find(query).skip(skip).limit(limit).exec(),
-      this.commonRepository.getStats(),
+      PageModel.countDocuments(query).exec(),
+      this.commonRepository.getStats()
     ]);
 
-    const totalPages = Math.ceil(stats.total / limit) || 1;
+    const totalPages = Math.ceil(count / limit) || 1;
     return {
       data,
       meta: {
-        ...stats,
+        total: count,
         totalPages,
         page,
-        limit
+        limit,
+        ...stats
       }
     };
   }
@@ -56,17 +58,16 @@ class PagesRepository {
   }
 
   async toggleStatus(id: string | Types.ObjectId): Promise<IPage | undefined> {
-    // Ensure id is a string for CommonRepository
-    let stringId: string;
-    if (typeof id === 'string') {
-      stringId = id;
-    } else if (id && id.toString) {
-      stringId = id.toString();
-    } else {
-      return undefined;
-    }
-    const result = await this.commonRepository.toggleStatus(stringId);
-    return result || undefined;
+    const stringId = typeof id === 'string' ? id : id.toString();
+    const page = await this.getPageById(stringId);
+    if (!page) return undefined;
+
+    const newStatus = page.status === 'active' ? 'inactive' : 'active';
+    return PageModel.findByIdAndUpdate(
+      stringId,
+      { status: newStatus },
+      { new: true }
+    ).exec();
   }
 
   async restorePage(id: string | Types.ObjectId): Promise<IPage | undefined> {

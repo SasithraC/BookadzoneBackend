@@ -14,6 +14,7 @@ jest.mock('mongoose', () => {
 
   const mSchema: any = jest.fn().mockImplementation((definition) => ({
     obj: definition,
+    index: jest.fn().mockReturnThis(),
   }));
   mSchema.Types = { ObjectId };
 

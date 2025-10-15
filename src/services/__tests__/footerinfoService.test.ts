@@ -13,7 +13,7 @@ describe("FooterService", () => {
   it("throws if description missing", async () => {
     await expect(
       footerInfoService.createFooterInfo({ isDeleted: false } as any, { filename: "logo.png" } as any)
-    ).rejects.toThrow(/description is required/);
+    ).rejects.toThrow("description is required");
   });
 
   it("throws on invalid status", async () => {

@@ -20,7 +20,7 @@ const config: Config.InitialOptions = {
     '^mongoose$': '<rootDir>/src/__mocks__/mongoose.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testTimeout: 30000,
+  testTimeout: 30000, // 30 seconds per test
   roots: ['<rootDir>/src'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   collectCoverage: true,
