@@ -1,65 +1,66 @@
+// authenticationRoutes.ts
 import { Router } from "express";
 import authenticationController from "../controllers/authenticationController";
 import { loginRateLimiter } from "../middleware/rateLimiter";
-import { validateCSRFToken } from "../middleware/csrf";
 import { validateRequest } from "../middleware/validation";
-import { loginSchema, resetPasswordSchema, forgotPasswordSchema, profileUpdateSchema, passwordChangeSchema } from "../validators/authSchemas";
+import {
+  loginSchema,
+  resetPasswordSchema,
+  forgotPasswordSchema,
+  profileUpdateSchema,
+  passwordChangeSchema,
+} from "../validators/authSchemas";
+import { authenticate } from "../middleware/authentication";
+import { validateCSRFToken } from "../middleware/csrf";
 
 const router: Router = Router();
 
-// Apply rate limiting and validation to login route
 router.post(
-    "/login",
-    loginRateLimiter,
-    validateRequest(loginSchema),
-    authenticationController.authLogin
-);
-
-// Apply CSRF protection and validation to token refresh
-router.post(
-    "/refresh",
-    validateCSRFToken,
-    authenticationController.refreshToken
-);
-
-// Apply rate limiting and validation to password reset routes
-router.post(
-    "/forgot-password",
-    loginRateLimiter,
-    validateRequest(forgotPasswordSchema),
-    authenticationController.forgotPassword
+  "/login",
+  loginRateLimiter,
+  validateRequest(loginSchema),
+  authenticationController.authLogin
 );
 
 router.post(
-    "/reset-password",
-    loginRateLimiter,
-    validateRequest(resetPasswordSchema),
-    authenticationController.resetPassword
+  "/forgot-password",
+  validateRequest(forgotPasswordSchema),
+  authenticationController.forgotPassword
 );
 
-// Profile management routes (protected by authentication)
-import { authenticate } from "../middleware/authentication";
+router.post(
+  "/reset-password",
+  validateRequest(resetPasswordSchema),
+  authenticationController.resetPassword
+);
+
+router.post(
+  "/refresh",
+  authenticate,
+  authenticationController.refreshToken
+);
 
 router.get(
-    "/me",
-    authenticate,
-    authenticationController.getCurrentUser
+  "/me",
+  authenticate,
+  validateCSRFToken,
+  authenticationController.getCurrentUser
 );
 
 router.put(
-    "/profile",
-    authenticate,
-    validateCSRFToken,
-    validateRequest(profileUpdateSchema),
-    authenticationController.updateProfile
+  "/update-profile",
+  authenticate,
+  validateCSRFToken,
+  validateRequest(profileUpdateSchema),
+  authenticationController.updateProfile
 );
 
-router.put(
-    "/change-password",
-    authenticate,
-    validateCSRFToken,
-    validateRequest(passwordChangeSchema),
-    authenticationController.changePassword
+router.post(
+  "/change-password",
+  authenticate,
+  validateCSRFToken,
+  validateRequest(passwordChangeSchema),
+  authenticationController.changePassword
 );
 
 export default router;

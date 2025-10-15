@@ -5,6 +5,10 @@ import seedConfigs from "./configSeeder";
 import seedSettings from "./settingsSeeder"
 import seedBlogCategories from "./blogCategorySeeder";
 
+
+
+import seedUser from "./userSeeder";
+
 import seedCategory from "./categorySeeder";
 import seedBannerManagement from "./bannerSeeder";
 import seedPages from "./pageSeeder";
@@ -23,6 +27,8 @@ const seedAll = async (): Promise<void> => {
   await seedFaqs();
   await seedConfigs();
   await seedSettings();
+  await seedUser();
+
   await seedBlogCategories();
   await seedBannerManagement();
   await seedPages();

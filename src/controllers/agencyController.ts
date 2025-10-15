@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import agencyService from "../services/agencyService";
 import { HTTP_RESPONSE } from "../utils/httpResponse";
+import { ILeanAgency } from "../models/agencyModel";
 import authenticationService from "../services/authenticationService";
 
 class AgencyController {
@@ -13,8 +14,8 @@ class AgencyController {
       if (data.yourEmail) {
         const emailExists = await authenticationService.checkEmailExists(data.yourEmail);
         if (emailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
             message: "Personal email already exists",
             code: 11000,
             keyPattern: { yourEmail: 1 }
@@ -26,8 +27,8 @@ class AgencyController {
       if (data.companyEmail) {
         const companyEmailExists = await agencyService.checkCompanyEmailExists(data.companyEmail);
         if (companyEmailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
             message: "Company email already exists",
             code: 11000,
             keyPattern: { companyEmail: 1 }
@@ -44,10 +45,10 @@ class AgencyController {
         status: "active",
         isDeleted: false,
       };
-      
+
       const userId = data.userId || null;
       const user = await authenticationService.createOrUpdateUser(userId, userPayload);
-      
+
       if (!user || !user._id) {
         console.error('User creation/update failed or userId missing:', user);
         res.status(400).json({ status: false, message: "User not found. Contact admin." });
@@ -111,7 +112,7 @@ class AgencyController {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Agency id is required" });
         return;
       }
-      
+
       const data = { ...req.body };
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -125,13 +126,13 @@ class AgencyController {
       // Check if personal email is being changed and if new email already exists
       if (data.yourEmail && data.yourEmail !== currentAgency.yourEmail) {
         const emailExists = await authenticationService.checkEmailExists(
-          data.yourEmail, 
+          data.yourEmail,
           currentAgency.userId?.toString()
         );
         if (emailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
-            message: "Personal email already exists" 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
+            message: "Personal email already exists"
           });
           return;
         }
@@ -140,13 +141,13 @@ class AgencyController {
       // Check if company email is being changed and if new email already exists
       if (data.companyEmail && data.companyEmail !== currentAgency.companyEmail) {
         const companyEmailExists = await agencyService.checkCompanyEmailExists(
-          data.companyEmail, 
+          data.companyEmail,
           id
         );
         if (companyEmailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
-            message: "Company email already exists" 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
+            message: "Company email already exists"
           });
           return;
         }
@@ -287,26 +288,24 @@ class AgencyController {
         return;
       }
 
-      // Get current agency and user if we're in edit mode
-      let currentAgency = null;
-      let currentUserId = null;
+      let currentAgency: ILeanAgency | null = null;
+      let currentUserId: string | null = null;
       
       if (currentId) {
         currentAgency = await agencyService.getAgencyById(currentId);
-        console.log('Current agency:', currentAgency); // Debug log
+        console.log('Current agency:', currentAgency);
         
         if (currentAgency?.userId) {
-          const currentUser = await authenticationService.getUserById(currentAgency.userId.toString());
-          console.log('Found user:', currentUser); // Debug log
+          const currentUser = await authenticationService.getUserById(currentAgency.userId);
+          console.log('Found user:', currentUser);
           
-          if (currentUser && currentUser._id) {
-            currentUserId = currentUser._id.toString();
-            console.log('Current user ID for email check:', currentUserId); // Debug log
-          }
+          // if (currentUser && currentUser._id) {
+          //   currentUserId = currentUser._id;
+          //   console.log('Current user ID for email check:', currentUserId);
+          // }
         }
       }
 
-      // Check both emails in parallel
       const [yourEmailExists, companyEmailExists] = await Promise.all([
         authenticationService.checkEmailExists(yourEmail, currentUserId),
         agencyService.checkCompanyEmailExists(companyEmail, currentId)
@@ -314,10 +313,7 @@ class AgencyController {
 
       res.status(200).json({
         status: HTTP_RESPONSE.SUCCESS,
-        data: {
-          yourEmailExists,
-          companyEmailExists
-        }
+        data: { yourEmailExists, companyEmailExists }
       });
     } catch (err: any) {
       next(err);

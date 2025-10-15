@@ -36,7 +36,6 @@ class FooterInfoService {
 
     const errors = ValidationHelper.validate(rules);
     if (errors.length > 0) {
-      console.log(`Validation errors in validateFooterInfoData:`, errors);
       throw new Error(errors.map(e => e.message).join(", "));
     }
   }
@@ -68,12 +67,10 @@ class FooterInfoService {
     // Check if logo already exists
     const exists = await this.commonService.existsByField("logo", footerInfoData.logo);
     if (exists) {
-      console.log(`createFooterInfo: Logo already exists: ${footerInfoData.logo}`);
       throw new Error("Footer Info with this logo already exists");
     }
     
     const result = await footerInfoRepository.createFooterInfo(footerInfoData);
-    console.log(`createFooterInfo: Footer info created successfully:`, result);
     return result;
   }
 
@@ -101,7 +98,6 @@ class FooterInfoService {
     // No need to overwrite it here
     
     const result = await footerInfoRepository.updateFooterInfo(id, updateData);
-    console.log(`updateFooterInfo: Footer info updated successfully:`, result);
     return result;
   }
 
