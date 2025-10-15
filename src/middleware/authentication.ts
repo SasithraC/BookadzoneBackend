@@ -26,10 +26,9 @@ export const authenticate = async (
     console.log('Incoming headers:', req.headers);
     console.log('Authorization header:', req.headers.authorization);
 
-    // Normalize path by removing leading/trailing slashes and /api/v1/ prefix
     let apiPath = req.path
-      .replace(/^\/+|\/+$/g, '') // Remove leading/trailing slashes
-      .replace(/^api\/v1\//, ''); // Remove /api/v1/ prefix
+      .replace(/^\/+|\/+$/g, '')
+      .replace(/^api\/v1\//, '');
     console.log('Normalized API Path:', apiPath);
 
     if (excludedPaths.includes(apiPath)) {
@@ -63,19 +62,23 @@ export const authenticate = async (
       decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
     } catch (error: any) {
       console.error("JWT Verification Error:", error.message, error.stack);
-      res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
-        status: HTTP_RESPONSE.FAIL,
-        message: "Invalid or expired token",
-      });
-      return;
-    }
-
-    if (!decoded) {
-      res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
-        status: HTTP_RESPONSE.FAIL,
-        message: "Invalid or expired token",
-      });
-      return;
+      if (apiPath === 'auth/refresh') {
+        // Allow expired token for refresh
+        decoded = jwt.decode(token) as DecodedToken;
+        if (!decoded) {
+          res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
+            status: HTTP_RESPONSE.FAIL,
+            message: "Invalid token",
+          });
+          return;
+        }
+      } else {
+        res.status(HTTP_STATUS_CODE.FORBIDDEN).json({
+          status: HTTP_RESPONSE.FAIL,
+          message: "Invalid or expired token",
+        });
+        return;
+      }
     }
 
     console.log('Decoded token:', decoded);
@@ -122,8 +125,6 @@ export const authenticate = async (
       });
       return;
     }
-
-   
 
     req.user = {
       id: user._id,

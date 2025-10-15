@@ -1,3 +1,4 @@
+// authenticationRoutes.ts
 import { Router } from "express";
 import authenticationController from "../controllers/authenticationController";
 import { loginRateLimiter } from "../middleware/rateLimiter";
@@ -14,9 +15,6 @@ import { validateCSRFToken } from "../middleware/csrf";
 
 const router: Router = Router();
 
-/**
- * 🚪 PUBLIC ROUTES (No Auth / No CSRF)
- */
 router.post(
   "/login",
   loginRateLimiter,
@@ -36,12 +34,8 @@ router.post(
   authenticationController.resetPassword
 );
 
-/**
- * 🔐 PROTECTED ROUTES (Require Auth + CSRF)
- */
 router.post(
   "/refresh",
-  validateCSRFToken,
   authenticate,
   authenticationController.refreshToken
 );
