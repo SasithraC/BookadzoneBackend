@@ -117,6 +117,10 @@ class ConfigService {
     }
     return await configRepository.deleteConfigPermanently(id);
   }
+
+   async getAllPageConfig(): Promise<IConfig | null> {
+    return await configRepository.getAllPageConfig();
+  }
 }
 
 export default new ConfigService();

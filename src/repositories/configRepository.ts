@@ -1,4 +1,5 @@
 import { ConfigModel, IConfig } from "../models/configModel";
+import { PageModel } from "../models/pageModel";
 import { Types } from "mongoose";
 import { CommonRepository } from "./commonRepository";
 
@@ -40,22 +41,64 @@ class ConfigRepository {
     return await ConfigModel.findById(id);
   }
 
+ 
   async updateConfig(id: string | Types.ObjectId, data: Partial<IConfig>): Promise<IConfig | null> {
-    return await ConfigModel.findByIdAndUpdate(id, data, { new: true });
+    const stringId = typeof id === "string" ? id : id.toString();
+    const existingConfig = await ConfigModel.findById(stringId);
+    if (!existingConfig) return null;
+
+    if (existingConfig.slug === "pages" && data.configFields) {
+      // Find removed fields: fields in existing but not in new data
+      const existingValues = existingConfig.configFields.map(f => f.value);
+      const newValues = data.configFields.map(f => f.value);
+      const removedValues = existingValues.filter(val => !newValues.includes(val));
+
+      if (removedValues.length > 0) {
+        const inUse = await PageModel.find({ title: { $in: removedValues }, status: "active", isDeleted: false });
+        if (inUse.length > 0) {
+          throw new Error("Unable to remove field because it's already in use.");
+        }
+      }
+    }
+
+    return await ConfigModel.findByIdAndUpdate(stringId, data, { new: true });
   }
 
   async softDeleteConfig(id: string | Types.ObjectId): Promise<IConfig | null> {
+    const stringId = typeof id === "string" ? id : id.toString();
+    const config = await ConfigModel.findById(stringId);
+    if (!config) return null;
+
+    if (config.slug === "pages") {
+      const fieldValues = config.configFields.map(f => f.value.trim().toLowerCase());
+      const inUse = await PageModel.find({ title: { $in: fieldValues.map(f => new RegExp(`^${f.trim()}$`, "i")) }, status: "active", isDeleted: false });
+      if (inUse.length > 0) {
+        throw new Error("unable to delete because this  config is in use.");
+      }
+    }
+
     return await ConfigModel.findByIdAndUpdate(
-      id,
+      stringId,
       { isDeleted: true },
       { new: true }
     );
   }
-
-  async toggleStatus(id: string | Types.ObjectId): Promise<IConfig | null> {
+   async toggleStatus(id: string | Types.ObjectId): Promise<IConfig | null> {
     const stringId = typeof id === "string" ? id : id.toString();
+    const config = await ConfigModel.findById(stringId);
+    if (!config) return null;
+
+    if (config.slug === "pages") {
+      const fieldValues = config.configFields.map(f => f.value);
+      const inUse = await PageModel.find({ title: { $in: fieldValues }, status: "active", isDeleted: false });
+      if (inUse.length > 0) {
+        throw new Error("Unable to change status because this  config is in use.");
+      }
+    }
+
     return await this.commonRepository.toggleStatus(stringId);
   }
+
 
   async restoreConfig(id: string | Types.ObjectId): Promise<IConfig | null> {
     return await ConfigModel.findByIdAndUpdate(
@@ -92,6 +135,10 @@ class ConfigRepository {
         limit
       }
     };
+  }
+
+  async getAllPageConfig(): Promise<IConfig | null> {
+    return await ConfigModel.findOne({ slug: "pages", isDeleted: false, status: "active" });
   }
 }
 

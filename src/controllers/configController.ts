@@ -164,6 +164,21 @@ class ConfigController {
       next(err);
     }
   }
+
+
+  async getPageConfigController(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const config = await configService.getAllPageConfig();
+      if (!config) {
+        res.status(404).json({ status: HTTP_RESPONSE.FAIL, message: "Page config not found" });
+        return;
+      }
+      res.status(200).json({ status: HTTP_RESPONSE.SUCCESS, data: config.configFields });
+    } catch (err: any) {
+      next(err);
+    }
+  }
+
 }
 
 export default new ConfigController();
