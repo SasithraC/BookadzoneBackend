@@ -4,7 +4,8 @@
   "main": "dist/server.js",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "tsc",
+    "build": "tsc && npm run copy-api-docs",
+    "copy-api-docs": "cp -r api-docs dist/",
     "dev": "set NODE_ENV=development&& nodemon --config nodemon.json",
     "start": "node dist/src/server.js",
     "test": "jest",

@@ -35,8 +35,18 @@ app.use(
 );
 
 // Serve Swagger UI
-const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '../api-docs/bundled.yaml'), 'utf8')) as object;
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+let swaggerPath = path.join(__dirname, '../api-docs/bundled.yaml');
+if (!fs.existsSync(swaggerPath)) {
+  // Try the dist path
+  swaggerPath = path.join(__dirname, 'api-docs/bundled.yaml');
+}
+
+try {
+  const swaggerDocument = yaml.load(fs.readFileSync(swaggerPath, 'utf8')) as object;
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} catch (error) {
+  console.warn('Warning: Swagger documentation could not be loaded:', error);
+}
 
 // Register routes with prefixes
 registerRoutes(app);
