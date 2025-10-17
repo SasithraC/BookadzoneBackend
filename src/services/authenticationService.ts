@@ -1,5 +1,37 @@
 import authenticationRepository, { IAuthLoginInput } from "../repositories/authenticationRepository";
 import ValidationHelper from "../utils/validationHelper";
+import type { StringValue } from "ms";
+
+interface IMenuItem {
+  name: string;
+  slug: string;
+  icon: string;
+  path?: string;
+  sequenceOrder: number;
+  children?: ISubmenuItem[];
+  special?: boolean;
+}
+
+interface ISubmenuItem {
+  name: string;
+  slug: string;
+  path: string;
+}
+
+interface IUser {
+  _id: string;
+  email: string;
+  password?: string;
+  name: string;
+  roleId: string;
+  rolePrivilegeIds?: string[];
+  status: string;
+  isDeleted: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 import User from "../models/userModel";
 import { CustomError } from "../utils/customError";
 import { HTTP_STATUS_CODE } from "../utils/httpResponse";
@@ -36,20 +68,29 @@ class AuthenticationService {
     }
   }
 
-  async authLogin(data: IAuthLoginInput): Promise<any> {
+  async authLogin(data: IAuthLoginInput): Promise<{
+    token: string;
+    data: Partial<IUser>;
+    expiresIn: StringValue;
+    menus: IMenuItem[];
+  }> {
     this.validateLoginData(data);
     return await authenticationRepository.authLogin(data);
   }
 
-  async refreshToken(token: string): Promise<any> {
+  async refreshToken(token: string): Promise<{
+    token: string;
+    data: Partial<IUser>;
+    expiresIn: StringValue;
+    menus: IMenuItem[];
+  }> {
     return await authenticationRepository.refreshToken(token);
   }
 
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(email: string): Promise<boolean> {
     const user = await User.findOne({ email, isDeleted: false });
     if (!user) {
-      // Return success even if user not found to prevent email enumeration
-      return;
+      return false;
     }
 
     // Generate reset token
@@ -67,6 +108,7 @@ class AuthenticationService {
     // Send reset email
     try {
       await emailService.sendPasswordResetEmail(email, resetToken);
+      return true;
     } catch (error) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
@@ -103,12 +145,35 @@ class AuthenticationService {
 
   async createOrUpdateUser(
     userId: string | null,
-    data: { email: string; password: string; role: string; status: string; isDeleted: boolean }
+    data: { 
+      email: string; 
+      password?: string; // Make password optional for updates
+      name: string; 
+      roleId: string; 
+      status: string; 
+      isDeleted: boolean;
+      rolePrivilegeIds?: string[]; // Add optional rolePrivilegeIds
+    }
   ) {
     if (userId) {
       return await authenticationRepository.updateUser(userId, data);
     } else {
-      const user = await authenticationRepository.createUser(data);
+      // Ensure password is provided for new users
+      if (!data.password) {
+        throw new CustomError("Password is required for creating a new user", HTTP_STATUS_CODE.BAD_REQUEST);
+      }
+
+      const createData = {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        roleId: data.roleId,
+        status: data.status,
+        isDeleted: data.isDeleted,
+      };
+
+      console.log('Creating user with data:', {...createData, password: '***'});
+      const user = await authenticationRepository.createUser(createData);
       
       // Send welcome email for new users
       try {

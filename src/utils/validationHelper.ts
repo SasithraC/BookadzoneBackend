@@ -1,5 +1,9 @@
+import { Types } from "mongoose";
 
-type ValidationResult = { field: string; message: string };
+interface ValidationResult {
+  field: string;
+  message: string;
+}
 
 class ValidationHelper {
   static isRequired(value: any, field: string): ValidationResult | null {
@@ -8,12 +12,6 @@ class ValidationHelper {
     }
     return null;
   }
-  static isNumber(value: any, field: string): ValidationResult | null {
-      if (typeof value !== "number" || isNaN(value)) {
-        return { field, message: `${field} must be a numeric value` };
-      }
-      return null;
-    }
 
   static isNonEmptyString(value: string, field: string): ValidationResult | null {
     if (typeof value !== "string" || value.trim() === "") {
@@ -56,7 +54,12 @@ class ValidationHelper {
     }
     return null;
   }
-
+  static isNumber(value: any, field: string): ValidationResult | null {
+    if (value !== undefined && (typeof value !== "number" || isNaN(value))) {
+      return { field, message: `${field} must be a valid number` };
+    }
+    return null;
+  }
   static isArray(value: any, field: string): ValidationResult | null {
     if (value !== undefined && !Array.isArray(value)) {
       return { field, message: `${field} must be an array` };

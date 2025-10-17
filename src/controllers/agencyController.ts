@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import agencyService from "../services/agencyService";
 import { HTTP_RESPONSE } from "../utils/httpResponse";
+import { ILeanAgency } from "../models/agencyModel";
 import authenticationService from "../services/authenticationService";
+import { RoleModel } from "../models/roleModel";
 
 class AgencyController {
   async createAgency(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -13,8 +15,8 @@ class AgencyController {
       if (data.yourEmail) {
         const emailExists = await authenticationService.checkEmailExists(data.yourEmail);
         if (emailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
             message: "Personal email already exists",
             code: 11000,
             keyPattern: { yourEmail: 1 }
@@ -26,8 +28,8 @@ class AgencyController {
       if (data.companyEmail) {
         const companyEmailExists = await agencyService.checkCompanyEmailExists(data.companyEmail);
         if (companyEmailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
             message: "Company email already exists",
             code: 11000,
             keyPattern: { companyEmail: 1 }
@@ -37,17 +39,53 @@ class AgencyController {
       }
 
       // Save or update user
+      // Get the agency role ID
+      const agencyRole = await RoleModel.findOne({ slug: 'agency' });
+      if (!agencyRole) {
+        res.status(500).json({ status: HTTP_RESPONSE.FAIL, message: "Agency role not found" });
+        return;
+      }
+      
+      console.log('Found agency role:', agencyRole);
+      console.log('Role ID:', agencyRole._id.toString());
+      console.log('Input data:', {
+        email: data.yourEmail,
+        name: data.name,
+        agencyName: data.agencyName
+      });
+
+      // Ensure we have all required fields
+      if (!data.yourEmail || !data.password) {
+        res.status(400).json({
+          status: HTTP_RESPONSE.FAIL,
+          message: "Email and password are required"
+        });
+        return;
+      }
+
+      const name = data.name || data.agencyName || data.yourEmail.split('@')[0];
+      if (!name) {
+        res.status(400).json({
+          status: HTTP_RESPONSE.FAIL,
+          message: "Name is required"
+        });
+        return;
+      }
+
       const userPayload = {
         email: data.yourEmail,
         password: data.password,
-        role: "agency",
+        name: name,
+        roleId: agencyRole._id.toString(), // Convert ObjectId to string
         status: "active",
         isDeleted: false,
       };
       
+      console.log('User payload:', userPayload);
+
       const userId = data.userId || null;
       const user = await authenticationService.createOrUpdateUser(userId, userPayload);
-      
+
       if (!user || !user._id) {
         console.error('User creation/update failed or userId missing:', user);
         res.status(400).json({ status: false, message: "User not found. Contact admin." });
@@ -111,7 +149,7 @@ class AgencyController {
         res.status(400).json({ status: HTTP_RESPONSE.FAIL, message: "Agency id is required" });
         return;
       }
-      
+
       const data = { ...req.body };
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -125,13 +163,13 @@ class AgencyController {
       // Check if personal email is being changed and if new email already exists
       if (data.yourEmail && data.yourEmail !== currentAgency.yourEmail) {
         const emailExists = await authenticationService.checkEmailExists(
-          data.yourEmail, 
+          data.yourEmail,
           currentAgency.userId?.toString()
         );
         if (emailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
-            message: "Personal email already exists" 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
+            message: "Personal email already exists"
           });
           return;
         }
@@ -140,25 +178,43 @@ class AgencyController {
       // Check if company email is being changed and if new email already exists
       if (data.companyEmail && data.companyEmail !== currentAgency.companyEmail) {
         const companyEmailExists = await agencyService.checkCompanyEmailExists(
-          data.companyEmail, 
+          data.companyEmail,
           id
         );
         if (companyEmailExists) {
-          res.status(400).json({ 
-            status: HTTP_RESPONSE.FAIL, 
-            message: "Company email already exists" 
+          res.status(400).json({
+            status: HTTP_RESPONSE.FAIL,
+            message: "Company email already exists"
           });
           return;
         }
       }
 
-      // Update user email in user collection if it changed
-      if (data.userId && data.yourEmail) {
-        const userPayload: any = {
+      // Update user information in user collection if it changed
+      if (data.userId && (data.yourEmail || data.companyName)) {
+        // Get the agency role ID since we need it for the update
+        const agencyRole = await RoleModel.findOne({ slug: 'agency' });
+        if (!agencyRole) {
+          res.status(500).json({ status: HTTP_RESPONSE.FAIL, message: "Agency role not found" });
+          return;
+        }
+
+        const userPayload = {
           email: data.yourEmail,
-        };
+          name: data.companyName || data.yourEmail.split('@')[0],
+          roleId: agencyRole._id.toString(),
+          status: "active",
+          isDeleted: false,
+        } as any;
+        
+        // If password is provided in update, include it
+        if (data.password) {
+          userPayload.password = data.password;
+        }
+
         await authenticationService.createOrUpdateUser(data.userId, userPayload);
         delete data.yourEmail;
+        delete data.password;
       }
 
       // Safely handle file paths
@@ -287,26 +343,24 @@ class AgencyController {
         return;
       }
 
-      // Get current agency and user if we're in edit mode
-      let currentAgency = null;
-      let currentUserId = null;
+      let currentAgency: ILeanAgency | null = null;
+      let currentUserId: string | null = null;
       
       if (currentId) {
         currentAgency = await agencyService.getAgencyById(currentId);
-        console.log('Current agency:', currentAgency); // Debug log
+        console.log('Current agency:', currentAgency);
         
         if (currentAgency?.userId) {
-          const currentUser = await authenticationService.getUserById(currentAgency.userId.toString());
-          console.log('Found user:', currentUser); // Debug log
+          const currentUser = await authenticationService.getUserById(currentAgency.userId);
+          console.log('Found user:', currentUser);
           
-          if (currentUser && currentUser._id) {
-            currentUserId = currentUser._id.toString();
-            console.log('Current user ID for email check:', currentUserId); // Debug log
-          }
+          // if (currentUser && currentUser._id) {
+          //   currentUserId = currentUser._id;
+          //   console.log('Current user ID for email check:', currentUserId);
+          // }
         }
       }
 
-      // Check both emails in parallel
       const [yourEmailExists, companyEmailExists] = await Promise.all([
         authenticationService.checkEmailExists(yourEmail, currentUserId),
         agencyService.checkCompanyEmailExists(companyEmail, currentId)
@@ -314,10 +368,7 @@ class AgencyController {
 
       res.status(200).json({
         status: HTTP_RESPONSE.SUCCESS,
-        data: {
-          yourEmailExists,
-          companyEmailExists
-        }
+        data: { yourEmailExists, companyEmailExists }
       });
     } catch (err: any) {
       next(err);

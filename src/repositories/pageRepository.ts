@@ -29,11 +29,11 @@ class PagesRepository {
     return {
       data,
       meta: {
+        ...stats,
         total: count,
         totalPages,
         page,
-        limit,
-        ...stats
+        limit
       }
     };
   }
@@ -63,11 +63,12 @@ class PagesRepository {
     if (!page) return undefined;
 
     const newStatus = page.status === 'active' ? 'inactive' : 'active';
-    return PageModel.findByIdAndUpdate(
+    const result = await PageModel.findByIdAndUpdate(
       stringId,
       { status: newStatus },
       { new: true }
     ).exec();
+    return result || undefined;
   }
 
   async restorePage(id: string | Types.ObjectId): Promise<IPage | undefined> {

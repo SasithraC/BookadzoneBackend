@@ -34,7 +34,7 @@ interface MulterFile {
 
 // Storage configuration
 const storage = multer.diskStorage({
-  destination: (req: MulterRequest, file: Express.Multer.File, cb) => {
+  destination: (req: MulterRequest, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     try {
       const managementName = req.managementName || 'default';
       const sanitizedManagementName = managementName.replace(/[^a-zA-Z0-9-_]/g, '');
@@ -50,7 +50,7 @@ const storage = multer.diskStorage({
       cb(err as Error, '');
     }
   },
-  filename: (req: MulterRequest, file: Express.Multer.File, cb) => {
+  filename: (req: MulterRequest, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const timestamp = Date.now();
     const hash = crypto.createHash('sha256')
       .update(file.originalname + timestamp)
