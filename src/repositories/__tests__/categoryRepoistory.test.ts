@@ -52,7 +52,11 @@ describe("CategoryRepository", () => {
   expect(result).toEqual(createMockCategory);
   expect(CategoryModel.create).toHaveBeenCalledWith(createMockCategory);
 });  it("should get all categories", async () => {
-    const mockCommonStats = { total: 100 };
+    const mockCommonStats = { 
+      total: 100,
+      active: 70,
+      inactive: 30 
+    };
     
     // Setup CommonRepository mock
     const mockStats = jest.spyOn(repo["commonRepository"], "getStats");

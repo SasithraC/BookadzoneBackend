@@ -64,17 +64,20 @@ describe('Test Utils Helper', () => {
   });
 
   describe('mockResponse', () => {
-    it('should create mock response with required methods', () => {
+    it("should create mock response with required methods", () => {
       const res = mockResponse();
       expect(typeof res.status).toBe('function');
       expect(typeof res.json).toBe('function');
       expect(typeof res.send).toBe('function');
     });
 
-    it('should chain response methods', () => {
-      const res = mockResponse();
-      expect(res.status(200)).toBe(res);
-      expect(res.json({ data: true })).toBe(res);
+    it("should chain response methods", () => {
+      const mockRes = mockResponse();
+      const status = mockRes.status as jest.Mock;
+      const json = mockRes.json as jest.Mock;
+      
+      expect(status(200)).toBe(mockRes);
+      expect(json({ data: true })).toBe(mockRes);
     });
   });
 });
@@ -114,11 +117,12 @@ export const mockRequest = (overrides: Partial<Request> = {}): Partial<Request> 
   ...overrides
 });
 
-export const mockResponse = (): Partial<Response> => {
-  const res: Partial<Response> = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  res.send = jest.fn().mockReturnValue(res);
+export const mockResponse = () => {
+  const res: Partial<Response> = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn().mockReturnThis(),
+    send: jest.fn().mockReturnThis()
+  };
   return res;
 };
 

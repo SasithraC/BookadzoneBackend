@@ -2,7 +2,9 @@ class MockUser {
   _id: string;
   email: string;
   password: string;
-  role: string;
+  roleId: any;
+  name: string;
+  rolePrivilegeIds: any[];
   status: string;
   isDeleted: boolean;
   collection: { name: string };
@@ -14,7 +16,9 @@ class MockUser {
     this._id = Math.random().toString(36).substr(2, 9);
     this.email = data.email || '';
     this.password = data.password || '';
-    this.role = data.role || 'super-admin';
+    this.name = data.name || '';
+    this.roleId = data.roleId || '1234567890';
+    this.rolePrivilegeIds = data.rolePrivilegeIds || [];
     this.status = data.status || 'active';
     this.isDeleted = data.isDeleted ?? false;
     this.collection = { name: 'users' };
@@ -27,8 +31,8 @@ class MockUser {
 
     if (!this.email) errors.email = { message: 'Email is required' };
     if (!this.password) errors.password = { message: 'Password is required' };
-    if (this.role && !['super-admin', 'admin'].includes(this.role)) {
-      errors.role = { message: '`role` is not a valid enum value' };
+    if (!this.roleId) {
+      errors.roleId = { message: 'roleId is required' };
     }
     if (this.status && !['active', 'inactive'].includes(this.status)) {
       errors.status = { message: '`status` is not a valid enum value' };
@@ -58,7 +62,9 @@ class MockUser {
       _id: this._id,
       email: this.email,
       password: this.password,
-      role: this.role,
+      roleId: this.roleId,
+      name: this.name,
+      rolePrivilegeIds: this.rolePrivilegeIds,
       status: this.status,
       isDeleted: this.isDeleted,
       createdAt: this.createdAt,
@@ -80,7 +86,7 @@ class MockUser {
   // Replace static find and findOne definitions with async methods for proper behavior
   static async find(query: any) {
     return MockUser.users.filter((user: any) => {
-      if (query.role) return user.role === query.role;
+      if (query.roleId) return user.roleId.toString() === query.roleId.toString();
       if (query.status) return user.status === query.status;
       if (query.isDeleted && query.isDeleted.$ne) return !user.isDeleted;
       return true;
@@ -92,6 +98,9 @@ class MockUser {
   }
 }
 
+// Import mongoose
+import mongoose from 'mongoose';
+
 // Mocks must be before imports
 jest.mock('../userModel', () => ({ __esModule: true, default: MockUser }));
 jest.mock('mongoose', () => ({
@@ -99,7 +108,10 @@ jest.mock('mongoose', () => ({
   model: jest.fn().mockReturnValue(MockUser),
   connect: jest.fn(),
   disconnect: jest.fn(),
-  connection: { close: jest.fn() }
+  connection: { close: jest.fn() },
+  Types: {
+    ObjectId: jest.fn().mockImplementation(() => 'mock-object-id')
+  }
 }));
 
 import User, { IUser } from "../userModel";
@@ -374,19 +386,23 @@ describe("User Model", () => {
   // Interface Compliance
   describe("Interface Compliance", () => {
     it("should implement IUser interface correctly", async () => {
+      const roleId = new mongoose.Types.ObjectId();
       const user = await User.create({
         email: "interface@example.com",
         password: "password123",
-        role: "admin",
+        name: "Test User",
+        roleId: roleId,
         status: "inactive",
-        isDeleted: true
+        isDeleted: true,
+        rolePrivilegeIds: []
       });
 
       // Verify all IUser properties exist
       const userObject: IUser = user;
       expect(userObject.email).toBe("interface@example.com");
       expect(userObject.password).toBe("password123");
-      expect(userObject.role).toBe("admin");
+      expect(userObject.name).toBe("Test User");
+      expect(userObject.roleId).toBeDefined();
       expect(userObject.status).toBe("inactive");
       expect(userObject.isDeleted).toBe(true);
       

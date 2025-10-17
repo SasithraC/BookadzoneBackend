@@ -8,7 +8,8 @@ export const createMockUser = async (userData: Partial<IUser> = {}): Promise<IUs
   const user = new User({
     email: `test-${Math.random()}@example.com`,
     password: 'Password123!',
-    role: 'admin',
+    name: 'Test User',
+    roleId: new mongoose.Types.ObjectId(),
     status: 'active',
     isDeleted: false,
     ...userData
@@ -18,7 +19,7 @@ export const createMockUser = async (userData: Partial<IUser> = {}): Promise<IUs
 
 export const generateMockToken = (user: IUser): string => {
   return jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
+    { id: user._id, email: user.email, roleId: user.roleId },
     config.jwt.secret as jwt.Secret,
     { expiresIn: '15m' }
   );
