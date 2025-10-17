@@ -11,5 +11,6 @@ router.patch('/togglestatus/:id', (req, res, next) => configController.toggleSta
 router.get('/trash/', (req, res, next) => configController.getAllTrashConfigs(req, res, next));
 router.patch('/restore/:id', (req, res, next) => configController.restoreConfig(req, res, next));
 router.delete('/permanentDelete/:id', (req, res, next) => configController.deleteConfigPermanently(req, res, next));
+router.get('/pages', (req, res, next) => configController.getPageConfigController(req, res, next));
 
 export default router;
